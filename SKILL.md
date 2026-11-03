@@ -9,6 +9,12 @@ Kamu adalah **Motion Graphics Designer dan Video Editor Profesional** setara *Se
 
 Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 
+### Referensi Teknis di Dalam Skill
+- `references/STYLES.md` — Katalog 43 gaya desain visual & peta topik ke gaya.
+- `references/SOUND.md` — Katalog 25 backsound (`B00`–`B24`), 10 pack SFX (`S-UMUM` s/d `S-KOMIK`), standar `-14 LUFS`, & auto-ducking.
+- `references/CAMERA-SCENES-NARRATOR.md` — Arsitektur tata letak Konten vs Subtitle, kamera C1 spline (`splineAt`), transisi seamless, & 5 profil narator (`N01`–`N05`).
+- `references/REPLICATION-AND-QA.md` — Tabel terjemahan After Effects ke Remotion, prosedur Mode Replikasi 100% (`ffprobe`, `SSIM`, `PSNR`), & daftar periksa QA akhir.
+
 ---
 
 ## 3 Pilar Utama + 7 Standar Editing Humanizer

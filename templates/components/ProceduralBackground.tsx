@@ -10,7 +10,7 @@ export interface ProceduralBackgroundProps {
 }
 
 /**
- * Latar Prosedural Hidup (Sesuai SOUL.md: Latar tidak pernah rata dan diam)
+ * Latar Prosedural Hidup (Latar tidak pernah rata dan diam)
  * Dibangun 100% dari kode (SVG & CSS terhitung per frame).
  */
 export const ProceduralBackground: React.FC<ProceduralBackgroundProps> = ({

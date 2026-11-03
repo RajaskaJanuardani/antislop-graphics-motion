@@ -105,7 +105,7 @@ const wordsPath = path.resolve(process.cwd(), opts.outWords);
 fs.mkdirSync(path.dirname(wordsPath), { recursive: true });
 fs.writeFileSync(wordsPath, JSON.stringify(words, null, 2), 'utf8');
 
-// Tulis research/word-map.md sesuai SOUL.md
+// Tulis research/word-map.md sesuai SKILL.md
 const mapPath = path.resolve(process.cwd(), opts.outMap);
 fs.mkdirSync(path.dirname(mapPath), { recursive: true });
 const tableRows = words

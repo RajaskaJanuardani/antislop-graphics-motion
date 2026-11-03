@@ -1,6 +1,6 @@
 # STYLES.md
 
-Katalog gaya desain video untuk agent. Dipakai di langkah "Konsep dan Style Bible" (lihat SOUL.md). Katalog ini daftar pilihan, bukan batasan: gaya di luar daftar boleh dibuat bila subjek atau brand meminta, dengan format entri yang sama. Pasangan musik dan SFX (kode B dan S) ada di SOUND.md.
+Katalog gaya desain video untuk agent. Dipakai di langkah "Pilih Gaya Desain & Style Bible" (lihat `SKILL.md`). Katalog ini daftar pilihan, bukan batasan: gaya di luar daftar boleh dibuat bila subjek atau brand meminta, dengan format entri yang sama. Pasangan musik dan SFX (kode B dan S) ada di `SOUND.md`.
 
 ## Cara Memilih Gaya
 
@@ -9,7 +9,7 @@ Katalog gaya desain video untuk agent. Dipakai di langkah "Konsep dan Style Bibl
 3. **Beri nilai.** Ambil tiga kandidat dari "Peta Topik ke Gaya", nilai 0 sampai 3 untuk kecocokan topik, kecocokan audiens dan tone, dan kelayakan dibangun dari kode dengan kualitas tinggi. Kurangi 2 poin bila gaya atau palet itu dipakai di dua proyek terakhir (`research/style-log.md`).
 4. **Pilih satu gaya utama.** Boleh menambah satu gaya aksen (maksimal sekitar 20 persen layar atau waktu), misalnya Isometric dengan Split Flap untuk dashboard status. Jangan campur lebih dari dua.
 5. **Catat di Style Bible:** gaya terpilih, alasan satu kalimat, dua gaya yang ditolak beserta alasannya, dan pasangan musik dan SFX dari SOUND.md.
-6. **Entri di bawah hanya titik awal.** Ganti palet, font, dan bentuk agar cocok dengan subjek, supaya hasilnya tidak terlihat seperti template. Semua gaya tunduk pada aturan SOUL.md: Lantai Gerak dan Kamera, animasi kata per kata, nol emoji, dan semua dari kode.
+6. **Entri di bawah hanya titik awal.** Ganti palet, font, dan bentuk agar cocok dengan subjek, supaya hasilnya tidak terlihat seperti template. Semua gaya tunduk pada aturan `SKILL.md`: Konten Visual di Tengah (85%) & Subtitle di Bawah (`BottomSubtitleBar`), kamera C1 spline tanpa shake, transisi seamless, nol emoji, dan semua dari kode.
 7. **Kalau tidak ada yang cocok,** rancang gaya sendiri dari subjek (bahan, era, budaya) memakai format entri yang sama.
 8. Sebutkan pilihanmu ke user dalam satu atau dua kalimat di awal kerja, lalu langsung kerjakan.
 
