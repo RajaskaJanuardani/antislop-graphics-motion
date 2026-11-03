@@ -83,8 +83,13 @@ check('3. Eval #1: SaaS Launch (Asymmetric Pacing + Word Sync)', () => {
 
   const plan = JSON.parse(fs.readFileSync(path.join(dir1, 'research/scenes-plan.json'), 'utf8'));
   const words = JSON.parse(fs.readFileSync(path.join(dir1, 'public/words.json'), 'utf8'));
+  const styleDocsCount = fs.readdirSync(path.join(SKILL_ROOT, 'references/styles')).filter((f) => f.endsWith('.md')).length;
+  if (styleDocsCount !== 43) throw new Error(`Expected 43 style markdown files, found ${styleDocsCount}`);
+  if (!fs.existsSync(path.join(dir1, 'research/selected-style-guide.md'))) {
+    throw new Error('draw-style.mjs did not copy selected-style-guide.md');
+  }
   const durs = plan.scenes.map((s) => s.durationInFrames);
-  return `Asymmetric scene durations [${durs.join('f, ')}f] & ${words.length} clean subtitle words`;
+  return `Verified 43 individual style .md files + selected-style-guide.md + Asymmetric scene durations [${durs.join('f, ')}f]`;
 });
 
 // Test 4: Eval Scenario 2 — Event-Driven Audio Synth (typing-loop.wav, progress-loop.wav, d1.wav, d2.wav, d3.wav, d9.wav)

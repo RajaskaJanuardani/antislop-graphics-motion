@@ -9,6 +9,11 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const SKILL_ROOT = path.resolve(__dirname, '..');
 
 const STYLE_INDEX = [
   { id: 1, name: 'Cyberpunk', bgm: 'B03', sfx: 'S-DIGITAL + S-SINEMA', bpm: 102, keywords: ['cyber', 'hack', 'keamanan', 'siber', 'game', 'malam', 'ai', ' gelap'], colors: '#0B0B10, #F2E900, #FF2A3D, #0E3B43', fonts: 'Chakra Petch + Share Tech Mono', camera: 'push-in-settle -> orbit-3d-inspect -> dolly-lateral-parallax' },
@@ -95,33 +100,46 @@ const chosen = opts.styleId
 const rejected1 = scored.find((s) => s.id !== chosen.id) || STYLE_INDEX[10];
 const rejected2 = scored.find((s) => s.id !== chosen.id && s.id !== rejected1.id) || STYLE_INDEX[11];
 
+const paddedId = String(chosen.id).padStart(2, '0');
+const stylesDir = path.join(SKILL_ROOT, 'references', 'styles');
+let styleDetailFile = `references/styles/${paddedId}-style.md`;
+if (fs.existsSync(stylesDir)) {
+  const matchFile = fs.readdirSync(stylesDir).find((f) => f.startsWith(`${paddedId}-`) && f.endsWith('.md'));
+  if (matchFile) {
+    styleDetailFile = `references/styles/${matchFile}`;
+    fs.copyFileSync(path.join(stylesDir, matchFile), path.join(outDir, 'selected-style-guide.md'));
+  }
+}
+
 const styleBibleContent = `# Style Bible
 
 - **Gaya terpilih dari STYLES.md:** Gaya #${chosen.id} — **${chosen.name}** (Cocok dengan brief "${opts.brief || 'default'}"; dua kandidat lain yang ditolak: Gaya #${rejected1.id} ${rejected1.name} dan Gaya #${rejected2.id} ${rejected2.name}).
-- **Konsep (satu kalimat):** Menerjemahkan "${opts.brief || 'subjek utama'}" ke dalam bahasa bentuk ${chosen.name} dengan kamera hidup berlapis parallax dan tipografi kata-per-kata yang jatuh tepat di ketukan.
+- **File Panduan Spesifikasi Rinci:** \`${styleDetailFile}\` (Disalin juga ke \`research/selected-style-guide.md\` — wajib dibaca penuh sebelum coding scene!).
+- **Konsep (satu kalimat):** Menerjemahkan "${opts.brief || 'subjek utama'}" ke dalam bahasa bentuk ${chosen.name} dengan konten visual autentik di tengah (85%), kamera C1 spline tenang, dan subtitle bersih di bawah.
 - **Kata kunci mood (tiga):** Presisi, Berkarakter, Anti-Slop.
 - **Palet (hex, peran, proporsi):** ${chosen.colors} (60% dominan latar, 25% permukaan & teks utama, 15% aksen tajam).
-- **Tipografi (family, peran, skala):** ${chosen.fonts} (Judul kontras ekstrem 72-96px, teks pendukung 36-56px, metadata mono 13-16px).
-- **Bahasa bentuk:** Konsisten dengan ${chosen.name}; ikon dan ilustrasi 100% digambar dari kode SVG tanpa emoji.
-- **Bahasa gerak:** Move-and-settle (\`Easing.bezier(0.16, 1, 0.3, 1)\`), spring teredam, stagger non-seragam.
-- **Jalur Kamera per Scene:** \`${chosen.camera}\` (berbeda setiap scene, tanpa shake terus-menerus).
-- **Ritme dan audio:** ${chosen.bpm} BPM | Backsound: **${chosen.bgm}** | Pack SFX: **${chosen.sfx}** + **S-UMUM** | Target loudness: **-14 LUFS**.
-- **Yang sengaja dihindari:** Gradien ungu-biru generik AI, emoji, kamera beku, atau efek masuk yang seragam pada semua elemen.
+- **Tipografi (family, peran, skala):** ${chosen.fonts} (Judul kontras ekstrem 68-92px, teks pendukung 28-44px, metadata mono 16-22px, BottomSubtitleBar 25px).
+- **Bahasa bentuk:** Konsisten dengan ${chosen.name}; replika aplikasi/UI autentik, wajib \`<BrandLogo />\` asli untuk brand, tanpa background teks/pill sampah, dan tanpa titik bulat \`• teks\`.
+- **Bahasa gerak:** C1 Spline (\`splineAt\`), \`easeOutExpo\`, \`staggeredSpringAt\` 3-lapis, dan \`microBob\` saat hold.
+- **Jalur Kamera per Scene:** \`${chosen.camera}\` (tenang bebas shake, fokus mengikuti ketikan & kursor).
+- **Ritme dan audio:** ${chosen.bpm} BPM | Backsound: **${chosen.bgm}** | Pack SFX: **${chosen.sfx}** + Studio CC0 SFX | Target loudness: **-14 LUFS**.
+- **Yang sengaja dihindari:** Gradien ungu-biru generik AI, emoji, kamera shake, background pill pada judul teks, atau SFX acak tanpa animasi.
 `;
 
 fs.writeFileSync(path.join(outDir, 'style-bible.md'), styleBibleContent, 'utf8');
 const dateStr = new Date().toISOString().slice(0, 10);
 fs.appendFileSync(
   logFile,
-  `- [${dateStr}] Brief: "${opts.brief || 'Default'}" -> Gaya #${chosen.id} (${chosen.name}) | Audio: ${chosen.bgm} + ${chosen.sfx}\n`,
+  `- [${dateStr}] Brief: "${opts.brief || 'Default'}" -> Gaya #${chosen.id} (${chosen.name}) | Guide: ${styleDetailFile} | Audio: ${chosen.bgm} + ${chosen.sfx}\n`,
   'utf8'
 );
 
 console.log(JSON.stringify({
-  chosen: { id: chosen.id, name: chosen.name, bgm: chosen.bgm, sfx: chosen.sfx, bpm: chosen.bpm },
+  chosen: { id: chosen.id, name: chosen.name, bgm: chosen.bgm, sfx: chosen.sfx, bpm: chosen.bpm, styleGuide: styleDetailFile },
   alternatives: [
     { id: rejected1.id, name: rejected1.name },
     { id: rejected2.id, name: rejected2.name },
   ],
   styleBiblePath: path.join(outDir, 'style-bible.md'),
+  selectedStyleGuidePath: path.join(outDir, 'selected-style-guide.md'),
 }, null, 2));
