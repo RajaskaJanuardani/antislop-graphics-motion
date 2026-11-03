@@ -16,9 +16,10 @@ export interface AnimatedCursorProps {
   accentColor?: string;
   size?: number;
   fadeInOut?: boolean;
-  /** Otomatis memutar SFX klik mouse (`audio/sfx/d1.wav`) tepat pada frame klik */
+  /** Otomatis memutar SFX hover (`hover-rollover.wav`) & klik mouse (`click.wav`) tepat pada frame aksi */
   enableClickSfx?: boolean;
   clickSfxSrc?: string;
+  hoverSfxSrc?: string;
 }
 
 export function useCursorTargetState(
@@ -94,7 +95,8 @@ export const AnimatedCursor: React.FC<AnimatedCursorProps> = ({
   size = 34,
   fadeInOut = true,
   enableClickSfx = true,
-  clickSfxSrc = 'audio/sfx/d1.wav',
+  clickSfxSrc = 'audio/sfx/click.wav',
+  hoverSfxSrc = 'audio/sfx/hover-rollover.wav',
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -131,12 +133,19 @@ export const AnimatedCursor: React.FC<AnimatedCursorProps> = ({
 
   return (
     <>
-      {/* Auto-Synced Mouse Click SFX */}
+      {/* Auto-Synced Hover Rollover + Mouse Click SFX */}
       {enableClickSfx &&
         clicks.map((c, idx) => (
-          <Sequence key={`click-sfx-${idx}`} from={Math.max(0, c.frame)} durationInFrames={12}>
-            <Audio src={staticFile(clickSfxSrc)} volume={0.55} />
-          </Sequence>
+          <React.Fragment key={`cursor-sfx-${idx}`}>
+            {c.frame >= 6 && (
+              <Sequence from={Math.max(0, c.frame - 6)} durationInFrames={8}>
+                <Audio src={staticFile(hoverSfxSrc)} volume={0.22} />
+              </Sequence>
+            )}
+            <Sequence from={Math.max(0, c.frame)} durationInFrames={12}>
+              <Audio src={staticFile(clickSfxSrc)} volume={0.58} />
+            </Sequence>
+          </React.Fragment>
         ))}
 
       <div

@@ -150,6 +150,8 @@ export const TypeText: React.FC<{
   humanizeCadence?: boolean;
   typoCorrection?: TypoCorrectionConfig;
   enableTypingSfx?: boolean;
+  /** Pilihan karakter suara ketikan: 'mechanical' (default keyboard mekanik), 'soft' (laptop halus), atau 'digital' (terminal blip) */
+  typingVariant?: 'mechanical' | 'soft' | 'digital';
   typingSfxSrc?: string;
   typingSfxVolume?: number;
 }> = ({
@@ -166,9 +168,17 @@ export const TypeText: React.FC<{
   humanizeCadence = true,
   typoCorrection,
   enableTypingSfx = true,
-  typingSfxSrc = 'audio/sfx/typing-loop.wav',
+  typingVariant = 'mechanical',
+  typingSfxSrc,
   typingSfxVolume = 0.36,
 }) => {
+  const resolvedTypingSfx =
+    typingSfxSrc ??
+    (typingVariant === 'soft'
+      ? 'audio/sfx/typing-soft.wav'
+      : typingVariant === 'digital'
+      ? 'audio/sfx/typing-digital.wav'
+      : 'audio/sfx/typing-loop.wav');
   const frame = useCurrentFrame();
   const chars = useMemo(() => text.split(''), [text]);
 
@@ -268,7 +278,7 @@ export const TypeText: React.FC<{
       {/* Auto-Synced Typing SFX: Hanya berbunyi selama karakter sedang diketik! */}
       {enableTypingSfx && typingDurationFrames > 0 && (
         <Sequence from={Math.max(0, Math.floor(start))} durationInFrames={typingDurationFrames}>
-          <Audio src={staticFile(typingSfxSrc)} volume={typingSfxVolume} />
+          <Audio src={staticFile(resolvedTypingSfx)} volume={typingSfxVolume} />
         </Sequence>
       )}
 

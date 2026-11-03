@@ -11,7 +11,7 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 
 ### Referensi Teknis di Dalam Skill
 - `references/STYLES.md` — Katalog 43 gaya desain visual & peta topik ke gaya.
-- `references/SOUND.md` — Katalog 25 backsound (`B00`–`B24`), 10 pack SFX, standar `-14 LUFS`, & auto-ducking.
+- `references/SOUND.md` — Katalog 64 pilihan lagu backsound (**40 lagu prosedural multi-chord `B00`–`B39` + 24 lagu studio `M01`–`M24`**), **65+ Studio SFX CC0 & Pack Tematik** (termasuk 9 SFX transisi studio baru), standar `-14 LUFS`, & auto-ducking.
 - `references/CAMERA-SCENES-NARRATOR.md` — Arsitektur tata letak Konten vs Subtitle, kamera C1 spline (`splineAt`), transisi seamless, & 5 profil narator (`N01`–`N05`).
 - `references/REPLICATION-AND-QA.md` — Tabel terjemahan After Effects ke Remotion, prosedur Mode Replikasi 100% (`ffprobe`, `SSIM`, `PSNR`), & daftar periksa QA akhir.
 
@@ -39,13 +39,21 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
     ```
     Skrip ini otomatis mencari logo asli di folder project lokal, **svgl.app API**, dan **Simple Icons CDN (3,200+ brand resmi)** lalu menyimpannya ke `public/brands/<slug>.svg` agar langsung dirender oleh `<BrandLogo brand="<slug>" />`!
 
-### 4. SFX Wajib Sesuai Fungsi Animasi (Otomatis saat Mengetik, Loading Progress, Klik Kursor, & Transisi)
+### 4. SFX Wajib Sesuai Fungsi Animasi (65+ Studio SFX CC0 + 9 SFX Transisi Spesifik)
 - **DILARANG KERAS** membunyikan SFX secara acak terus-menerus di sepanjang video atau menaruh SFX pada setiap kata subtitle (`words.json`)! Ketika tidak ada aksi animasi, tidak boleh ada SFX liar.
 - Setiap SFX **wajib terikat langsung ke komponen animasi yang sedang berjalan**:
-  1. **SFX Saat Animasi Mengetik (`<TypeText enableTypingSfx />`):** Otomatis memutar `audio/sfx/typing-loop.wav` (`D9` mechanical key-clicks) tepat mulai frame karakter pertama diketik dan **otomatis berhenti** tepat saat karakter terakhir selesai diketik.
-  2. **SFX Saat Animasi Loading Progress (`<AnimatedProgressBar enableProgressSfx />`):** Otomatis memutar `audio/sfx/progress-loop.wav` (`D3` rising counter ticks) selama progress bar berjalan dari `0% -> 100%`, lalu membunyikan *completion chime* (`audio/sfx/d2.wav`) tepat saat mencapai `100%`.
-  3. **SFX Saat Klik Kursor (`<AnimatedCursor enableClickSfx />`):** Otomatis memutar `audio/sfx/d1.wav` tepat pada frame `click.frame`.
-  4. **SFX Saat Transisi Scene (`<SeamlessSceneShell enableTransitionSfx />`):** Otomatis memutar *whoosh* halus (`audio/sfx/u3.wav`) tepat pada frame keluar scene.
+  1. **SFX Saat Animasi Mengetik (`<TypeText enableTypingSfx typingVariant="mechanical" | "soft" | "digital" />`):** Otomatis memutar rekaman ketikan keyboard asli (`typing-loop.wav`, `typing-soft.wav`, atau `typing-digital.wav`) tepat mulai frame karakter pertama diketik dan **otomatis berhenti** tepat saat karakter terakhir selesai diketik.
+  2. **SFX Saat Animasi Loading Progress (`<AnimatedProgressBar enableProgressSfx />`):** Otomatis memutar `audio/sfx/progress-loop.wav` (`D3` rising counter ticks) selama progress bar berjalan dari `0% -> 100%`, lalu membunyikan *completion chime* (`audio/sfx/d2.wav` / `confirm-chime.wav`) tepat saat mencapai `100%`.
+  3. **SFX Saat Hover & Klik Kursor (`<AnimatedCursor enableClickSfx />`):** Otomatis memutar `audio/sfx/hover-rollover.wav` saat kursor tiba di atas tombol (`click.frame - 6`) dan `audio/sfx/click.wav` (`d1.wav`) tepat pada frame klik (`click.frame`).
+  4. **SFX Saat Transisi Scene (`<SeamlessSceneShell enableTransitionSfx />`):** Otomatis memilih dari **9 SFX Transisi Studio CC0** sesuai jenis perpindahan scene:
+     - `whip-glide-left` → `transition-swoosh.wav` (crisp modern air swoosh)
+     - `whip-glide-up` → `transition-swipe.wav` (organic cloth/air swipe)
+     - `portal-zoom-in` → `transition-whoosh-soft.wav` (warm deep zoom whoosh)
+     - `spring-sheet-up` → `transition-maximize.wav` (smooth UI sheet open)
+     - `match-cut` → `transition-chop.wav` (snappy subtle chop)
+     - Tersedia juga `<SfxCue frame={...} sfx="pop-in" | "pop-plop" | "data-reveal" | "confirm-glass" | "impact-soft" />` untuk memicu SFX tepat saat kartu/elemen muncul.
+  5. **64 Pilihan Lagu Backsound (`B00`–`B39` Prosedural Multi-Chord + `M01`–`M24` Lagu Studio):**
+     - Pilih lagu prosedural modern seperti `B25` (*Apple Keynote Minimal Pluck*), `B26` (*Framer / Linear SaaS Groove*), `B27` (*Vox Documentary Piano*), `B28` (*Phonk Drift*), `B29` (*UK Garage 2-Step*), `B31` (*Neo-Soul Rhodes*), `B32` (*Liquid DnB*), atau unduh lagu studio asli via `node "<skill>/scripts/fetch-music.mjs" --song M03 --out public/audio/music.wav`.
 
 ### 5. Replika Tampilan Asli untuk Browser, Terminal, Aplikasi, & Website (`LivedInUIShells.tsx`)
 - Jika menampilkan browser, terminal, code editor, aplikasi, atau website, **wajib terlihat seperti tampilan aplikasi aslinya** (bukan kartu abstrak buatan AI):
@@ -70,9 +78,11 @@ node "<skill>/scripts/scenes.mjs" --brief "<topik>" --duration 12 --fps 30 --ove
 # 2. Ambil Logo Brand / Project Asli yang Disebut di Brief
 node "<skill>/scripts/fetch-brand-logo.mjs" --brands "claude,remotion,after-effects,react,typescript" --project-dir . --out public/brands
 
-# 3. Siapkan Narasi Subtitle (words.json) & Sintesis Audio 48kHz + SFX Ketikan & Loading Progress
+# 3. Siapkan Narasi Subtitle (words.json) & Sintesis Audio 48kHz (Pilihan Lagu B00-B39 / Studio M01-M24 + 65 SFX)
 node "<skill>/scripts/narrator-sync.mjs" --text "<naskah narasi>" --profile N01 --out-words public/words.json --out-map research/word-map.md
-node "<skill>/scripts/synth-audio.mjs" --bgm B09 --duration 12 --fps 30 --out public/audio
+node "<skill>/scripts/synth-audio.mjs" --bgm B26 --duration 12 --fps 30 --out public/audio
+# Opsional: gunakan lagu rekaman studio royalty-free (M01-M24)
+# node "<skill>/scripts/fetch-music.mjs" --song M03 --duration 12 --out public/audio/music.wav
 
 # 4. Jalankan Static Anti-Slop Linter & Safe-Zone Inspector
 node "<skill>/scripts/lint.mjs" src

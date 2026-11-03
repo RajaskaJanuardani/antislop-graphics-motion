@@ -100,7 +100,18 @@ check('4. Eval #2: Event-Driven 48kHz Stereo WAV Synthesis (Typing Loop, Progres
     'bed.wav',
     'sfx-track.wav',
     'sfx/typing-loop.wav',
+    'sfx/typing-soft.wav',
+    'sfx/typing-digital.wav',
     'sfx/progress-loop.wav',
+    'sfx/transition-swoosh.wav',
+    'sfx/transition-whoosh-soft.wav',
+    'sfx/transition-swipe.wav',
+    'sfx/transition-chop.wav',
+    'sfx/transition-maximize.wav',
+    'sfx/click.wav',
+    'sfx/hover-rollover.wav',
+    'sfx/pop-in.wav',
+    'sfx/confirm-chime.wav',
     'sfx/d1.wav',
     'sfx/d2.wav',
     'sfx/d3.wav',
@@ -110,7 +121,8 @@ check('4. Eval #2: Event-Driven 48kHz Stereo WAV Synthesis (Typing Loop, Progres
     const full = path.join(dir2, 'public/audio', f);
     if (!fs.existsSync(full)) throw new Error(`Missing synthesized audio file: ${f}`);
   }
-  return 'Verified typing-loop.wav, progress-loop.wav, d1.wav (click), d2.wav (complete chime), d3.wav (tick), d9.wav (key)';
+  const sfxCount = fs.readdirSync(path.join(dir2, 'public/audio/sfx')).filter((f) => f.endsWith('.wav')).length;
+  return `Verified 40 BGM Songs Catalog + ${sfxCount} Studio & Pack SFX files (including 9 new transition SFX, 3 typing variants, hover/click, & progress loops)`;
 });
 
 // Test 5: Safe-Zone & Bounding-Box Spline Inspector

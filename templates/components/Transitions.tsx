@@ -10,6 +10,80 @@ export type SeamlessTransitionMode =
   | 'spring-sheet-up'
   | 'match-cut';
 
+export type StudioSfxName =
+  // Transition SFX (Real CC0 Studio Recordings)
+  | 'transition-swoosh'
+  | 'transition-whoosh-soft'
+  | 'transition-swipe'
+  | 'transition-chop'
+  | 'transition-cinematic'
+  | 'transition-maximize'
+  | 'transition-minimize'
+  | 'transition-scroll'
+  | 'transition-glitch'
+  // Typing & Data SFX
+  | 'typing-loop'
+  | 'typing-soft'
+  | 'typing-digital'
+  | 'data-reveal'
+  | 'progress-loop'
+  // Click, Toggle, Hover, Tick SFX
+  | 'click'
+  | 'click-soft'
+  | 'click-select'
+  | 'toggle-on'
+  | 'toggle-off'
+  | 'tick'
+  | 'tick-soft'
+  | 'hover-rollover'
+  // Pop, Plop, Drop, Pluck SFX
+  | 'pop'
+  | 'pop-in'
+  | 'pop-plop'
+  | 'pop-drop'
+  | 'pop-pluck'
+  // Ding, Confirmation, Impact, Riser SFX
+  | 'ding-bell'
+  | 'confirm-chime'
+  | 'confirm-glass'
+  | 'impact-soft'
+  | 'impact-cinematic'
+  | 'impact-punch'
+  | 'riser-short'
+  // Pack Codes
+  | 'k1' | 'k2' | 'k3' | 'k4' | 'k5'
+  | 'm1' | 'm2' | 'm3' | 'm4'
+  | 'r1' | 'r2' | 'r3'
+  | 'o1' | 'o2' | 'o3' | 'o5';
+
+/**
+ * Pemetaan otomatis jenis transisi ke Sound Effect Transisi Studio CC0 yang pas
+ */
+const TRANSITION_SFX_MAP: Record<SeamlessTransitionMode, string> = {
+  'whip-glide-left': 'audio/sfx/transition-swoosh.wav',
+  'whip-glide-up': 'audio/sfx/transition-swipe.wav',
+  'portal-zoom-in': 'audio/sfx/transition-whoosh-soft.wav',
+  'spring-sheet-up': 'audio/sfx/transition-maximize.wav',
+  'match-cut': 'audio/sfx/transition-chop.wav',
+};
+
+/**
+ * Komponen Trigger SFX Fungsional (<SfxCue />)
+ * Memutar SFX hanya pada frame saat suatu elemen/animasi benar-benar muncul atau berinteraksi.
+ */
+export const SfxCue: React.FC<{
+  frame: number;
+  sfx: StudioSfxName;
+  volume?: number;
+  durationInFrames?: number;
+}> = ({ frame: triggerFrame, sfx, volume = 0.45, durationInFrames = 30 }) => {
+  return (
+    <Sequence from={Math.max(0, Math.round(triggerFrame))} durationInFrames={durationInFrames}>
+      <Audio src={staticFile(`audio/sfx/${sfx}.wav`)} volume={volume} />
+    </Sequence>
+  );
+};
+
 export interface SeamlessSceneShellProps {
   startFrame: number;
   endFrame: number;
@@ -17,9 +91,10 @@ export interface SeamlessSceneShellProps {
   exitMode?: SeamlessTransitionMode | 'none';
   overlapFrames?: number;
   background?: string;
-  /** Otomatis memutar J-Cut transition whoosh (`audio/sfx/u3.wav`) tepat saat keluar scene */
+  /** Otomatis memutar SFX transisi studio CC0 yang sesuai dengan `exitMode` */
   enableTransitionSfx?: boolean;
   transitionSfxSrc?: string;
+  transitionVolume?: number;
   children: React.ReactNode;
 }
 
@@ -31,7 +106,8 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
   overlapFrames = 10,
   background = '#FFFFFF',
   enableTransitionSfx = true,
-  transitionSfxSrc = 'audio/sfx/u3.wav',
+  transitionSfxSrc,
+  transitionVolume = 0.44,
   children,
 }) => {
   const frame = useCurrentFrame();
@@ -76,12 +152,16 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
     opacity *= 1 - ip(frame, [endFrame - 4, endFrame], [0, 1]);
   }
 
+  const resolvedTransitionSfx =
+    transitionSfxSrc ??
+    (exitMode !== 'none' ? TRANSITION_SFX_MAP[exitMode] : 'audio/sfx/transition-swoosh.wav');
+
   return (
     <>
-      {/* J-Cut Transition Whoosh SFX: Hanya berbunyi tepat saat scene berpindah! */}
+      {/* J-Cut Studio Transition SFX: Otomatis memilih swoosh/swipe/whoosh-soft sesuai jenis transisi! */}
       {enableTransitionSfx && exitMode !== 'none' && (
-        <Sequence from={Math.max(0, exitStart - 3)} durationInFrames={overlapFrames + 8}>
-          <Audio src={staticFile(transitionSfxSrc)} volume={0.42} />
+        <Sequence from={Math.max(0, exitStart - 2)} durationInFrames={overlapFrames + 12}>
+          <Audio src={staticFile(resolvedTransitionSfx)} volume={transitionVolume} />
         </Sequence>
       )}
 
