@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 /**
  * scripts/synth-audio.mjs
- * Deterministic Procedural Audio & SFX Synthesizer (48,000 Hz, 16-bit Stereo WAV)
- * Dilengkapi Humanizer #4:
- * - J-Cut Audio Lead-In: Bunyi transisi dan cue masuk 4 frame sebelum gambar berpindah
- * - 5 Varian SFX Ketikan (D9) dengan pitch mikro berbeda + SFX Klik Kursor (D1)
+ * Deterministic Procedural Audio & Event-Driven SFX Synthesizer (48,000 Hz, 16-bit Stereo WAV)
+ *
+ * ATURAN MUTLAK SFX:
+ * - DILARANG membunyikan SFX acak pada setiap kata subtitle (words.json) atau timer buta!
+ * - SFX hanya berbunyi tepat pada event animasi nyata:
+ *   1. `sfx/typing-loop.wav`  (D9: Rangkaian ketikan mekanis realistis saat <TypeText /> mengetik)
+ *   2. `sfx/progress-loop.wav`(D3+D6: Tick progres naik + chime selesai saat <AnimatedProgressBar /> berjalan)
+ *   3. `sfx/d1.wav`           (D1: Klik mouse presisi saat <AnimatedCursor /> mengklik tombol)
+ *   4. `sfx/u2.wav`           (U2: Pop halus saat window/card utama muncul)
+ *   5. `sfx/u3.wav`           (U3: Whoosh halus saat <SeamlessSceneShell /> berpindah scene)
  */
 
 import fs from 'node:fs';
@@ -100,30 +106,63 @@ function synthesizeSfxBuffer(code, variant = 0, seed = 'sfx') {
   const rand = mulberry32(`${seed}-${code}-${variant}`);
   const pitchShift = 1 + (variant - 2) * 0.06;
 
-  // D9: Mechanical Keyboard Keypress (18ms tactile click + thock, 5 varian)
+  // D9: Mechanical Keyboard Keypress (24ms tactile switch click + warm thock)
   if (code === 'D9') {
-    const dur = 0.022;
+    const dur = 0.026;
     const len = Math.floor(dur * SAMPLE_RATE);
     const buf = new Float32Array(len);
     for (let i = 0; i < len; i++) {
       const t = i / SAMPLE_RATE;
-      const click = (rand() * 2 - 1) * Math.exp(-t * 260) * 0.5;
-      const thock = osc('sine', t * 480 * pitchShift) * Math.exp(-t * 140) * 0.5;
-      buf[i] = (click + thock) * 0.42;
+      const switchClick = (rand() * 2 - 1) * Math.exp(-t * 280) * 0.55;
+      const bodyThock = osc('sine', t * 440 * pitchShift) * Math.exp(-t * 130) * 0.6;
+      const capTap = osc('triangle', t * 1850 * pitchShift) * Math.exp(-t * 340) * 0.35;
+      buf[i] = (switchClick + bodyThock + capTap) * 0.58;
     }
-    return filterLP(buf, 3400);
+    return filterLP(buf, 3800);
   }
 
   // D1: Mouse Click (double transient press + release)
   if (code === 'D1') {
-    const dur = 0.045;
+    const dur = 0.048;
     const len = Math.floor(dur * SAMPLE_RATE);
     const buf = new Float32Array(len);
     for (let i = 0; i < len; i++) {
       const t = i / SAMPLE_RATE;
-      const press = t < 0.012 ? osc('triangle', t * 1450 * pitchShift) * Math.exp(-t * 320) : 0;
-      const rel = t >= 0.022 ? osc('triangle', (t - 0.022) * 1850 * pitchShift) * Math.exp(-(t - 0.022) * 380) * 0.65 : 0;
-      buf[i] = (press + rel) * 0.55;
+      const press = t < 0.014 ? osc('triangle', t * 1500 * pitchShift) * Math.exp(-t * 300) : 0;
+      const rel =
+        t >= 0.024
+          ? osc('triangle', (t - 0.024) * 1920 * pitchShift) * Math.exp(-(t - 0.024) * 360) * 0.65
+          : 0;
+      buf[i] = (press + rel) * 0.65;
+    }
+    return buf;
+  }
+
+  // D3: Counter / Progress Tick (18ms crisp rising tick)
+  if (code === 'D3') {
+    const dur = 0.02;
+    const len = Math.floor(dur * SAMPLE_RATE);
+    const buf = new Float32Array(len);
+    const freq = 950 * pitchShift;
+    for (let i = 0; i < len; i++) {
+      const t = i / SAMPLE_RATE;
+      const env = Math.exp(-t * 190);
+      buf[i] = (osc('triangle', t * freq) * 0.7 + osc('sine', t * freq * 2) * 0.3) * env * 0.48;
+    }
+    return buf;
+  }
+
+  // D2: Completion Chime (soft 2-note harmonic ping when progress reaches 100%)
+  if (code === 'D2') {
+    const dur = 0.38;
+    const len = Math.floor(dur * SAMPLE_RATE);
+    const buf = new Float32Array(len);
+    for (let i = 0; i < len; i++) {
+      const t = i / SAMPLE_RATE;
+      const env = Math.exp(-t * 8.5);
+      const n1 = osc('sine', t * 880) * 0.45;
+      const n2 = t >= 0.045 ? osc('sine', (t - 0.045) * 1318.5) * 0.45 : 0;
+      buf[i] = (n1 + n2) * env * 0.55;
     }
     return buf;
   }
@@ -233,6 +272,61 @@ function synthesizeSfxBuffer(code, variant = 0, seed = 'sfx') {
     buf[i] = ((rand() * 2 - 1) * 0.5 + osc('sine', t * 520 * pitchShift) * 0.5) * env * 0.5;
   }
   return filterLP(buf, 3200);
+}
+
+/**
+ * Sintesis Track Ketikan Realistis (`sfx/typing-loop.wav`, durasi 8 detik)
+ * Diputar otomatis oleh komponen <TypeText /> hanya selama teks sedang diketik!
+ */
+function synthesizeTypingLoopTrack(durationSec = 8, seed = 'typing-loop') {
+  const rand = mulberry32(seed);
+  const len = Math.floor(durationSec * SAMPLE_RATE);
+  const left = new Float32Array(len);
+  const right = new Float32Array(len);
+  const keyVariants = [0, 1, 2, 3, 4].map((v) => synthesizeSfxBuffer('D9', v, seed));
+
+  let tSec = 0.01;
+  let idx = 0;
+  while (tSec < durationSec - 0.05) {
+    const kv = keyVariants[idx % keyVariants.length];
+    const startSample = Math.floor(tSec * SAMPLE_RATE);
+    const gain = 0.55 + rand() * 0.25;
+    const pan = 0.42 + rand() * 0.16;
+    for (let i = 0; i < kv.length && startSample + i < len; i++) {
+      left[startSample + i] += kv[i] * gain * (1 - pan * 0.3);
+      right[startSample + i] += kv[i] * gain * (0.7 + pan * 0.3);
+    }
+    // Cadence ketik manusiawi (55ms - 115ms antar tombol)
+    tSec += 0.055 + rand() * 0.055 + (idx % 6 === 5 ? 0.045 : 0);
+    idx++;
+  }
+  return { left, right };
+}
+
+/**
+ * Sintesis Track Loading / Progress Bar (`sfx/progress-loop.wav`, durasi 5 detik)
+ * Diputar otomatis oleh komponen <AnimatedProgressBar /> selama progress berjalan dari 0% -> 100%!
+ */
+function synthesizeProgressLoopTrack(durationSec = 5, seed = 'progress-loop') {
+  const len = Math.floor(durationSec * SAMPLE_RATE);
+  const left = new Float32Array(len);
+  const right = new Float32Array(len);
+
+  let tSec = 0.02;
+  let step = 0;
+  while (tSec < durationSec - 0.05) {
+    const progressRatio = tSec / durationSec;
+    // Pitch tick naik bertahap seiring persentase loading mendekati 100%
+    const tick = synthesizeSfxBuffer('D3', Math.floor(progressRatio * 8), `${seed}-${step}`);
+    const startSample = Math.floor(tSec * SAMPLE_RATE);
+    for (let i = 0; i < tick.length && startSample + i < len; i++) {
+      left[startSample + i] += tick[i] * 0.55;
+      right[startSample + i] += tick[i] * 0.55;
+    }
+    tSec += 0.075;
+    step++;
+  }
+  return { left, right };
 }
 
 function synthesizeRoomToneBed(durationSec, seed = 'room-bed') {
@@ -351,22 +445,15 @@ function synthesizeBgmTrack(bgmCode = 'B09', durationSec = 15, seed = 'antislop-
 }
 
 /**
- * Mix Track SFX dengan Humanizer #4:
- * - J-Cut Audio Lead-In (4 frame lebih awal sebelum transisi gambar)
- * - 5 Varian SFX Ketikan (D9) & Klik Kursor (D1)
+ * Mix Track SFX HANYA dari event animasi eksplisit (`cues.json` atau `scenes-plan.json`),
+ * BUKAN dari kata-kata subtitle `words.json` dan BUKAN dari timer buta!
+ * Karena komponen <TypeText />, <AnimatedProgressBar />, <AnimatedCursor />, dan <SeamlessSceneShell />
+ * sudah memutar SFX mereka sendiri secara otomatis tepat di frame animasinya!
  */
-function buildSfxTrackFromWords(words, durationSec, fps = 30, seed = 'sfx-mix') {
+function buildEventDrivenSfxTrack(cues = [], durationSec = 15, fps = 30, seed = 'sfx-mix') {
   const len = Math.floor(durationSec * SAMPLE_RATE);
   const left = new Float32Array(len);
   const right = new Float32Array(len);
-
-  const u1Variants = [0, 1, 2, 3].map((v) => synthesizeSfxBuffer('U1', v, seed));
-  const u2Variants = [0, 1, 2, 3].map((v) => synthesizeSfxBuffer('U2', v, seed));
-  const d9Variants = [0, 1, 2, 3, 4].map((v) => synthesizeSfxBuffer('D9', v, seed));
-  const d1Click = synthesizeSfxBuffer('D1', 0, seed);
-  const u3Whoosh = synthesizeSfxBuffer('U3', 0, seed);
-  const u5Impact = synthesizeSfxBuffer('U5', 0, seed);
-  const u9Stinger = synthesizeSfxBuffer('U9', 0, seed);
 
   function placeSound(buf, timeSec, gain = 0.5, pan = 0.5) {
     const startIdx = Math.max(0, Math.floor(timeSec * SAMPLE_RATE));
@@ -376,36 +463,17 @@ function buildSfxTrackFromWords(words, durationSec, fps = 30, seed = 'sfx-mix') 
     }
   }
 
-  // Opening hit di awal video
-  placeSound(u5Impact, 0.04, 0.6, 0.5);
-
-  // Cue kata dari words.json (dengan 2-frame lead-in)
-  words.forEach((w, idx) => {
-    const tSec = Math.max(0, w.startMs / 1000 - 2 / fps);
-    if (w.role === 'keyword' || idx % 4 === 0) {
-      placeSound(u2Variants[idx % u2Variants.length], tSec, 0.38, (idx % 3) * 0.3);
-    } else if (idx % 2 === 0) {
-      placeSound(u1Variants[idx % u1Variants.length], tSec, 0.16, 0.5);
+  for (const cue of cues) {
+    const tSec = Math.max(0, (cue.frame ?? 0) / fps);
+    if (cue.type === 'transition') {
+      placeSound(synthesizeSfxBuffer('U3', 0, seed), Math.max(0, tSec - 3 / fps), 0.45, 0.5);
+    } else if (cue.type === 'click') {
+      placeSound(synthesizeSfxBuffer('D1', 0, seed), tSec, 0.55, 0.5);
+    } else if (cue.type === 'pop') {
+      placeSound(synthesizeSfxBuffer('U2', 0, seed), tSec, 0.42, 0.5);
+    } else if (cue.type === 'complete') {
+      placeSound(synthesizeSfxBuffer('D2', 0, seed), tSec, 0.5, 0.5);
     }
-  });
-
-  // Simulasi ketikan halus (D9) di awal scene 1 & 2 + klik kursor (D1)
-  for (let k = 0; k < 10; k++) {
-    placeSound(d9Variants[k % d9Variants.length], 1.1 + k * 0.14, 0.22, 0.45);
-  }
-  if (durationSec >= 6) {
-    placeSound(d1Click, 5.4, 0.52, 0.6); // Klik kursor
-  }
-
-  // J-Cut Transition Whoosh: mulai 4 frame (4/fps detik) sebelum pergantian scene
-  const jCutLeadSec = 4 / fps;
-  for (let s = 3.2; s < durationSec - 1.5; s += 3.2) {
-    placeSound(u3Whoosh, Math.max(0, s - jCutLeadSec), 0.52, 0.42);
-  }
-
-  // Stinger penutup
-  if (durationSec > 2.5) {
-    placeSound(u9Stinger, durationSec - 1.5, 0.58, 0.5);
   }
 
   return { left, right };
@@ -418,7 +486,7 @@ function parseArgs(argv) {
     duration: 15,
     fps: 30,
     outDir: 'public/audio',
-    wordsFile: 'public/words.json',
+    cuesFile: 'public/sfx-cues.json',
     seed: 'antislop-2026',
   };
   for (let i = 2; i < argv.length; i++) {
@@ -429,7 +497,7 @@ function parseArgs(argv) {
     if (k === '--duration' && v) args.duration = Number(v);
     if (k === '--fps' && v) args.fps = Number(v);
     if (k === '--out' && v) args.outDir = v;
-    if (k === '--words' && v) args.wordsFile = v;
+    if (k === '--cues' && v) args.cuesFile = v;
     if (k === '--seed' && v) args.seed = v;
   }
   return args;
@@ -439,31 +507,39 @@ if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || proce
   const opts = parseArgs(process.argv);
   const outPath = path.resolve(process.cwd(), opts.outDir);
 
-  let words = [];
-  const resolvedWords = path.resolve(process.cwd(), opts.wordsFile);
-  if (fs.existsSync(resolvedWords)) {
+  let cues = [];
+  const resolvedCues = path.resolve(process.cwd(), opts.cuesFile);
+  if (fs.existsSync(resolvedCues)) {
     try {
-      words = JSON.parse(fs.readFileSync(resolvedWords, 'utf8'));
+      cues = JSON.parse(fs.readFileSync(resolvedCues, 'utf8'));
     } catch {
-      words = [];
+      cues = [];
     }
   }
 
-  console.log(`[synth-audio] Generating deterministic 48kHz stereo audio (with J-Cut Lead-In & Key/Click SFX) in ${outPath}...`);
+  console.log(`[synth-audio] Generating deterministic 48kHz stereo audio & event-synced SFX in ${outPath}...`);
   const bed = synthesizeRoomToneBed(opts.duration, opts.seed);
   writeStereoWav(path.join(outPath, 'bed.wav'), bed.left, bed.right);
 
   const music = synthesizeBgmTrack(opts.bgm, opts.duration, opts.seed);
   writeStereoWav(path.join(outPath, 'music.wav'), music.left, music.right);
 
-  const sfxMix = buildSfxTrackFromWords(words, opts.duration, opts.fps, opts.seed);
+  const sfxMix = buildEventDrivenSfxTrack(cues, opts.duration, opts.fps, opts.seed);
   writeStereoWav(path.join(outPath, 'sfx-track.wav'), sfxMix.left, sfxMix.right);
 
-  const individualCodes = ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8', 'U9', 'U10', 'D1', 'D9'];
+  // Buat track loop khusus untuk <TypeText /> dan <AnimatedProgressBar />
+  const typingLoop = synthesizeTypingLoopTrack(8, opts.seed);
+  writeStereoWav(path.join(outPath, 'sfx', 'typing-loop.wav'), typingLoop.left, typingLoop.right);
+
+  const progressLoop = synthesizeProgressLoopTrack(5, opts.seed);
+  writeStereoWav(path.join(outPath, 'sfx', 'progress-loop.wav'), progressLoop.left, progressLoop.right);
+
+  // Buat file SFX individual untuk event spesifik (D1 click, D2 chime, D3 tick, D9 key, U1-U10)
+  const individualCodes = ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8', 'U9', 'U10', 'D1', 'D2', 'D3', 'D9'];
   for (const code of individualCodes) {
     const mono = synthesizeSfxBuffer(code, 0, opts.seed);
     writeStereoWav(path.join(outPath, 'sfx', `${code.toLowerCase()}.wav`), mono, mono);
   }
 
-  console.log(`[synth-audio] Done! Created bed.wav, music.wav (${opts.bgm}), sfx-track.wav, and 12 individual SFX files.`);
+  console.log(`[synth-audio] Done! Created bed.wav, music.wav (${opts.bgm}), typing-loop.wav, progress-loop.wav, and 14 event SFX files.`);
 }

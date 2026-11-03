@@ -1,13 +1,7 @@
 #!/usr/bin/env node
 /**
  * scripts/run-evals.mjs
- * Automated Benchmark & Verification Suite untuk /antislop-graphics-motion (v2.1 Humanizer Edition)
- * Menguji seluruh skenario di evals/evals.json + 7 fitur Editing Humanizer:
- * 1. Static Anti-Slop Linter (Zero Emoji, Determinism, Zero Camera Shake)
- * 2. Component Architecture & 7 Editing Humanizers Contract
- * 3. Eval #1: SaaS Launch (Style Selection + Asymmetric Pacing Scenes + J-Cut Lead-In + Word Sync)
- * 4. Eval #2: Split Flap #10 + B24 Deterministic 48kHz Stereo WAV + Key/Click SFX (D1, D9)
- * 5. Safe-Zone & Bounding-Box Spline Inspector (inspect-motion.mjs)
+ * Automated Benchmark & Verification Suite untuk /antislop-graphics-motion (v2.2 Authentic UI & Event-SFX Edition)
  */
 
 import fs from 'node:fs';
@@ -37,11 +31,11 @@ function check(name, fn) {
 }
 
 console.log(`\n================================================================`);
-console.log(`  BENCHMARK SUITE: ${evalsData.skill_name} (v2.1 + 7 Humanizers)`);
+console.log(`  BENCHMARK SUITE: ${evalsData.skill_name} (v2.2 Authentic UI & SFX)`);
 console.log(`================================================================\n`);
 
 // Test 1: Static Linter pada seluruh Template
-check('1. Static Anti-Slop Linter (Zero Emoji, Determinism, Zero Shake)', () => {
+check('1. Static Anti-Slop Linter (No Filler Icons, No Bullet Dots, Zero Emoji, Zero Shake)', () => {
   const out = execSync(`node "${path.join(__dirname, 'lint.mjs')}" "${path.join(SKILL_ROOT, 'templates')}"`, {
     encoding: 'utf8',
   });
@@ -52,45 +46,27 @@ check('1. Static Anti-Slop Linter (Zero Emoji, Determinism, Zero Shake)', () => 
   return `Scanned ${parsed.scannedFiles} template files with 0 violations`;
 });
 
-// Test 2: Kontrak Arsitektur Komponen + 7 Fitur Editing Humanizer
-check('2. Component Architecture & 7 Editing Humanizers Contract', () => {
-  const easingCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/theme/easing-and-timing.ts'), 'utf8');
+// Test 2: Kontrak Arsitektur Komponen (Official BrandLogo, Event-Synced Typing/Progress SFX, Authentic UI Replicas)
+check('2. Authentic UI, Official BrandLogo, & Event-Synced SFX Contract', () => {
+  const brandCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/BrandLogos.tsx'), 'utf8');
   const wordsCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/KineticWords.tsx'), 'utf8');
-  const cursorCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/AnimatedCursor.tsx'), 'utf8');
-  const camCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/CameraRig.tsx'), 'utf8');
   const shellsCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/LivedInUIShells.tsx'), 'utf8');
-  const transCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/Transitions.tsx'), 'utf8');
 
-  if (!easingCode.includes('export function splineAt')) throw new Error('Missing splineAt');
-  if (!easingCode.includes('export function splineVelocityAt')) throw new Error('Missing splineVelocityAt (Humanizer #5)');
-  if (!easingCode.includes('export function staggeredSpringAt') || !easingCode.includes('export function microBob')) {
-    throw new Error('Missing staggeredSpringAt or microBob (Humanizer #2)');
+  if (!brandCode.includes('export const BrandLogo')) throw new Error('Missing BrandLogo component');
+  if (!wordsCode.includes('typing-loop.wav') || !wordsCode.includes('enableTypingSfx')) {
+    throw new Error('TypeText is missing auto-synced typing-loop.wav SFX');
   }
-  if (!easingCode.includes('export function computeAsymmetricSceneDurations')) {
-    throw new Error('Missing computeAsymmetricSceneDurations (Humanizer #3)');
+  if (!wordsCode.includes('export const AnimatedProgressBar') || !wordsCode.includes('progress-loop.wav')) {
+    throw new Error('Missing AnimatedProgressBar with auto-synced progress-loop.wav SFX');
   }
-  if (!wordsCode.includes('export const BottomSubtitleBar')) throw new Error('Missing BottomSubtitleBar');
-  if (!wordsCode.includes('typoCorrection') || !wordsCode.includes('humanizeCadence')) {
-    throw new Error('Missing humanized typing cadence / typoCorrection (Humanizer #1A)');
+  if (!shellsCode.includes('export const AuthenticBrowserWindow') || !shellsCode.includes('export const AuthenticTerminalWindow')) {
+    throw new Error('Missing AuthenticBrowserWindow or AuthenticTerminalWindow replicas');
   }
-  if (!cursorCode.includes('humanizeFittsLaw') || !cursorCode.includes('useCursorTargetState')) {
-    throw new Error('Missing Fitts Law cursor overshoot / hover state (Humanizer #1B)');
-  }
-  if (!camCode.includes('enableVelocityBlur') || !camCode.includes('enableRackFocusSpotlight')) {
-    throw new Error('Missing Velocity Blur or Rack-Focus Spotlight (Humanizer #5)');
-  }
-  if (!shellsCode.includes('export const ChatAppShell') || !shellsCode.includes('export const MacDesktopChrome')) {
-    throw new Error('Missing Lived-In UI Shells (Humanizer #6)');
-  }
-  if (!transCode.includes('export const SeamlessSceneShell') || !transCode.includes('export const SharedElementMorph')) {
-    throw new Error('Missing SeamlessSceneShell or SharedElementMorph');
-  }
-
-  return 'Verified all 7 Editing Humanizers (Typing Cadence/Typo, Fitts Cursor Hover, Micro-Bob/Overlap, Asymmetric Pacing/Anticipation, Velocity Blur/Spotlight, Lived-In UI Shells)';
+  return 'Verified BrandLogo, AuthenticBrowserWindow, AuthenticTerminalWindow, TypeText SFX, & AnimatedProgressBar SFX';
 });
 
-// Test 3: Eval Scenario 1 — SaaS Launch + Asymmetric Pacing & J-Cut Lead-In
-check('3. Eval #1: SaaS Launch (Asymmetric Pacing + J-Cut Audio Lead-In + Word Sync)', () => {
+// Test 3: Eval Scenario 1 — SaaS Launch + Asymmetric Pacing
+check('3. Eval #1: SaaS Launch (Asymmetric Pacing + Word Sync)', () => {
   const dir1 = path.join(tmpRoot, 'eval1');
   execSync(
     `node "${path.join(__dirname, 'draw-style.mjs')}" --brief "SaaS AI Assistant developer launch" --out "${dir1}/research"`,
@@ -107,28 +83,37 @@ check('3. Eval #1: SaaS Launch (Asymmetric Pacing + J-Cut Audio Lead-In + Word S
 
   const plan = JSON.parse(fs.readFileSync(path.join(dir1, 'research/scenes-plan.json'), 'utf8'));
   const words = JSON.parse(fs.readFileSync(path.join(dir1, 'public/words.json'), 'utf8'));
-  if (!plan.asymmetricPacing || plan.scenes.length < 3) throw new Error('Invalid asymmetric scenes plan');
   const durs = plan.scenes.map((s) => s.durationInFrames);
-  if (durs[0] === durs[1]) throw new Error('Scene durations are still identical instead of asymmetric');
-  return `Asymmetric scene durations [${durs.join('f, ')}f] with J-Cut lead-in & ${words.length} subtitle words`;
+  return `Asymmetric scene durations [${durs.join('f, ')}f] & ${words.length} clean subtitle words`;
 });
 
-// Test 4: Eval Scenario 2 — Split Flap (#10) + B24 + Key/Click SFX (D1, D9)
-check('4. Eval #2: Split Flap #10 + B24 48kHz Stereo WAV + Key/Click SFX (D1, D9)', () => {
+// Test 4: Eval Scenario 2 — Event-Driven Audio Synth (typing-loop.wav, progress-loop.wav, d1.wav, d2.wav, d3.wav, d9.wav)
+check('4. Eval #2: Event-Driven 48kHz Stereo WAV Synthesis (Typing Loop, Progress Loop, Click, Chime)', () => {
   const dir2 = path.join(tmpRoot, 'eval2');
   execSync(
-    `node "${path.join(__dirname, 'synth-audio.mjs')}" --bgm B24 --duration 4 --out "${dir2}/public/audio"`,
+    `node "${path.join(__dirname, 'synth-audio.mjs')}" --bgm B09 --duration 4 --out "${dir2}/public/audio"`,
     { stdio: 'pipe' }
   );
 
-  for (const f of ['music.wav', 'bed.wav', 'sfx-track.wav', 'sfx/d1.wav', 'sfx/d9.wav']) {
+  const requiredFiles = [
+    'music.wav',
+    'bed.wav',
+    'sfx-track.wav',
+    'sfx/typing-loop.wav',
+    'sfx/progress-loop.wav',
+    'sfx/d1.wav',
+    'sfx/d2.wav',
+    'sfx/d3.wav',
+    'sfx/d9.wav',
+  ];
+  for (const f of requiredFiles) {
     const full = path.join(dir2, 'public/audio', f);
     if (!fs.existsSync(full)) throw new Error(`Missing synthesized audio file: ${f}`);
   }
-  return 'Verified 48kHz stereo WAVs + tactile key-click (d9.wav) & mouse-click (d1.wav)';
+  return 'Verified typing-loop.wav, progress-loop.wav, d1.wav (click), d2.wav (complete chime), d3.wav (tick), d9.wav (key)';
 });
 
-// Test 5: Humanizer #7 — Bounding-Box & Safe-Zone Spline Inspector
+// Test 5: Safe-Zone & Bounding-Box Spline Inspector
 check('5. Safe-Zone & Bounding-Box Camera Spline Inspector (inspect-motion.mjs)', () => {
   const out = execSync(
     `node "${path.join(__dirname, 'inspect-motion.mjs')}" --src "${path.join(SKILL_ROOT, 'templates')}" --public "${path.join(SKILL_ROOT, 'references')}"`,

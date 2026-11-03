@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, Easing, useCurrentFrame, useVideoConfig } from 'remotion';
+import { AbsoluteFill, Audio, Easing, Sequence, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { easeInOutSmooth, easeOutExpo, ip, splineAt } from '../theme/easing-and-timing';
 import { MotionStylePreset } from '../theme/styles-catalog';
 
@@ -11,27 +11,18 @@ export type SeamlessTransitionMode =
   | 'match-cut';
 
 export interface SeamlessSceneShellProps {
-  /** Frame global mulai dan berakhirnya scene */
   startFrame: number;
   endFrame: number;
-  /** Mode masuk dari scene sebelumnya (overlap 10 frame) */
   enterMode?: SeamlessTransitionMode | 'none';
-  /** Mode keluar menuju scene berikutnya (overlap 10 frame) */
   exitMode?: SeamlessTransitionMode | 'none';
-  /** Durasi overlap transisi dalam frame (default 10 frame) */
   overlapFrames?: number;
   background?: string;
+  /** Otomatis memutar J-Cut transition whoosh (`audio/sfx/u3.wav`) tepat saat keluar scene */
+  enableTransitionSfx?: boolean;
+  transitionSfxSrc?: string;
   children: React.ReactNode;
 }
 
-/**
- * Pembungkus Scene Kontinuitas Mulus (<SeamlessSceneShell />)
- * - `whip-glide-left`: Scene A meluncur ke kiri (`-width`) bersamaan dengan Scene B yang masuk dari kanan (`+width`)
- *   menggunakan kurva `easeInOutSmooth` pada frame yang sama persis, sehingga terasa seperti 1 kanvas utuh!
- * - `portal-zoom-in`: Akhir Scene A melakukan zoom-in (`1.0 -> 1.85`) disertai soft radial glow,
- *   lalu Scene B langsung terbuka dari `scale: 1.14 -> 1.0` (`easeOutExpo`).
- * - `spring-sheet-up`: Konten baru meluncur naik dari bawah di atas latar yang menyambung mulus.
- */
 export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
   startFrame,
   endFrame,
@@ -39,6 +30,8 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
   exitMode = 'none',
   overlapFrames = 10,
   background = '#FFFFFF',
+  enableTransitionSfx = true,
+  transitionSfxSrc = 'audio/sfx/u3.wav',
   children,
 }) => {
   const frame = useCurrentFrame();
@@ -55,7 +48,6 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
   let opacity = 1;
   let radialGlow = 0;
 
-  // 1. Transisi Masuk
   if (enterMode === 'whip-glide-left') {
     const t = 1 - ip(frame, [startFrame, enterEnd], [0, 1], easeInOutSmooth);
     tx += t * (width + 20);
@@ -71,7 +63,6 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
     opacity *= ip(frame, [startFrame, startFrame + 4], [0, 1]);
   }
 
-  // 2. Transisi Keluar
   if (exitMode === 'whip-glide-left') {
     const t = ip(frame, [exitStart, endFrame], [0, 1], easeInOutSmooth);
     tx -= t * (width + 20);
@@ -86,37 +77,40 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
   }
 
   return (
-    <AbsoluteFill
-      style={{
-        background,
-        overflow: 'hidden',
-        opacity,
-        transform: `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`,
-      }}
-    >
-      {children}
-
-      {radialGlow > 0.01 && (
-        <AbsoluteFill
-          style={{
-            pointerEvents: 'none',
-            background:
-              'radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.92) 100%)',
-            opacity: radialGlow,
-          }}
-        />
+    <>
+      {/* J-Cut Transition Whoosh SFX: Hanya berbunyi tepat saat scene berpindah! */}
+      {enableTransitionSfx && exitMode !== 'none' && (
+        <Sequence from={Math.max(0, exitStart - 3)} durationInFrames={overlapFrames + 8}>
+          <Audio src={staticFile(transitionSfxSrc)} volume={0.42} />
+        </Sequence>
       )}
-    </AbsoluteFill>
+
+      <AbsoluteFill
+        style={{
+          background,
+          overflow: 'hidden',
+          opacity,
+          transform: `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`,
+        }}
+      >
+        {children}
+
+        {radialGlow > 0.01 && (
+          <AbsoluteFill
+            style={{
+              pointerEvents: 'none',
+              background:
+                'radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.92) 100%)',
+              opacity: radialGlow,
+            }}
+          />
+        )}
+      </AbsoluteFill>
+    </>
   );
 };
 
-/**
- * Komponen Shared-Element Match-Cut Morph (<SharedElementMorph />)
- * Menggerakkan satu objek (kartu, lingkaran avatar, atau judul) melintasi batas scene
- * menggunakan C1 spline `[frame, cx, cy, width, height, borderRadius, rotDeg]`.
- */
 export interface SharedElementMorphProps {
-  /** [frame, centerX, centerY, width, height, borderRadius, rotDeg?][] */
   keyframes: [number, number, number, number, number, number, number?][];
   startFrame?: number;
   endFrame?: number;
@@ -160,9 +154,6 @@ export const SharedElementMorph: React.FC<SharedElementMorphProps> = ({
   );
 };
 
-/**
- * Kompatibilitas mundur untuk SceneTransitionOverlay (Halus & Tidak Kasar)
- */
 export const SceneTransitionOverlay: React.FC<{
   type?: string;
   startFrame: number;

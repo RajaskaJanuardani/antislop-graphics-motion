@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useCurrentFrame, useVideoConfig } from 'remotion';
+import { Audio, Sequence, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { clamp, easeOutExpo, ip, splineAt, springAt } from '../theme/easing-and-timing';
 
 export interface CursorClickEvent {
@@ -8,30 +8,19 @@ export interface CursorClickEvent {
 }
 
 export interface AnimatedCursorProps {
-  /**
-   * Waypoint lintasan kursor: [frame, x, y][]
-   */
   waypoints: [number, number, number][];
-  /** Daftar frame saat kursor melakukan klik */
   clicks?: CursorClickEvent[];
-  /**
-   * Humanizer #1B (Hukum Fitts):
-   * Jika aktif (default: true), saat mendekati titik klik, kursor mengalami micro-overshoot (4px),
-   * lalu berhenti sejenak (hover delay 5 frame) di atas tombol sebelum menekan klik!
-   */
   humanizeFittsLaw?: boolean;
   color?: string;
   strokeColor?: string;
   accentColor?: string;
   size?: number;
   fadeInOut?: boolean;
+  /** Otomatis memutar SFX klik mouse (`audio/sfx/d1.wav`) tepat pada frame klik */
+  enableClickSfx?: boolean;
+  clickSfxSrc?: string;
 }
 
-/**
- * Helper untuk komponen Tombol/Kartu yang di-klik oleh kursor:
- * Menghasilkan `hoverProgress` (0..1 saat kursor tiba 6 frame sebelum klik),
- * `pressScale` (mengecil 0.93 saat diklik lalu memantul), dan `isClicked` (true setelah klik).
- */
 export function useCursorTargetState(
   frame: number,
   clickFrame: number,
@@ -49,10 +38,8 @@ export function useCursorTargetState(
 
   let buttonScale = 1;
   if (frame >= hoverStart && frame < clickFrame) {
-    // Tombol sedikit membesar (1.0 -> 1.035) saat kursor hover di atasnya
     buttonScale = 1 + 0.035 * hoverProgress;
   } else if (frame >= clickFrame && frame <= clickFrame + 12) {
-    // Tombol tertekan ke dalam (0.92) lalu kembali ke 1.0
     const down = ip(frame, [clickFrame, clickFrame + 2], [0, 1]);
     const up = ip(frame, [clickFrame + 2, clickFrame + 11], [0, 1], easeOutExpo);
     buttonScale = 1.035 - 0.115 * down + 0.08 * up;
@@ -61,10 +48,6 @@ export function useCursorTargetState(
   return { isHovered, isClicked, hoverProgress, buttonScale };
 }
 
-/**
- * Menyuntikkan micro-overshoot (4.5px) + hover delay (5 frame) sebelum setiap klik
- * agar gerakan kursor terasa seperti tangan manusia asli (bukan garis lurus robot).
- */
 function humanizeCursorWaypoints(
   rawWaypoints: [number, number, number][],
   clicks: CursorClickEvent[]
@@ -81,8 +64,6 @@ function humanizeCursorWaypoints(
       const dx = x - prev[1];
       const dy = y - prev[2];
       const dist = Math.max(1, Math.hypot(dx, dy));
-      // Overshoot 4.5px searah datangnya kursor pada 8 frame sebelum klik,
-      // lalu terkoreksi dan hover tenang selama 5 frame sebelum klik terjadi
       const overX = x + (dx / dist) * 4.5;
       const overY = y + (dy / dist) * 4.5;
       const fOver = Math.max(prev[0] + 2, matchingClick.frame - 8);
@@ -112,6 +93,8 @@ export const AnimatedCursor: React.FC<AnimatedCursorProps> = ({
   accentColor = '#3E9CF3',
   size = 34,
   fadeInOut = true,
+  enableClickSfx = true,
+  clickSfxSrc = 'audio/sfx/d1.wav',
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -137,93 +120,79 @@ export const AnimatedCursor: React.FC<AnimatedCursorProps> = ({
     : 1;
 
   let pressScale = 1;
-  let activeClick: CursorClickEvent | null = null;
   for (const c of clicks) {
     const dt = frame - c.frame;
     if (dt >= -2 && dt <= 14) {
       const down = ip(dt, [-2, 2], [0, 1]);
       const up = ip(dt, [2, 10], [0, 1], easeOutExpo);
       pressScale = 1 - 0.22 * (down - up);
-      if (dt >= 0) activeClick = c;
     }
   }
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        transform: `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0)`,
-        pointerEvents: 'none',
-        zIndex: 80,
-        opacity,
-      }}
-    >
-      {/* Ripple Klik */}
-      {clicks.map((c, idx) => {
-        const dt = frame - c.frame;
-        if (dt < 0 || dt > 18) return null;
-        const sp = springAt(frame, c.frame, fps, { damping: 16, stiffness: 140, mass: 0.6 });
-        const rippleSize = 16 + sp * 68;
-        const rippleOpacity = clamp(1 - dt / 16, 0, 1) * 0.65;
-        return (
-          <div
-            key={idx}
-            style={{
-              position: 'absolute',
-              left: -rippleSize / 2,
-              top: -rippleSize / 2,
-              width: rippleSize,
-              height: rippleSize,
-              borderRadius: 999,
-              border: `2.5px solid ${accentColor}`,
-              backgroundColor: `${accentColor}22`,
-              opacity: rippleOpacity,
-            }}
-          />
-        );
-      })}
+    <>
+      {/* Auto-Synced Mouse Click SFX */}
+      {enableClickSfx &&
+        clicks.map((c, idx) => (
+          <Sequence key={`click-sfx-${idx}`} from={Math.max(0, c.frame)} durationInFrames={12}>
+            <Audio src={staticFile(clickSfxSrc)} volume={0.55} />
+          </Sequence>
+        ))}
 
-      {/* Ikon Pointer SVG */}
-      <svg
-        width={size}
-        height={size * 1.15}
-        viewBox="0 0 28 32"
+      <div
         style={{
-          transform: `scale(${pressScale.toFixed(3)})`,
-          transformOrigin: '4px 4px',
-          filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.28))',
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          transform: `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0)`,
+          pointerEvents: 'none',
+          zIndex: 80,
+          opacity,
         }}
       >
-        <path
-          d="M 4 3 L 4 25 L 10.2 19.2 L 15.2 29 L 19.2 27 L 14.2 17.4 L 22.5 17.4 Z"
-          fill={color}
-          stroke={strokeColor}
-          strokeWidth="2.2"
-          strokeLinejoin="round"
-        />
-      </svg>
+        {clicks.map((c, idx) => {
+          const dt = frame - c.frame;
+          if (dt < 0 || dt > 18) return null;
+          const sp = springAt(frame, c.frame, fps, { damping: 16, stiffness: 140, mass: 0.6 });
+          const rippleSize = 16 + sp * 68;
+          const rippleOpacity = clamp(1 - dt / 16, 0, 1) * 0.65;
+          return (
+            <div
+              key={idx}
+              style={{
+                position: 'absolute',
+                left: -rippleSize / 2,
+                top: -rippleSize / 2,
+                width: rippleSize,
+                height: rippleSize,
+                borderRadius: 999,
+                border: `2.5px solid ${accentColor}`,
+                backgroundColor: `${accentColor}22`,
+                opacity: rippleOpacity,
+              }}
+            />
+          );
+        })}
 
-      {activeClick?.label && (
-        <div
+        <svg
+          width={size}
+          height={size * 1.15}
+          viewBox="0 0 28 32"
           style={{
-            position: 'absolute',
-            left: 26,
-            top: 22,
-            padding: '4px 10px',
-            borderRadius: 999,
-            backgroundColor: accentColor,
-            color: '#FFFFFF',
-            fontSize: 13,
-            fontWeight: 700,
-            whiteSpace: 'nowrap',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            transform: `scale(${pressScale.toFixed(3)})`,
+            transformOrigin: '4px 4px',
+            filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.28))',
           }}
         >
-          {activeClick.label}
-        </div>
-      )}
-    </div>
+          <path
+            d="M 4 3 L 4 25 L 10.2 19.2 L 15.2 29 L 19.2 27 L 14.2 17.4 L 22.5 17.4 Z"
+            fill={color}
+            stroke={strokeColor}
+            strokeWidth="2.2"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    </>
   );
 };

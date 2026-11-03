@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
  * scripts/lint.mjs
- * Fast Static Anti-Slop Linter (Setara `scripts/lint.mjs` di taste-skill)
+ * Fast Static Anti-Slop Linter
  * Memeriksa aturan mutlak sebelum merender di browser:
- * 1. Zero-Emoji Check (Aturan Mutlak #8)
- * 2. Remotion Determinism Check (Tanpa Math.random, setTimeout, setInterval, CSS transition)
- * 3. Anti-Camera-Shake Check (Menolak penggunaan shake/jitter/wobble terus-menerus pada kamera)
- * 4. Subtitle Placement Check (Menolak subtitle ukuran raksasa di tengah layar; wajib BottomSubtitleBar)
+ * 1. ZERO_EMOJI: Dilarang emoji atau simbol Unicode dekoratif
+ * 2. NO_MATH_RANDOM & NO_TIMERS: Determinisme Remotion
+ * 3. NO_CAMERA_SHAKE: Dilarang efek camera shake terus-menerus
+ * 4. NO_DECORATIVE_FILLER_ICONS: Dilarang ikon hiasan tidak berguna (SparkleIcon, LightningIcon, LightbulbIcon, spark-four, lightning-bolt)
+ * 5. NO_BULLET_DOT_LABEL: Dilarang membuat titik/icon bulat di samping teks seperti "• teks_kalimat" atau status dot bulat generik
  */
 
 import fs from 'node:fs';
@@ -28,12 +29,22 @@ const STATIC_RULES = [
   {
     id: 'NO_EMOJI_PKG',
     pattern: /@remotion\/animated-emoji/,
-    message: 'Dilarang paket emoji. Gunakan komponen SVG dari CustomSVGIcons.tsx.',
+    message: 'Dilarang paket emoji. Gunakan <BrandLogo /> atau komponen UI autentik.',
   },
   {
     id: 'NO_CAMERA_SHAKE',
     pattern: /\b(cameraShake|handheldShake|continuousShake|randomShake)\b/i,
     message: 'Dilarang efek camera shake terus-menerus! Gunakan splineAt() yang tenang dan mengikuti ketikan/kursor.',
+  },
+  {
+    id: 'NO_DECORATIVE_FILLER_ICONS',
+    pattern: /\b(SparkleIcon|LightningIcon|LightbulbIcon|spark-four|lightning-bolt|shield-guard)\b/,
+    message: 'Dilarang memakai ikon hiasan tidak berguna (petir, sparkle, bohlam). Gunakan <BrandLogo /> asli atau elemen UI fungsional.',
+  },
+  {
+    id: 'NO_BULLET_DOT_PREFIX',
+    pattern: /["'`>]\s*•\s+[A-Za-z0-9]/,
+    message: 'Dilarang membuat ikon/titik bulat di samping teks seperti "• teks_kalimat". Tampilkan tipografi bersih tanpa bullet dot.',
   },
 ];
 
@@ -68,7 +79,7 @@ for (const file of files) {
         rule: 'ZERO_EMOJI',
         file: path.relative(process.cwd(), file),
         line: idx + 1,
-        message: 'Ditemukan karakter emoji/simbol Unicode dekoratif. Ganti dengan SVG dari kode.',
+        message: 'Ditemukan karakter emoji/simbol Unicode dekoratif. Ganti dengan SVG resmi.',
       });
     }
 

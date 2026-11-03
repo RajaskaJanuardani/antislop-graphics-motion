@@ -1,6 +1,14 @@
 import React, { useMemo } from 'react';
-import { interpolateColors, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import { clamp, easeOutExpo } from '../theme/easing-and-timing';
+import {
+  Audio,
+  interpolateColors,
+  Sequence,
+  spring,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
+import { clamp, easeOutExpo, ip } from '../theme/easing-and-timing';
 import { MotionStylePreset } from '../theme/styles-catalog';
 
 export type WordHierarchyRole = 'keyword' | 'support' | 'connector';
@@ -14,9 +22,10 @@ export interface WordItem {
 }
 
 /**
- * 1. BOTTOM SUBTITLE BAR (<BottomSubtitleBar />) — WAJIB UNTUK SUBTITLE NARASI!
+ * 1. BOTTOM SUBTITLE BAR (<BottomSubtitleBar />)
  * - Diletakkan rapi di bagian bawah layar (screen-space, tidak menutupi konten utama di tengah!)
- * - Ukuran font proporsional (22px - 28px), bersih, dengan highlight halus pada kata yang sedang diucapkan.
+ * - ATURAN ANTI-SLOP: Tanpa background kotak/pill yang tidak perlu pada kata! Teks tampil bersih
+ *   dengan text-shadow lembut agar kontras dan nyaman dibaca.
  */
 export interface BottomSubtitleBarProps {
   words: WordItem[];
@@ -31,8 +40,8 @@ export const BottomSubtitleBar: React.FC<BottomSubtitleBarProps> = ({
   words,
   stylePreset,
   sceneStartOffsetMs = 0,
-  fontSize = 25,
-  bottomOffset = 38,
+  fontSize = 26,
+  bottomOffset = 44,
   maxWordsPerLine = 7,
 }) => {
   const frame = useCurrentFrame();
@@ -59,7 +68,7 @@ export const BottomSubtitleBar: React.FC<BottomSubtitleBarProps> = ({
   const enterT = clamp((currentMs - (chunkStartMs - 120)) / 160, 0, 1);
   const exitT = clamp((chunkEndMs - currentMs) / 160, 0, 1);
   const barOpacity = Math.min(enterT, exitT);
-  const slideY = (1 - easeOutExpo(enterT)) * 12;
+  const slideY = (1 - easeOutExpo(enterT)) * 10;
 
   return (
     <div
@@ -82,14 +91,9 @@ export const BottomSubtitleBar: React.FC<BottomSubtitleBarProps> = ({
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '6px 9px',
-          padding: '10px 24px',
-          borderRadius: 999,
-          backgroundColor: 'rgba(14, 15, 18, 0.82)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.14)',
-          boxShadow: '0 8px 28px rgba(0, 0, 0, 0.22)',
-          maxWidth: '82%',
+          gap: '6px 10px',
+          maxWidth: '84%',
+          textShadow: '0 2px 14px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95)',
         }}
       >
         {activeChunk.map((w, idx) => {
@@ -109,12 +113,8 @@ export const BottomSubtitleBar: React.FC<BottomSubtitleBarProps> = ({
                   ? stylePreset.palette.accent
                   : hasPassed
                   ? '#FFFFFF'
-                  : 'rgba(255, 255, 255, 0.62)',
-                transform: isSpoken ? 'scale(1.05)' : 'scale(1)',
-                padding: isSpoken && isKeyword ? '1px 8px' : '0px',
-                borderRadius: 6,
-                backgroundColor:
-                  isSpoken && isKeyword ? `${stylePreset.palette.accent}24` : 'transparent',
+                  : 'rgba(255, 255, 255, 0.65)',
+                transform: isSpoken ? 'scale(1.04)' : 'scale(1)',
               }}
             >
               {w.text}
@@ -127,17 +127,12 @@ export const BottomSubtitleBar: React.FC<BottomSubtitleBarProps> = ({
 };
 
 /**
- * 2. HUMANIZED TYPE TEXT (<TypeText />) — Humanizer #1A
- * Fitur Humanizer:
- * - `humanizeCadence` (default: true): Kecepatan mengetik tidak kaku seperti robot;
- *   ada micro-pause alami setelah spasi/tanda baca dan akselerasi di tengah kata.
- * - `typoCorrection` (opsional): Mengetik beberapa huruf salah (misal 2 huruf), jeda 3 frame,
- *   menghapus dengan backspace cepat, lalu lanjut mengetik teks yang benar!
+ * 2. HUMANIZED TYPE TEXT (<TypeText />) DENGAN AUTO-SYNCED TYPING SFX!
+ * - Otomatis memutar `audio/sfx/typing-loop.wav` tepat dari frame `start` sampai karakter terakhir selesai diketik!
+ * - Begitu ketikan selesai, suara ketikan otomatis berhenti (100% sinkron visual & audio).
  */
 export interface TypoCorrectionConfig {
-  /** Indeks karakter tempat salah ketik terjadi (misal: setelah karakter ke-6) */
   atCharIndex: number;
-  /** Karakter salah yang sempat diketik sebelum dihapus (misal: "xqz") */
   wrongText: string;
 }
 
@@ -154,6 +149,9 @@ export const TypeText: React.FC<{
   cursor?: boolean;
   humanizeCadence?: boolean;
   typoCorrection?: TypoCorrectionConfig;
+  enableTypingSfx?: boolean;
+  typingSfxSrc?: string;
+  typingSfxVolume?: number;
 }> = ({
   text,
   start,
@@ -167,21 +165,21 @@ export const TypeText: React.FC<{
   cursor = true,
   humanizeCadence = true,
   typoCorrection,
+  enableTypingSfx = true,
+  typingSfxSrc = 'audio/sfx/typing-loop.wav',
+  typingSfxVolume = 0.36,
 }) => {
   const frame = useCurrentFrame();
   const chars = useMemo(() => text.split(''), [text]);
 
-  // Hitung jadwal frame kemunculan tiap karakter dengan cadence manusiawi
   const charSchedule = useMemo(() => {
     const frames: number[] = [];
     let t = start;
     const baseStep = 1 / Math.max(0.2, cps);
 
     for (let i = 0; i < chars.length; i++) {
-      // Jika ada simulasi salah ketik + backspace pada indeks ini
       if (typoCorrection && i === typoCorrection.atCharIndex) {
         const wrongLen = typoCorrection.wrongText.length;
-        // Waktu mengetik huruf salah + jeda sadar salah (3.5f) + waktu backspace (wrongLen * 0.55f)
         t += wrongLen * baseStep * 0.85 + 3.5 + wrongLen * 0.55;
       }
 
@@ -191,7 +189,6 @@ export const TypeText: React.FC<{
         t += baseStep;
       } else {
         const ch = chars[i];
-        // Jeda mikro setelah spasi atau tanda baca, lebih cepat di tengah kata
         const cadenceMult =
           ch === ' '
             ? 1.38
@@ -204,7 +201,6 @@ export const TypeText: React.FC<{
     return frames;
   }, [chars, start, cps, humanizeCadence, typoCorrection]);
 
-  // Cek apakah frame saat ini sedang berada di fase salah ketik (sebelum selesai backspace)
   let displayedChars: { ch: string; startFrame: number }[] = [];
   const baseStep = 1 / Math.max(0.2, cps);
 
@@ -218,7 +214,6 @@ export const TypeText: React.FC<{
     const resumeFrame = charSchedule[idx];
 
     if (frame >= prefixEndFrame && frame < resumeFrame) {
-      // Sedang mengetik huruf salah lalu menghapusnya
       const prefix = chars.slice(0, idx).map((c, i) => ({ ch: c, startFrame: charSchedule[i] }));
       const wrongChars = typoCorrection.wrongText.split('');
       const typeWrongDur = wrongChars.length * baseStep * 0.85;
@@ -256,7 +251,8 @@ export const TypeText: React.FC<{
       .filter((item) => frame >= item.startFrame);
   }
 
-  const lastScheduledFrame = charSchedule[charSchedule.length - 1] ?? start;
+  const lastScheduledFrame = Math.ceil(charSchedule[charSchedule.length - 1] ?? start);
+  const typingDurationFrames = Math.max(4, lastScheduledFrame - Math.floor(start) + 2);
 
   return (
     <div
@@ -269,6 +265,13 @@ export const TypeText: React.FC<{
         ...style,
       }}
     >
+      {/* Auto-Synced Typing SFX: Hanya berbunyi selama karakter sedang diketik! */}
+      {enableTypingSfx && typingDurationFrames > 0 && (
+        <Sequence from={Math.max(0, Math.floor(start))} durationInFrames={typingDurationFrames}>
+          <Audio src={staticFile(typingSfxSrc)} volume={typingSfxVolume} />
+        </Sequence>
+      )}
+
       {displayedChars.map((item, i) => {
         const age = frame - item.startFrame;
         const appearT = clamp(age / 3.5, 0, 1);
@@ -309,7 +312,93 @@ export const TypeText: React.FC<{
 };
 
 /**
- * 3. FLY TEXT (<FlyText />) — Per-Character Spring Fly-In
+ * 3. ANIMATED LOADING / RENDER PROGRESS BAR (<AnimatedProgressBar />) DENGAN AUTO-SYNCED PROGRESS SFX!
+ * - Otomatis memutar `audio/sfx/progress-loop.wav` (rising counter ticks) selama bar bergerak dari 0% -> 100%
+ * - Otomatis memutar `audio/sfx/d2.wav` (completion chime) tepat saat mencapai 100%!
+ */
+export interface AnimatedProgressBarProps {
+  label: string;
+  startFrame: number;
+  endFrame: number;
+  accentColor?: string;
+  trackColor?: string;
+  textColor?: string;
+  monoFont?: string;
+  height?: number;
+  enableProgressSfx?: boolean;
+  progressSfxSrc?: string;
+  completeChimeSrc?: string;
+}
+
+export const AnimatedProgressBar: React.FC<AnimatedProgressBarProps> = ({
+  label,
+  startFrame,
+  endFrame,
+  accentColor = '#0B84F3',
+  trackColor = 'rgba(255, 255, 255, 0.1)',
+  textColor = '#FFFFFF',
+  monoFont = 'JetBrains Mono, monospace',
+  height = 12,
+  enableProgressSfx = true,
+  progressSfxSrc = 'audio/sfx/progress-loop.wav',
+  completeChimeSrc = 'audio/sfx/d2.wav',
+}) => {
+  const frame = useCurrentFrame();
+  const pct = ip(frame, [startFrame, endFrame], [0, 100], easeOutExpo);
+  const durFrames = Math.max(6, endFrame - startFrame);
+
+  return (
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {/* Auto-Synced Loading Progress Ticks + Completion Chime */}
+      {enableProgressSfx && (
+        <>
+          <Sequence from={Math.max(0, startFrame)} durationInFrames={durFrames}>
+            <Audio src={staticFile(progressSfxSrc)} volume={0.38} />
+          </Sequence>
+          <Sequence from={Math.max(0, endFrame)} durationInFrames={20}>
+            <Audio src={staticFile(completeChimeSrc)} volume={0.45} />
+          </Sequence>
+        </>
+      )}
+
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontFamily: monoFont,
+          fontSize: 16,
+          color: textColor,
+        }}
+      >
+        <span>{label}</span>
+        <span style={{ fontWeight: 700, color: accentColor }}>{Math.round(pct)}%</span>
+      </div>
+
+      <div
+        style={{
+          width: '100%',
+          height,
+          borderRadius: height / 2,
+          backgroundColor: trackColor,
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            width: `${pct.toFixed(1)}%`,
+            height: '100%',
+            borderRadius: height / 2,
+            backgroundColor: accentColor,
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
+/**
+ * 4. FLY TEXT (<FlyText />) — Per-Character Spring Fly-In
  */
 export const FlyText: React.FC<{
   text: string;

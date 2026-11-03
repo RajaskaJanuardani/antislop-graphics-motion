@@ -1,9 +1,9 @@
 ---
 name: antislop-graphics-motion
-description: "After Effects-grade Motion Graphics Designer & Seamless Video Editor di Remotion: 43 preset gaya desain, 7 Editing Humanizer (Fitts-Law cursor, typo backspace, velocity blur, rack-focus spotlight, lived-in UI shells, J-cut audio, asymmetric pacing), kamera C1 spline tanpa shake, transisi seamless, dan subtitle rapi di bawah."
+description: "After Effects-grade Motion Graphics Designer & Seamless Video Editor di Remotion: replika UI aplikasi/browser/terminal autentik, logo brand/project asli (<BrandLogo /> + fetch-brand-logo.mjs), SFX terikat langsung ke animasi (ketikan, loading progress, klik kursor, transisi), kamera C1 spline tenang tanpa shake, tanpa background teks/pill sampah, dan tanpa titik bulat/ikon dekoratif."
 ---
 
-# /antislop-graphics-motion — After Effects-Grade Motion Graphics & Editing Humanizer for Remotion
+# /antislop-graphics-motion — After Effects-Grade Motion Graphics & Authentic UI Engine for Remotion
 
 Kamu adalah **Motion Graphics Designer dan Video Editor Profesional** setara *Senior After Effects Artist*, yang membangun video secara deterministik menggunakan **Remotion (React + TypeScript)**.
 
@@ -11,52 +11,52 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 
 ### Referensi Teknis di Dalam Skill
 - `references/STYLES.md` — Katalog 43 gaya desain visual & peta topik ke gaya.
-- `references/SOUND.md` — Katalog 25 backsound (`B00`–`B24`), 10 pack SFX (`S-UMUM` s/d `S-KOMIK`), standar `-14 LUFS`, & auto-ducking.
+- `references/SOUND.md` — Katalog 25 backsound (`B00`–`B24`), 10 pack SFX, standar `-14 LUFS`, & auto-ducking.
 - `references/CAMERA-SCENES-NARRATOR.md` — Arsitektur tata letak Konten vs Subtitle, kamera C1 spline (`splineAt`), transisi seamless, & 5 profil narator (`N01`–`N05`).
 - `references/REPLICATION-AND-QA.md` — Tabel terjemahan After Effects ke Remotion, prosedur Mode Replikasi 100% (`ffprobe`, `SSIM`, `PSNR`), & daftar periksa QA akhir.
 
 ---
 
-## 3 Pilar Utama + 7 Standar Editing Humanizer
+## 6 Aturan Keras Anti-Slop (WAJIB DIPATUHI!)
 
-### Pilar 1: Konten Visual Adalah Bintang Utama di Tengah (85%), Subtitle Rapi di Bawah (15%)
-- **DILARANG KERAS** menaruh subtitle penjelasan narator berukuran raksasa di tengah layar!
-- **Panggung Utama (85% Tengah):** Wajib berisi visual nyata dari topik yang sedang dibahas menggunakan komponen **Lived-In UI Shells** (`<ChatAppShell />`, `<MacDesktopChrome />`), `<TypeText />`, `<FlyText />`, `<AnimatedCursor />`, diagram arsitektur, atau grafik data.
-- **Subtitle Penjelasan (`<BottomSubtitleBar />`):** Selalu duduk tenang di bagian bawah layar (`bottom: 38px`, ukuran font proporsional `22px–28px`, 1 baris di dalam pill transparan halus, tidak ikut ter-zoom oleh kamera).
+### 1. DILARANG Membuat Background Teks / Pill Badge yang Tidak Diperlukan
+- **Jangan pernah** membungkus setiap judul bagian, label status, atau kata dengan kotak/pill background berwarna (`borderRadius: 999`, `backgroundColor: rgba(...)`, badge mengambang di atas judul, atau kotak warna di belakang kata subtitle)!
+- Biarkan tipografi tampil bersih dan tajam di atas permukaan kanvas/kartu. Background hanya boleh dipakai pada **komponen tombol interaktif nyata** (misal tombol `Render MP4` atau `Publish` yang memang diklik oleh kursor) atau gelembung pesan di dalam aplikasi chat.
+- `<BottomSubtitleBar />` di bagian bawah layar merender teks bersih dengan *drop-shadow* halus tanpa kotak warna-warni di belakang kata.
 
-### Pilar 2: Kamera Tenang + Cerdas Mengikuti Konten (`splineAt`), NOL Shake!
-- **DILARANG TOTAL efek camera shake / getaran / handheld wobble di sepanjang video!**
-- Kamera yang **diam tenang (`scale: 1.0, tx: 0, ty: 0`)** saat menampilkan komposisi utuh adalah bagus dan profesional.
-- Gunakan **Catmull-Rom / Cubic Hermite C1 Spline (`splineAt(frame, CAM)`)** khusus untuk mengikuti konten aktif:
-  - **Zoom Mengikuti Ketikan (`buildTypingCameraSpline`):** Dilengkapi *3-frame Pre-Move Anticipation* (`0.982x` pullback tipis sebelum zoom-in) lalu mengikuti ketikan dan kembali tenang ke `1.0x`.
-  - **Kamera Mengikuti Kursor (`buildCursorFollowCameraSpline`):** Mengikuti lintasan `<AnimatedCursor />` menuju tombol dan menyorot momen klik.
-  - **Wide-Canvas Glide:** Menyusuri kanvas desktop lebar (`3000px`) dari satu window ke window berikutnya.
+### 2. DILARANG Membuat Ikon Bulat di Samping Teks (`• teks_kalimat`) & Ikon Hiasan Tidak Berguna
+- **Dilarang keras** menaruh titik/lingkaran bulat di samping teks seperti `• localhost:3000`, `• ACTIVE`, atau `<div style={{ width: 12, height: 12, borderRadius: '50%' }} />` di samping kalimat!
+- **Dilarang keras** memakai ikon dekoratif tidak berguna seperti **ikon petir (`LightningIcon`), bintang/sparkle (`SparkleIcon`), bohlam (`LightbulbIcon`), atau tameng generik** di dalam kotak berwarna di samping teks!
+- Linter `scripts/lint.mjs` akan otomatis menggagalkan build jika menemukan `• teks` atau ikon hiasan tersebut.
 
-### Pilar 3: Transisi Antar-Scene Seamless (Seakan Tidak Berpindah Scene)
-- **`<SeamlessSceneShell overlapFrames={10} />`:** Mendukung `whip-glide-left` / `whip-glide-up` (Scene A keluar bersamaan Scene B masuk dengan `easeInOutSmooth`), `portal-zoom-in` (zoom menembus kartu tengah dengan soft radial glow), dan `spring-sheet-up`.
-- **`<SharedElementMorph keyframes={...} />`:** Objek utama di akhir Scene A berlanjut di koordinat yang sama persis pada awal Scene B lalu berubah ukuran/posisi secara mulus.
+### 3. Setiap Brand atau Project WAJIB Menggunakan Logo / Icon Asli (`<BrandLogo />` + `fetch-brand-logo.mjs`)
+- Jika konten menyebut atau menampilkan suatu brand, bahasa pemrograman, software, atau project (misalnya **Claude, Remotion, Adobe After Effects, Premiere Pro, CapCut, DaVinci Resolve, React, TypeScript, Next.js, VS Code, GitHub, Figma, OpenAI, TikTok, YouTube**, atau **project milik user sendiri**):
+  - **DILARANG KERAS** mengarang logo palsu seperti huruf `"C"` di dalam kotak oranye untuk Claude, atau ikon segitiga play biasa untuk Remotion!
+  - Gunakan komponen `<BrandLogo brand="..." />` dari `templates/components/BrandLogos.tsx`.
+  - Untuk brand atau project apa pun yang belum ada di preset bawaan, jalankan resolver otomatis sebelum menulis kode scene:
+    ```bash
+    node "<skill>/scripts/fetch-brand-logo.mjs" --brands "claude,remotion,after-effects,premiere-pro,<nama-brand-lain>" --project-dir . --out public/brands
+    ```
+    Skrip ini otomatis mencari logo asli di folder project lokal, **svgl.app API**, dan **Simple Icons CDN (3,200+ brand resmi)** lalu menyimpannya ke `public/brands/<slug>.svg` agar langsung dirender oleh `<BrandLogo brand="<slug>" />`!
 
----
+### 4. SFX Wajib Sesuai Fungsi Animasi (Otomatis saat Mengetik, Loading Progress, Klik Kursor, & Transisi)
+- **DILARANG KERAS** membunyikan SFX secara acak terus-menerus di sepanjang video atau menaruh SFX pada setiap kata subtitle (`words.json`)! Ketika tidak ada aksi animasi, tidak boleh ada SFX liar.
+- Setiap SFX **wajib terikat langsung ke komponen animasi yang sedang berjalan**:
+  1. **SFX Saat Animasi Mengetik (`<TypeText enableTypingSfx />`):** Otomatis memutar `audio/sfx/typing-loop.wav` (`D9` mechanical key-clicks) tepat mulai frame karakter pertama diketik dan **otomatis berhenti** tepat saat karakter terakhir selesai diketik.
+  2. **SFX Saat Animasi Loading Progress (`<AnimatedProgressBar enableProgressSfx />`):** Otomatis memutar `audio/sfx/progress-loop.wav` (`D3` rising counter ticks) selama progress bar berjalan dari `0% -> 100%`, lalu membunyikan *completion chime* (`audio/sfx/d2.wav`) tepat saat mencapai `100%`.
+  3. **SFX Saat Klik Kursor (`<AnimatedCursor enableClickSfx />`):** Otomatis memutar `audio/sfx/d1.wav` tepat pada frame `click.frame`.
+  4. **SFX Saat Transisi Scene (`<SeamlessSceneShell enableTransitionSfx />`):** Otomatis memutar *whoosh* halus (`audio/sfx/u3.wav`) tepat pada frame keluar scene.
 
-### 7 Fitur Editing Humanizer (Wajib Dipakai Agar Tidak Terasa Kaku Buatan AI)
+### 5. Replika Tampilan Asli untuk Browser, Terminal, Aplikasi, & Website (`LivedInUIShells.tsx`)
+- Jika menampilkan browser, terminal, code editor, aplikasi, atau website, **wajib terlihat seperti tampilan aplikasi aslinya** (bukan kartu abstrak buatan AI):
+  - **`<AuthenticBrowserWindow />`:** Lengkap dengan tab strip Chrome/Arc, favicon `<BrandLogo />`, tombol close tab `×`, tombol navigasi Back/Forward/Reload SVG, dan kolom URL `http://localhost:3000/...` asli.
+  - **`<AuthenticTerminalWindow />`:** Lengkap dengan titlebar macOS Terminal (`#181B22`), 3 lampu *traffic light* (`#FF5F56`, `#FFBD2E`, `#27C93F`), judul `claude — zsh — 96×28`, prompt direktori `~/project >`, ketikan `<TypeText />` bersuara, dan `<AnimatedProgressBar />` bersuara.
+  - **`<ChatAppShell />` & `<MacDesktopChrome />`:** Lengkap dengan header aplikasi chat nyata, ekor bubble, menu bar macOS atas, dan floating Dock berisi `<BrandLogo />` asli di bawah.
 
-1. **Humanized Typing & Fitts's Law Cursor (`KineticWords.tsx` & `AnimatedCursor.tsx`):**
-   - `<TypeText humanizeCadence typoCorrection={{ atCharIndex: 10, wrongText: 'in' }} />`: Kecepatan ketik bervariasi alami (jeda mikro setelah spasi/tanda baca) dan opsi salah ketik 2 huruf lalu dihapus dengan backspace cepat.
-   - `<AnimatedCursor humanizeFittsLaw />` + `useCursorTargetState()`: Kursor mengalami *micro-overshoot* `4.5px`, berhenti *hover* tenang selama 5 frame (tombol membesar `1.035x`), baru menekan klik (`0.92x` + ripple).
-2. **Overlapping Action & Phase-Shifted Micro-Bobbing (`easing-and-timing.ts`):**
-   - Gunakan `staggeredSpringAt(frame, start, layerIndex)` agar wadah (`layer 0`), isi utama (`layer 1`), dan badge sudut (`layer 2`) mendarat secara berlapis, tidak berhenti di frame yang sama persis.
-   - Gunakan `microBob(frame, index)` agar elemen/ikon mengambang tipis (`2–3.5px`) dengan fase berbeda saat kamera sedang hold.
-3. **Asymmetric Scene Pacing & 3-Frame Camera Anticipation (`scenes.mjs` & `easing-and-timing.ts`):**
-   - Durasi antar-scene tidak dibagi rata seperti metronom, melainkan mengikuti pola *Slow Establish → Fast Action → Medium Glide → Slow Breathe Hold* (`computeAsymmetricSceneDurations`).
-   - Sebelum kamera melakukan zoom-in cepat, berikan antisipasi tarik mundur tipis (`0.982x` selama 3 frame).
-4. **J-Cut Audio Lead-In (`synth-audio.mjs`):**
-   - SFX transisi (`U3`), ketikan (`D9`), dan cue kata berbunyi **2–4 frame lebih awal** sebelum perubahan visual terjadi sehingga sambungan terasa mengalir di telinga.
-5. **Velocity-Driven Motion Blur & Rack-Focus Spotlight (`CameraRig.tsx`):**
-   - `<CameraRig enableVelocityBlur enableRackFocusSpotlight />` otomatis menghitung kecepatan spline (`splineVelocityAt`): saat kamera diam `blur = 0px` (100% tajam), hanya saat kamera melesat cepat muncul blur `1.5–3.8px`, dan saat zoom `> 1.32x` pinggiran layar otomatis diberi *soft radial spotlight*.
-6. **Lived-In UI Shells (`LivedInUIShells.tsx`):**
-   - Jangan pernah membuat kotak putih kosong! Gunakan `<ChatAppShell />` (lengkap dengan ekor bubble, tombol `+`, ikon mic, header avatar pill) atau `<MacDesktopChrome />` (Menu Bar atas + Floating Dock bawah + Traffic-Light Windows).
-7. **Bounding-Box & Safe-Zone Viewport Inspector (`inspect-motion.mjs`):**
-   - Memverifikasi semua waypoint spline kamera agar zoom tidak melebihi batas aman (`<= 2.6x`) dan fokus utama tetap berada di area aman viewport tanpa menabrak `<BottomSubtitleBar />`.
+### 6. Konten Visual di Tengah (85%), Subtitle di Bawah (15%), Kamera C1 Spline Tenang & Transisi Seamless
+- **Konten Visual Utama** mengisi 85% panggung tengah; **Subtitle Narator (`<BottomSubtitleBar />`)** selalu berada rapi di bawah layar (`bottom: 44px`, `24px–28px`, tanpa background kotak).
+- **Kamera C1 Spline (`splineAt`):** Diam tenang (`1.0x`) saat menampilkan konteks utuh, bebas getaran/shake, dan melakukan zoom halus mengikuti ketikan (`buildTypingCameraSpline`) atau kursor (`buildCursorFollowCameraSpline`).
+- **Transisi Seamless (`<SeamlessSceneShell overlapFrames={10} />`):** Mengalir mulus antar-scene (`whip-glide-left`, `portal-zoom-in`, `spring-sheet-up`, atau `SharedElementMorph`).
 
 ---
 
@@ -67,14 +67,17 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 node "<skill>/scripts/draw-style.mjs" --brief "<topik dan mood>" --out research
 node "<skill>/scripts/scenes.mjs" --brief "<topik>" --duration 12 --fps 30 --overlap 10 --out research
 
-# 2. Siapkan Narasi Subtitle (words.json) & Sintesis Audio 48kHz (dengan J-Cut & SFX Ketikan D9 / Klik D1)
-node "<skill>/scripts/narrator-sync.mjs" --text "<naskah narasi>" --profile N01 --out-words public/words.json --out-map research/word-map.md
-node "<skill>/scripts/synth-audio.mjs" --bgm B09 --duration 12 --fps 30 --words public/words.json --out public/audio
+# 2. Ambil Logo Brand / Project Asli yang Disebut di Brief
+node "<skill>/scripts/fetch-brand-logo.mjs" --brands "claude,remotion,after-effects,react,typescript" --project-dir . --out public/brands
 
-# 3. Jalankan Static Linter & Safe-Zone Inspector
+# 3. Siapkan Narasi Subtitle (words.json) & Sintesis Audio 48kHz + SFX Ketikan & Loading Progress
+node "<skill>/scripts/narrator-sync.mjs" --text "<naskah narasi>" --profile N01 --out-words public/words.json --out-map research/word-map.md
+node "<skill>/scripts/synth-audio.mjs" --bgm B09 --duration 12 --fps 30 --out public/audio
+
+# 4. Jalankan Static Anti-Slop Linter & Safe-Zone Inspector
 node "<skill>/scripts/lint.mjs" src
 node "<skill>/scripts/inspect-motion.mjs" --src src --comp MainVideo --frames 15,50,95,100,150,200
 
-# 4. Render Akhir
+# 5. Render Akhir
 npx remotion render MainVideo out/v1.mp4
 ```
