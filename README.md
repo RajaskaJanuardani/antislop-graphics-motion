@@ -85,8 +85,9 @@ Skill ini memiliki *Static Linter* (`scripts/lint.mjs`) dan *Motion Inspector* (
    - Setiap kali konten menyebut brand atau project (Claude, Anthropic, Remotion, Adobe After Effects, Premiere Pro, CapCut, DaVinci Resolve, React, TypeScript, Next.js, VS Code, GitHub, Figma, OpenAI, Docker, Vercel, Supabase, YouTube, TikTok, Instagram, atau brand kustom), agent wajib memakai logo vektor aslinya lewat `<BrandLogo brand="..." />` dan skrip pencari otomatis `scripts/fetch-brand-logo.mjs` (terhubung ke aset lokal project, **svgl.app API**, dan **Simple Icons CDN 3.200+ brand**).
 4. **SFX Wajib Terikat Langsung ke Animasi (*Event-Driven*, Bukan Acak):**
    - Tidak boleh ada SFX liar di setiap kata subtitle. SFX terpasang langsung di dalam komponen React (`<Sequence><Audio /></Sequence>`) sehingga hanya berbunyi tepat saat animasi mengetik, *progress bar* berjalan, kursor mengklik, kartu berputar, atau transisi scene terjadi.
-5. **Replika Tampilan Aplikasi, Browser, Terminal, & Desktop Asli (`LivedInUIShells.tsx`):**
-   - Menyediakan `<AuthenticBrowserWindow />` (tab Chrome/Arc dengan `<BrandLogo />` favicon, tombol navigasi, & URL bar), `<AuthenticTerminalWindow />` (titlebar macOS `#181B22`, 3 lampu *traffic light*, prompt direktori, ketikan bersuara, & *progress bar* bersuara), `<ChatAppShell />`, dan `<MacDesktopChrome />`.
+5. **Kemiripan Visual 1:1 untuk Aplikasi Digital (UI) & Objek Fisik Dunia Nyata (*Universal Fidelity*):**
+   - **Aplikasi, Website, & Software:** Kapan pun user meminta tampilan aplikasi/website/platform apa pun (populer seperti VS Code, Figma, TikTok, YouTube, Shopee, Spotify, maupun aplikasi kustom milik user), agent wajib merekonstruksi anatomi UI aslinya semirip mungkin (1:1) lewat kode React/SVG (lengkap dengan navigasi, warna resmi, `<BrandLogo />`, dan data nyata), atau memakai 4 fondasi di `LivedInUIShells.tsx` (`<AuthenticBrowserWindow />`, `<AuthenticTerminalWindow />`, `<ChatAppShell />`, `<MacDesktopChrome />`).
+   - **Objek Fisik, Alam, Sains, & Benda Dunia Nyata:** Kapan pun topik membahas objek fisik/fenomena nyata di dunia nyata, dilarang keras menggantinya dengan kotak kartu teks atau lingkaran/kotak polos! Agent wajib menggambar siluet khas, proporsi, anatomi bagian-bagian pembentuknya dengan multi-layer `<svg>` (`<path>`, bezier, gradien pencahayaan), serta menggerakkannya sesuai mekanika/hukum fisik aslinya.
 6. **Hierarki Panggung 85% Konten Utama di Tengah vs 15% Subtitle Bersih di Bawah (`<BottomSubtitleBar />`):**
    - Panggung tengah didedikasikan penuh untuk aksi visual topik, sedangkan narasi subtitle berada rapi di bagian bawah (`bottom: 44px`, teks bersih tanpa kotak background warna-warni).
 
@@ -262,12 +263,9 @@ motion-craft/
     │   ├── Transitions.tsx               # <SeamlessSceneShell />, <SharedElementMorph />, & <SfxCue />
     │   ├── AudioStage.tsx                # Mixer BGM, Ambience, & Auto-Ducking (-14 LUFS)
     │   └── ProceduralBackground.tsx      # Latar prosedural bersih sesuai gaya
-    ├── scenes/
-    │   ├── SceneArchetypes.tsx           # Contoh scene siap pakai
-    │   └── RootExample.tsx               # Contoh komposisi utama Remotion
     └── theme/
         ├── easing-and-timing.ts          # Fungsi splineAt, springAt, staggeredSpringAt, microBob
-        └── styles-catalog.ts             # Preset data ke-43 gaya desain
+        └── styles-catalog.ts             # Preset data ringkas ke-43 gaya desain
 ```
 
 ### Menjalankan Benchmark Uji Skill

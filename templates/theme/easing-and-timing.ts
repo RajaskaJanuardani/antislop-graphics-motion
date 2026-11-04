@@ -379,3 +379,31 @@ export function quantizeFrame(frame: number, targetFps: number, compFps = 30): n
   const step = Math.max(1, Math.round(compFps / targetFps));
   return Math.floor(frame / step) * step;
 }
+
+/**
+ * Preset Waypoint Kamera C1 Spline [frame, scale, tx, ty, rotDeg]
+ * Digunakan sebagai acuan standar untuk Zoom-Follow Typing, Follow-Cursor, & Wide-Canvas Glide.
+ */
+export const CAMERA_SPLINE_PRESETS = {
+  typingZoomFollow: [
+    [0, 1.0, 0, 0, 0],
+    [14, 0.982, 12, 6, 0],
+    [18, 1.48, 220, 110, 0],
+    [62, 1.48, -140, 110, 0],
+    [84, 1.0, 0, 0, 0],
+  ] as [number, number, number, number, number][],
+  cursorClickFollow: [
+    [0, 1.0, 0, 0, 0],
+    [20, 0.982, 10, 8, 0],
+    [24, 1.42, -180, -90, 0],
+    [54, 1.42, -180, -90, 0],
+    [76, 1.0, 0, 0, 0],
+  ] as [number, number, number, number, number][],
+  wideCanvasGlide: [
+    [0, 1.0, 0, 0, 0],
+    [28, 1.12, -420, 0, 0],
+    [64, 1.12, -880, 0, 0],
+    [96, 1.0, 0, 0, 0],
+  ] as [number, number, number, number, number][],
+};
+

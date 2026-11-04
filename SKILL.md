@@ -9,6 +9,9 @@ Kamu adalah **Motion Graphics Designer dan Video Editor Profesional** setara *Se
 
 Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 
+> **ATURAN EFISIENSI TOKEN (SELECTIVE LOADING):**
+> Jangan pernah membaca seluruh file di dalam `references/` atau `templates/` sekaligus! Hanya baca **1 file gaya yang terpilih** (`research/selected-style-guide.md`), **1 file storyboard yang dipakai** (`research/storyboard.md`), dan hanya `import` komponen di `templates/components/` yang benar-benar digunakan pada scene video.
+
 ### Referensi Teknis di Dalam Skill
 - `references/STYLES.md` — Indeks katalog 43 gaya desain visual & peta topik ke gaya.
 - `references/styles/01-cyberpunk.md` s/d `references/styles/43-motion-reel-editorial.md` — **43 File Spesifikasi Rinci per Gaya** (masing-masing memuat tabel palet hex 60-20-10-7-3, skala tipografi 16:9 & 9:16, bahasa bentuk, rumus spring/easing, waypoint kamera `splineAt`, rekomendasi lagu `B00`–`B39` / `M01`–`M24` + SFX, contoh kode TSX lengkap, dan larangan anti-slop spesifik gaya tersebut). Wajib baca file gaya yang terpilih!
@@ -58,11 +61,18 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
   5. **64 Pilihan Lagu Backsound (`B00`–`B39` Prosedural Multi-Chord + `M01`–`M24` Lagu Studio):**
      - Pilih lagu prosedural modern seperti `B25` (*Apple Keynote Minimal Pluck*), `B26` (*Framer / Linear SaaS Groove*), `B27` (*Vox Documentary Piano*), `B28` (*Phonk Drift*), `B29` (*UK Garage 2-Step*), `B31` (*Neo-Soul Rhodes*), `B32` (*Liquid DnB*), atau unduh lagu studio asli via `node "<skill>/scripts/fetch-music.mjs" --song M03 --out public/audio/music.wav`.
 
-### 5. Replika Tampilan Asli untuk Browser, Terminal, Aplikasi, & Website (`LivedInUIShells.tsx`)
-- Jika menampilkan browser, terminal, code editor, aplikasi, atau website, **wajib terlihat seperti tampilan aplikasi aslinya** (bukan kartu abstrak buatan AI):
-  - **`<AuthenticBrowserWindow />`:** Lengkap dengan tab strip Chrome/Arc, favicon `<BrandLogo />`, tombol close tab `×`, tombol navigasi Back/Forward/Reload SVG, dan kolom URL `http://localhost:3000/...` asli.
-  - **`<AuthenticTerminalWindow />`:** Lengkap dengan titlebar macOS Terminal (`#181B22`), 3 lampu *traffic light* (`#FF5F56`, `#FFBD2E`, `#27C93F`), judul `claude — zsh — 96×28`, prompt direktori `~/project >`, ketikan `<TypeText />` bersuara, dan `<AnimatedProgressBar />` bersuara.
-  - **`<ChatAppShell />` & `<MacDesktopChrome />`:** Lengkap dengan header aplikasi chat nyata, ekor bubble, menu bar macOS atas, dan floating Dock berisi `<BrandLogo />` asli di bawah.
+### 5. Kemiripan Visual 1:1 untuk Aplikasi Digital (UI) & Objek Fisik Dunia Nyata (Universal Fidelity)
+**A. Aplikasi, Website, Software, & Platform Digital (1:1 UI Reconstruction):**
+- Kapan pun user meminta tampilan aplikasi, website, software, atau platform apa pun (baik aplikasi populer seperti VS Code, Figma, TikTok, YouTube, Shopee, Spotify, maupun aplikasi/website kustom milik user), kamu **WAJIB merekonstruksi anatomi UI aslinya semirip mungkin (1:1) langsung lewat kode React/SVG**—bukan membuat kotak kartu abstrak!
+- Hadirkan struktur navigasi/chrome aslinya (header, sidebar, tab bar, status bar, tombol aksi), palet hex resmi aplikasi tersebut, logo asli (`<BrandLogo />`), dan teks/data yang realistis.
+- Gunakan 4 komponen dasar di `LivedInUIShells.tsx` (`<AuthenticBrowserWindow />`, `<AuthenticTerminalWindow />`, `<ChatAppShell />`, `<MacDesktopChrome />`) atau bangun sendiri anatomi spesifik aplikasinya secara presisi.
+
+**B. Objek Fisik, Alam, Sains, & Benda Dunia Nyata (Universal Physical Object Fidelity):**
+- Kapan pun topik video membahas objek fisik atau fenomena nyata di dunia nyata (benda sehari-hari, alam/luar angkasa, anatomi/biologi, mesin/kendaraan, makanan, arsitektur, geografi, instrumen, dokumen fisik, dll.):
+  1. **Dilarang Mengabstraksi Objek Nyata Jadi Kartu Teks atau Bangun Datar Polos:** Benda fisik yang dibahas wajib digambar wujud aslinya sebagai hero utama di panggung tengah—**jangan pernah** menggantinya dengan kotak kartu bertuliskan nama bendanya atau lingkaran/kotak polos satu warna.
+  2. **Tangkap Siluet Khas, Proporsi, & Anatomi Bagian-Bagiannya (*Defining Anatomy*):** Identifikasi 3–5 bagian pembentuk utama yang membuat benda tersebut langsung dikenali dalam sekali lihat (siluet luar, proporsi ukuran, sub-komponen internal, warna permukaan, dan gradasi pencahayaan/kedalaman), lalu rakit menggunakan multi-layer `<svg>` (`<path>`, kurva bezier, `<linearGradient>`, `<radialGradient>`, dan *clip-path*).
+  3. **Gerakan Sesuai Hukum Fisik & Cara Kerja Asli (*True-to-Life Mechanics*):** Gerakkan setiap bagian objek sesuai sifat dan mekanika aslinya di dunia nyata (poros rotasi yang benar, gravitasi/bobot, aliran cairan/gelombang, atau *exploded view* yang memisahkan lapisan bagian dalam dengan garis penunjuk teknis).
+  4. **Prioritaskan Aset Asli (`public/`) atau Ilustrasi Vektor Berlapis:** Jika user menyediakan foto/vektor di `public/`, gunakan aset asli tersebut sebagai objek utama. Jika digambar lewat kode, wajib berlapis dan proporsional setara ilustrasi infografis profesional (*Kurzgesagt / Vox*).
 
 ### 6. Konten Visual di Tengah (85%), Subtitle di Bawah (15%), Kamera C1 Spline Tenang & Transisi Seamless
 - **Konten Visual Utama** mengisi 85% panggung tengah; **Subtitle Narator (`<BottomSubtitleBar />`)** selalu berada rapi di bawah layar (`bottom: 44px`, `24px–28px`, tanpa background kotak).
