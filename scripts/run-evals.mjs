@@ -46,11 +46,14 @@ check('1. Static Anti-Slop Linter (No Filler Icons, No Bullet Dots, Zero Emoji, 
   return `Scanned ${parsed.scannedFiles} template files with 0 violations`;
 });
 
-// Test 2: Kontrak Arsitektur Komponen (Official BrandLogo, Event-Synced Typing/Progress SFX, Authentic UI Replicas)
-check('2. Authentic UI, Official BrandLogo, & Event-Synced SFX Contract', () => {
+// Test 2: Kontrak Arsitektur Komponen (Official BrandLogo, Event-Synced Typing/Progress SFX, Authentic UI Replicas, & 19 Card/Grid/3D Patterns)
+check('2. Authentic UI, Official BrandLogo, Event-Synced SFX, & 19 Card/Grid/3D Patterns Contract', () => {
   const brandCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/BrandLogos.tsx'), 'utf8');
   const wordsCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/KineticWords.tsx'), 'utf8');
   const shellsCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/LivedInUIShells.tsx'), 'utf8');
+  const card3dCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/Card3DLayouts.tsx'), 'utf8');
+  const gridCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/GridAnimations.tsx'), 'utf8');
+  const interactCode = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/CardInteractions.tsx'), 'utf8');
 
   if (!brandCode.includes('export const BrandLogo')) throw new Error('Missing BrandLogo component');
   if (!wordsCode.includes('typing-loop.wav') || !wordsCode.includes('enableTypingSfx')) {
@@ -62,7 +65,23 @@ check('2. Authentic UI, Official BrandLogo, & Event-Synced SFX Contract', () => 
   if (!shellsCode.includes('export const AuthenticBrowserWindow') || !shellsCode.includes('export const AuthenticTerminalWindow')) {
     throw new Error('Missing AuthenticBrowserWindow or AuthenticTerminalWindow replicas');
   }
-  return 'Verified BrandLogo, AuthenticBrowserWindow, AuthenticTerminalWindow, TypeText SFX, & AnimatedProgressBar SFX';
+
+  const required3D = ['Coverflow3D', 'FerrisWheelCards', 'CubeRoll3D', 'CylinderCards3D', 'HelixCards3D', 'SphereCards3D', 'ZDepthTunnel'];
+  for (const name of required3D) {
+    if (!card3dCode.includes(`export const ${name}`)) throw new Error(`Missing 3D Card component: ${name}`);
+  }
+
+  const requiredGrid = ['BentoGridReveal', 'ExplodeToGrid', 'LayoutMorphGridToCarousel', 'MasonryZoomDetail', 'GridRecapZoomOut'];
+  for (const name of requiredGrid) {
+    if (!gridCode.includes(`export const ${name}`)) throw new Error(`Missing Grid Animation component: ${name}`);
+  }
+
+  const requiredInteract = ['CardStackSwipe', 'FanSpreadCards', 'PolaroidDropTable', 'CardFlip3D', 'PageCurlCard', 'PageTurnBook', 'AccordionFoldCard'];
+  for (const name of requiredInteract) {
+    if (!interactCode.includes(`export const ${name}`)) throw new Error(`Missing Card Interaction component: ${name}`);
+  }
+
+  return 'Verified BrandLogo, Authentic UI Shells, Event-Synced SFX, + all 19 Card3D / GridAnimation / CardInteraction components';
 });
 
 // Test 3: Eval Scenario 1 — SaaS Launch + Asymmetric Pacing

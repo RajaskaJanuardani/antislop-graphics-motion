@@ -12,6 +12,7 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 ### Referensi Teknis di Dalam Skill
 - `references/STYLES.md` — Indeks katalog 43 gaya desain visual & peta topik ke gaya.
 - `references/styles/01-cyberpunk.md` s/d `references/styles/43-motion-reel-editorial.md` — **43 File Spesifikasi Rinci per Gaya** (masing-masing memuat tabel palet hex 60-20-10-7-3, skala tipografi 16:9 & 9:16, bahasa bentuk, rumus spring/easing, waypoint kamera `splineAt`, rekomendasi lagu `B00`–`B39` / `M01`–`M24` + SFX, contoh kode TSX lengkap, dan larangan anti-slop spesifik gaya tersebut). Wajib baca file gaya yang terpilih!
+- `references/CARD-GRID-3D-PATTERNS.md` — **19 Komponen Siap Pakai untuk 3D Card Layout, Grid Animation, & Card Interaction** (`Coverflow3D`, `FerrisWheelCards`, `CubeRoll3D`, `CylinderCards3D`, `HelixCards3D`, `SphereCards3D`, `ZDepthTunnel`, `BentoGridReveal`, `ExplodeToGrid`, `LayoutMorphGridToCarousel`, `MasonryZoomDetail`, `GridRecapZoomOut`, `CardStackSwipe`, `FanSpreadCards`, `PolaroidDropTable`, `CardFlip3D`, `PageCurlCard`, `PageTurnBook`, `AccordionFoldCard`) lengkap dengan SFX studio CC0 yang otomatis terikat ke setiap gerakan.
 - `references/SOUND.md` — Katalog 64 pilihan lagu backsound (**40 lagu prosedural multi-chord `B00`–`B39` + 24 lagu studio `M01`–`M24`**), **65+ Studio SFX CC0 & Pack Tematik** (termasuk 9 SFX transisi studio baru), standar `-14 LUFS`, & auto-ducking.
 - `references/CAMERA-SCENES-NARRATOR.md` — Arsitektur tata letak Konten vs Subtitle, kamera C1 spline (`splineAt`), transisi seamless, & 5 profil narator (`N01`–`N05`).
 - `references/REPLICATION-AND-QA.md` — Tabel terjemahan After Effects ke Remotion, prosedur Mode Replikasi 100% (`ffprobe`, `SSIM`, `PSNR`), & daftar periksa QA akhir.
@@ -66,6 +67,12 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 - **Konten Visual Utama** mengisi 85% panggung tengah; **Subtitle Narator (`<BottomSubtitleBar />`)** selalu berada rapi di bawah layar (`bottom: 44px`, `24px–28px`, tanpa background kotak).
 - **Kamera C1 Spline (`splineAt`):** Diam tenang (`1.0x`) saat menampilkan konteks utuh, bebas getaran/shake, dan melakukan zoom halus mengikuti ketikan (`buildTypingCameraSpline`) atau kursor (`buildCursorFollowCameraSpline`).
 - **Transisi Seamless (`<SeamlessSceneShell overlapFrames={10} />`):** Mengalir mulus antar-scene (`whip-glide-left`, `portal-zoom-in`, `spring-sheet-up`, atau `SharedElementMorph`).
+
+### 7. 19 Komponen Koreografi Kartu 3D, Grid Animation, & Interaksi Kartu (`Card3DLayouts.tsx`, `GridAnimations.tsx`, `CardInteractions.tsx`)
+Jangan merender kartu statis yang membosankan! Gunakan langsung ke-19 komponen siap pakai (lihat detail di `references/CARD-GRID-3D-PATTERNS.md`):
+- **3D Card Layout (`templates/components/Card3DLayouts.tsx`):** `<Coverflow3D />` (kartu aktif menghadap depan, samping miring 3D), `<FerrisWheelCards />` (berputar seperti roda bianglala tetap tegak), `<CubeRoll3D />` (6 poin di 6 sisi kubus 3D), `<CylinderCards3D />` (mengelilingi tabung), `<HelixCards3D />` (naik melingkar tangga putar), `<SphereCards3D />` (menempel di bola 3D), `<ZDepthTunnel />` (meluncur dari kejauhan sumbu Z).
+- **Grid Animation (`templates/components/GridAnimations.tsx`):** `<BentoGridReveal />` (`kotak 1` -> `kotak 2-3` -> `lengkap` beda ukuran), `<ExplodeToGrid />` (`tumpukan` -> `pecah` -> `rapi di grid`), `<LayoutMorphGridToCarousel />` (`grid` berubah mulus jadi `carousel` tanpa cut), `<MasonryZoomDetail />` (`pilih kotak` -> `membesar` -> `jadi halaman` detail), `<GridRecapZoomOut />` (`slide terakhir` penuh -> `kartu kembali` -> `recap semua` di grid penutup).
+- **Card Interaction (`templates/components/CardInteractions.tsx`):** `<CardStackSwipe />` (geser kartu teratas), `<FanSpreadCards />` (kartu dikipas dari poros bawah), `<PolaroidDropTable />` (foto polaroid jatuh ke meja + SFX `k2.wav`), `<CardFlip3D />` (balik kartu 180° depan ke belakang), `<PageCurlCard />` (sudut halaman tergulung), `<PageTurnBook />` (balik halaman buku), `<AccordionFoldCard />` (lipatan akordeon zig-zag 3D).
 
 ---
 

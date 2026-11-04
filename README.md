@@ -62,8 +62,13 @@ cd antislop-graphics-motion
    - **Humanizer #6:** Ready-to-use **Lived-In UI Shells** (`<ChatAppShell />` & `<MacDesktopChrome />`) with rich peripheral details (100% code-drawn SVG, zero emojis).
    - **Humanizer #7:** Automated bounding-box & safe-zone camera spline inspector (`scripts/inspect-motion.mjs`).
 
-5. **43 Curated Design Styles (`STYLES.md`) + 25 Procedural Backsounds (`B00`–`B24`) & 10 SFX Packs (`SOUND.md`)**
-   - Zero-dependency Node.js CLI scripts (`draw-style.mjs`, `scenes.mjs`, `narrator-sync.mjs`, `synth-audio.mjs`, `lint.mjs`, `inspect-motion.mjs`, `run-evals.mjs`).
+5. **19 Ready-to-Use 3D Card Layouts, Grid Animations, & Card Interactions (`references/CARD-GRID-3D-PATTERNS.md`)**
+   - **3D Card Layouts (`Card3DLayouts.tsx`):** `<Coverflow3D />`, `<FerrisWheelCards />`, `<CubeRoll3D />`, `<CylinderCards3D />`, `<HelixCards3D />`, `<SphereCards3D />`, `<ZDepthTunnel />`.
+   - **Grid Animations (`GridAnimations.tsx`):** `<BentoGridReveal />`, `<ExplodeToGrid />`, `<LayoutMorphGridToCarousel />`, `<MasonryZoomDetail />`, `<GridRecapZoomOut />`.
+   - **Card Interactions (`CardInteractions.tsx`):** `<CardStackSwipe />`, `<FanSpreadCards />`, `<PolaroidDropTable />`, `<CardFlip3D />`, `<PageCurlCard />`, `<PageTurnBook />`, `<AccordionFoldCard />`.
+
+6. **43 Deep-Dive Style Guides (`references/styles/01..43.md`), Official Brand Logos (`<BrandLogo />`), 64 BGM Songs (`B00`–`B39` & `M01`–`M24`), & 65+ Event-Driven Studio SFX (`SOUND.md`)**
+   - Zero-dependency Node.js CLI scripts (`draw-style.mjs`, `scenes.mjs`, `fetch-brand-logo.mjs`, `narrator-sync.mjs`, `synth-audio.mjs`, `fetch-music.mjs`, `lint.mjs`, `inspect-motion.mjs`, `run-evals.mjs`).
 
 ---
 

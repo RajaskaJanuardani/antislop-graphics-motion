@@ -45,23 +45,27 @@ const PACING_WEIGHTS = [
 const CAMERA_PATTERNS = [
   {
     mode: 'zoom-follow-typing',
-    desc: 'Mulai zoom 1.48x mengikuti ketikan (TypeText dengan cadence alami) di ChatAppShell, lalu pull-out halus ke 1.0x.',
-    visualHero: 'Lived-In ChatAppShell (lengkap dengan ekor bubble, tombol +, ikon mic, dan header avatar pill).',
+    desc: 'Mulai zoom 1.48x mengikuti ketikan (TypeText dengan cadence alami) di AuthenticTerminalWindow / ChatAppShell, lalu pull-out halus ke 1.0x.',
+    visualHero: 'AuthenticTerminalWindow / ChatAppShell atau <ExplodeToGrid /> (tumpukan -> pecah -> rapi di grid).',
+    cardGridOption: '<ExplodeToGrid /> atau <BentoGridReveal /> (GridAnimations.tsx)',
   },
   {
     mode: 'follow-cursor-click',
     desc: 'Tenang di 1.0x -> 3-frame anticipation pullback (0.982x) -> Zoom 1.42x mengikuti AnimatedCursor (overshoot 4.5px + 5f hover delay) -> Klik!',
-    visualHero: 'Kartu Produk + Typo Backspace Caption + Kursor mengklik tombol Publish.',
+    visualHero: 'Interaksi Kartu Taktil: <CardStackSwipe />, <CardFlip3D />, <PageCurlCard />, atau <PolaroidDropTable />.',
+    cardGridOption: '<CardStackSwipe />, <FanSpreadCards />, <CardFlip3D />, atau <PolaroidDropTable /> (CardInteractions.tsx)',
   },
   {
     mode: 'wide-canvas-glide',
-    desc: 'Kamera C1 spline menyusuri kanvas 3000px dengan Velocity Motion Blur tipis (1.5-3.5px) melewati 3 window macOS.',
-    visualHero: 'MacDesktopChrome (Menu Bar atas + Floating Dock bawah dengan micro-bobbing + 3 Traffic-Light Windows).',
+    desc: 'Kamera C1 spline menyusuri kanvas 3000px dengan Velocity Motion Blur tipis (1.5-3.5px) atau merotasi objek 3D spasial.',
+    visualHero: '3D Card Showcase: <Coverflow3D />, <CubeRoll3D />, <FerrisWheelCards />, <CylinderCards3D />, <HelixCards3D />, atau <ZDepthTunnel />.',
+    cardGridOption: '<Coverflow3D />, <CubeRoll3D />, <FerrisWheelCards />, atau <ZDepthTunnel /> (Card3DLayouts.tsx)',
   },
   {
     mode: 'spotlight-data-inspect',
-    desc: 'Tenang di 1.0x -> Rack-Focus Spotlight + Zoom 1.38x ke puncak grafik -> Kembali tenang ke 1.0x.',
-    visualHero: 'Dashboard Grafik Data & Metrik Performa dengan anotasi langsung.',
+    desc: 'Tenang di 1.0x -> Rack-Focus Spotlight + Zoom 1.38x ke kartu utama -> Pull-back ke <GridRecapZoomOut /> untuk penutup semua poin.',
+    visualHero: '<MasonryZoomDetail /> (pilih kotak -> jadi halaman detail) atau <GridRecapZoomOut /> (slide terakhir -> kembali -> recap semua di grid).',
+    cardGridOption: '<MasonryZoomDetail />, <LayoutMorphGridToCarousel />, atau <GridRecapZoomOut /> (GridAnimations.tsx)',
   },
 ];
 
@@ -94,6 +98,7 @@ for (let i = 0; i < sceneCount; i++) {
     pacingRole: chosenWeights[i].pacingRole,
     jCutAudioFrame: Math.max(0, endFrame - opts.overlapFrames - 4),
     visualHeroCenter: cam.visualHero,
+    cardGridChoreography: cam.cardGridOption,
     subtitlePlacement: 'BottomSubtitleBar (bottom: 38px, 24px font, tidak menutupi visual tengah)',
     cameraSplineBehavior: cam.desc,
     enterTransition: enterTrans,
