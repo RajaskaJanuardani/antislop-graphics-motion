@@ -1,6 +1,6 @@
 # STORYBOARD INDEX — 100 Template Storyboard untuk Remotion
 
-Katalog 100 template storyboard di 10 kategori untuk skill `/antislop-graphics-motion`. Tiap template adalah rencana scene (waktu, visual, motion, kamera, transisi, SFX) yang sudah mematuhi aturan skill. Agent memilih satu template, menyalinnya, lalu mengadaptasinya ke brief.
+Katalog 100 template storyboard di 10 kategori untuk skill `/motion-craft`. Tiap template adalah rencana scene (waktu, visual, motion, kamera, transisi, SFX) yang sudah mematuhi aturan skill. Agent memilih satu template, menyalinnya, lalu mengadaptasinya ke brief.
 
 > Baca file kategori yang dipilih saja, jangan memuat semua 10 file sekaligus.
 

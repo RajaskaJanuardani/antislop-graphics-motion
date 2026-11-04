@@ -8,7 +8,7 @@ Dokumen teknis untuk **Pemetaan Konsep After Effects ke Remotion**, **Prosedur M
 
 Berpikirlah dengan presisi artist After Effects, lalu terjemahkan ke arsitektur Remotion:
 
-| Konsep After Effects | Implementasi di Remotion (`antislop-graphics-motion`) |
+| Konsep After Effects | Implementasi di Remotion (`motion-craft`) |
 |---|---|
 | **Composition / Precomp** | `<Composition />` di `Root.tsx`, atau komponen scene yang dibungkus `<SeamlessSceneShell />` |
 | **Layer & In/Out Timeline** | `<AbsoluteFill />` dengan `<Sequence from={...} durationInFrames={...} />` |

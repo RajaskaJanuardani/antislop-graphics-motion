@@ -54,7 +54,7 @@ export const STUDIO_SONGS_CATALOG = [
 function downloadBuffer(url) {
   return new Promise((resolve, reject) => {
     https
-      .get(url, { headers: { 'User-Agent': 'antislop-graphics-motion/2.3' } }, (res) => {
+      .get(url, { headers: { 'User-Agent': 'motion-craft/2.3' } }, (res) => {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           return resolve(downloadBuffer(res.headers.location));
         }

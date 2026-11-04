@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * scripts/run-evals.mjs
- * Automated Benchmark & Verification Suite untuk /antislop-graphics-motion (v2.2 Authentic UI & Event-SFX Edition)
+ * Automated Benchmark & Verification Suite untuk /motion-craft (v2.2 Authentic UI & Event-SFX Edition)
  */
 
 import fs from 'node:fs';

@@ -1,4 +1,4 @@
-# /antislop-graphics-motion (v2.1)
+# /motion-craft (v2.1)
 
 **After Effects-Grade Motion Graphics & Humanized Video Editing Skill for AI Coding Agents (Remotion + React + TypeScript).**
 
@@ -9,15 +9,15 @@ Built following the open-source agent skills standard (`agentskills.io`) to make
 ## Install
 
 ```bash
-npx skills add https://github.com/RajaskaJanuardani/antislop-graphics-motion --skill "antislop-graphics-motion"
+npx skills add https://github.com/RajaskaJanuardani/motion-craft --skill "motion-craft"
 ```
 
 <details>
 <summary>Claude Code plugin</summary>
 
 ```text
-/plugin marketplace add RajaskaJanuardani/antislop-graphics-motion
-/plugin install antislop-graphics-motion@antislop-graphics-motion
+/plugin marketplace add RajaskaJanuardani/motion-craft
+/plugin install motion-craft@motion-craft
 ```
 
 </details>
@@ -26,8 +26,8 @@ npx skills add https://github.com/RajaskaJanuardani/antislop-graphics-motion --s
 <summary>From a clone (Claude Code, ZCode, Codex)</summary>
 
 ```bash
-git clone https://github.com/RajaskaJanuardani/antislop-graphics-motion.git
-cd antislop-graphics-motion
+git clone https://github.com/RajaskaJanuardani/motion-craft.git
+cd motion-craft
 ./install.sh --all-agents
 ```
 
@@ -77,10 +77,10 @@ cd antislop-graphics-motion
 
 ## Usage in Agent
 
-Invoke directly with `/antislop-graphics-motion`:
+Invoke directly with `/motion-craft`:
 
 ```text
-/antislop-graphics-motion Build a 12-second product demo video (1920x1080, 30fps). Show the interactive UI in the center with the camera smoothly zooming to follow typing and tracking the cursor click on Publish, use seamless transitions between scenes, and keep the narration subtitle neatly at the bottom.
+/motion-craft Build a 12-second product demo video (1920x1080, 30fps). Show the interactive UI in the center with the camera smoothly zooming to follow typing and tracking the cursor click on Publish, use seamless transitions between scenes, and keep the narration subtitle neatly at the bottom.
 ```
 
 ---

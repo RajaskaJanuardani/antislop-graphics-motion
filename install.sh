@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Install or symlink antislop-graphics-motion into agent skill directories
+# Install or symlink motion-craft into agent skill directories
 # Compatible with ZCode / Agent Skills (~/.agents/skills), Claude Code (~/.claude/skills), and Codex (~/.codex/skills)
 
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_NAME="antislop-graphics-motion"
+SKILL_NAME="motion-craft"
 
 targets=()
 mode="copy"

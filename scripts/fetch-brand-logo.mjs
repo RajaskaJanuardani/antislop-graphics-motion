@@ -58,7 +58,7 @@ const SLUG_ALIASES = {
 function fetchUrl(url) {
   return new Promise((resolve, reject) => {
     https
-      .get(url, { headers: { 'User-Agent': 'antislop-graphics-motion/2.2' } }, (res) => {
+      .get(url, { headers: { 'User-Agent': 'motion-craft/2.2' } }, (res) => {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           return resolve(fetchUrl(res.headers.location));
         }
