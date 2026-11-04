@@ -12,6 +12,7 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 ### Referensi Teknis di Dalam Skill
 - `references/STYLES.md` — Indeks katalog 43 gaya desain visual & peta topik ke gaya.
 - `references/styles/01-cyberpunk.md` s/d `references/styles/43-motion-reel-editorial.md` — **43 File Spesifikasi Rinci per Gaya** (masing-masing memuat tabel palet hex 60-20-10-7-3, skala tipografi 16:9 & 9:16, bahasa bentuk, rumus spring/easing, waypoint kamera `splineAt`, rekomendasi lagu `B00`–`B39` / `M01`–`M24` + SFX, contoh kode TSX lengkap, dan larangan anti-slop spesifik gaya tersebut). Wajib baca file gaya yang terpilih!
+- `references/storyboards/INDEX.md` & `references/storyboards/01-bisnis-promosi.md` s/d `10-infografis-data.md` — **100 Template Storyboard Siap Pakai (`T001`–`T100`)** di 10 kategori beserta `templates/STORYBOARD.template.md`. Setiap template sudah memetakan pembagian detik asimetris, gerak kamera (`HOLD`, `PUSH`, `TYPE`, `CURSOR`, `GLIDE`), transisi keluar (`WGL`, `WGU`, `PZI`, `SSU`, `MC`, `MORPH`), SFX terikat-animasi, dan rekomendasi komponen 3D/Grid/Card Interaction!
 - `references/CARD-GRID-3D-PATTERNS.md` — **19 Komponen Siap Pakai untuk 3D Card Layout, Grid Animation, & Card Interaction** (`Coverflow3D`, `FerrisWheelCards`, `CubeRoll3D`, `CylinderCards3D`, `HelixCards3D`, `SphereCards3D`, `ZDepthTunnel`, `BentoGridReveal`, `ExplodeToGrid`, `LayoutMorphGridToCarousel`, `MasonryZoomDetail`, `GridRecapZoomOut`, `CardStackSwipe`, `FanSpreadCards`, `PolaroidDropTable`, `CardFlip3D`, `PageCurlCard`, `PageTurnBook`, `AccordionFoldCard`) lengkap dengan SFX studio CC0 yang otomatis terikat ke setiap gerakan.
 - `references/SOUND.md` — Katalog 64 pilihan lagu backsound (**40 lagu prosedural multi-chord `B00`–`B39` + 24 lagu studio `M01`–`M24`**), **65+ Studio SFX CC0 & Pack Tematik** (termasuk 9 SFX transisi studio baru), standar `-14 LUFS`, & auto-ducking.
 - `references/CAMERA-SCENES-NARRATOR.md` — Arsitektur tata letak Konten vs Subtitle, kamera C1 spline (`splineAt`), transisi seamless, & 5 profil narator (`N01`–`N05`).
@@ -79,9 +80,11 @@ Jangan merender kartu statis yang membosankan! Gunakan langsung ke-19 komponen s
 ## Alur Kerja Eksekusi (6 Langkah)
 
 ```bash
-# 1. Pilih Gaya Desain (43 Katalog) & Rancang Scene ber-Pacing Asimetris
+# 1. Pilih Gaya Desain (43 Katalog) & Rancang Storyboard (100 Template T001-T100) ber-Pacing Asimetris
 node "<skill>/scripts/draw-style.mjs" --brief "<topik dan mood>" --out research
 node "<skill>/scripts/scenes.mjs" --brief "<topik>" --duration 12 --fps 30 --overlap 10 --out research
+# Opsional: pilih ID template storyboard spesifik (T001 s/d T100 dari references/storyboards/INDEX.md)
+# node "<skill>/scripts/scenes.mjs" --template T032 --brief "<topik>" --duration 20 --fps 30 --overlap 10 --out research
 
 # 2. Ambil Logo Brand / Project Asli yang Disebut di Brief
 node "<skill>/scripts/fetch-brand-logo.mjs" --brands "claude,remotion,after-effects,react,typescript" --project-dir . --out public/brands

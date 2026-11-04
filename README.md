@@ -67,7 +67,10 @@ cd antislop-graphics-motion
    - **Grid Animations (`GridAnimations.tsx`):** `<BentoGridReveal />`, `<ExplodeToGrid />`, `<LayoutMorphGridToCarousel />`, `<MasonryZoomDetail />`, `<GridRecapZoomOut />`.
    - **Card Interactions (`CardInteractions.tsx`):** `<CardStackSwipe />`, `<FanSpreadCards />`, `<PolaroidDropTable />`, `<CardFlip3D />`, `<PageCurlCard />`, `<PageTurnBook />`, `<AccordionFoldCard />`.
 
-6. **43 Deep-Dive Style Guides (`references/styles/01..43.md`), Official Brand Logos (`<BrandLogo />`), 64 BGM Songs (`B00`–`B39` & `M01`–`M24`), & 65+ Event-Driven Studio SFX (`SOUND.md`)**
+6. **100 Ready-to-Use Storyboard Templates (`T001`–`T100` in `references/storyboards/`) & `templates/STORYBOARD.template.md`**
+   - Organized across 10 categories (`01-bisnis-promosi.md` through `10-infografis-data.md` + `INDEX.md`) with asymmetric scene windows, C1 camera codes (`HOLD`, `PUSH`, `TYPE`, `CURSOR`, `GLIDE`), seamless transition codes (`WGL`, `WGU`, `PZI`, `SSU`, `MC`, `MORPH`), event-bound SFX, and recommended 3D/Grid/Card components.
+
+7. **43 Deep-Dive Style Guides (`references/styles/01..43.md`), Official Brand Logos (`<BrandLogo />`), 64 BGM Songs (`B00`–`B39` & `M01`–`M24`), & 65+ Event-Driven Studio SFX (`SOUND.md`)**
    - Zero-dependency Node.js CLI scripts (`draw-style.mjs`, `scenes.mjs`, `fetch-brand-logo.mjs`, `narrator-sync.mjs`, `synth-audio.mjs`, `fetch-music.mjs`, `lint.mjs`, `inspect-motion.mjs`, `run-evals.mjs`).
 
 ---
