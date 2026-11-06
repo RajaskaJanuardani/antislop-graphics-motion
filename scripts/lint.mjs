@@ -65,6 +65,7 @@ function walkFiles(dir, extFilter = ['.ts', '.tsx', '.js', '.jsx', '.json']) {
 const targetDir = process.argv[2] ? path.resolve(process.cwd(), process.argv[2]) : path.resolve(process.cwd(), 'src');
 const files = walkFiles(targetDir);
 const violations = [];
+if (!files.length) violations.push({ rule: 'NO_SOURCE_FILES', message: 'No source files scanned; check the target directory.' });
 
 for (const file of files) {
   const content = fs.readFileSync(file, 'utf8');
@@ -83,7 +84,7 @@ for (const file of files) {
       });
     }
 
-    if (!isComment && (file.endsWith('.ts') || file.endsWith('.tsx'))) {
+    if (!isComment && /\.[jt]sx?$/.test(file)) {
       for (const r of STATIC_RULES) {
         if (r.pattern.test(line)) {
           violations.push({
@@ -113,3 +114,4 @@ console.log(
 if (violations.length > 0) {
   process.exitCode = 1;
 }
+

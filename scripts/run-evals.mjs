@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -120,6 +120,7 @@ check('3. Eval #1: SaaS Launch (Asymmetric Pacing + Word Sync)', () => {
   if (totalStoryboards !== 100) {
     throw new Error(`Expected 100 storyboard templates across 10 files, found ${totalStoryboards}`);
   }
+  if (!words.length || !words.every((w, i) => w.endMs > w.startMs && (i === 0 || w.startMs >= words[i - 1].endMs))) throw new Error('Invalid narration word timeline.');
   const durs = plan.scenes.map((s) => s.durationInFrames);
   return `Verified 43 style .md files + 100 storyboard templates (${plan.selectedStoryboardId} auto-selected) + Asymmetric durations [${durs.join('f, ')}f]`;
 });
@@ -163,17 +164,23 @@ check('4. Eval #2: Event-Driven 48kHz Stereo WAV Synthesis (Typing Loop, Progres
 });
 
 // Test 5: Safe-Zone & Bounding-Box Spline Inspector
-check('5. Safe-Zone & Bounding-Box Camera Spline Inspector (inspect-motion.mjs)', () => {
+check('5. Static inspector reports unperformed checks as PARTIAL', () => {
   const out = execSync(
     `node "${path.join(__dirname, 'inspect-motion.mjs')}" --src "${path.join(SKILL_ROOT, 'templates')}" --public "${path.join(SKILL_ROOT, 'references')}"`,
     { encoding: 'utf8' }
   );
   const parsed = JSON.parse(out);
-  if (parsed.status !== 'PASS') {
+  if (parsed.status !== 'PARTIAL' || parsed.skipped.length !== 3) {
     throw new Error(`Inspector failed: ${JSON.stringify(parsed.issues)}`);
   }
-  return parsed.passes.join(' | ');
+  return 'Static inspection only; geometry, still renders and media intentionally not evaluated.';
 });
+
+check('6. Behavioral reliability regressions (real media, geometry, timing, shell literals)', () => {
+  return execFileSync(process.execPath, [path.join(__dirname, 'test-reliability.mjs')], { encoding: 'utf8' }).trim();
+});
+
+console.log('Scope: local regression checks. Prompt outputs in evals/evals.json have NOT been generated or visually evaluated.');
 
 try {
   fs.rmSync(tmpRoot, { recursive: true, force: true });
@@ -193,3 +200,4 @@ console.log(`================================================================\n`
 if (passed < results.length) {
   process.exitCode = 1;
 }
+

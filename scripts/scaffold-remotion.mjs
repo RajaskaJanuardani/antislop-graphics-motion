@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,47 +36,39 @@ function parseArgs(argv) {
     duration: 12,
   };
   for (let i = 2; i < argv.length; i++) {
-    const k = argv[i];
-    const v = argv[i + 1];
-    if (k === '--target' && v) args.targetDir = path.resolve(v);
-    if (k === '--brief' && v) args.brief = v;
-    if (k === '--style' && v) args.styleId = Number(v);
-    if (k === '--text' && v) args.text = v;
-    if (k === '--duration' && v) args.duration = Number(v);
+    const key = argv[i];
+    const value = argv[++i];
+    if (value === undefined) throw new Error(`Missing value for ${key}.`);
+    switch (key) {
+      case '--target': args.targetDir = path.resolve(value); break;
+      case '--brief': args.brief = value; break;
+      case '--style': args.styleId = Number(value); break;
+      case '--text': args.text = value; break;
+      case '--duration': args.duration = Number(value); break;
+      default: throw new Error(`Unknown option: ${key}`);
+    }
   }
   return args;
 }
 
 const opts = parseArgs(process.argv);
+if (!Number.isFinite(opts.duration) || opts.duration <= 0) throw new Error('Duration must be positive.');
+if (opts.styleId !== null && (!Number.isInteger(opts.styleId) || opts.styleId < 1 || opts.styleId > 43)) throw new Error('Style must be 1..43.');
 const targetSrc = path.join(opts.targetDir, 'src', 'antislop');
 
 console.log(`[scaffold-remotion] Copying ready-to-use templates to ${targetSrc}...`);
 copyDirRecursive(path.join(SKILL_ROOT, 'templates'), targetSrc);
 
-// 1. Jalankan draw-style.mjs
-const styleFlag = opts.styleId ? `--style ${opts.styleId}` : '';
-const drawOut = execSync(
-  `node "${path.join(__dirname, 'draw-style.mjs')}" --brief "${opts.brief.replace(/"/g, '\\"')}" ${styleFlag} --out "${path.join(opts.targetDir, 'research')}"`,
-  { encoding: 'utf8' }
-);
-const chosenMeta = JSON.parse(drawOut).chosen;
-
-// 2. Jalankan scenes.mjs
-execSync(
-  `node "${path.join(__dirname, 'scenes.mjs')}" --brief "${opts.brief.replace(/"/g, '\\"')}" --duration ${opts.duration} --out "${path.join(opts.targetDir, 'research')}"`,
-  { stdio: 'inherit' }
-);
-
-// 3. Jalankan narrator-sync.mjs
-execSync(
-  `node "${path.join(__dirname, 'narrator-sync.mjs')}" --text "${opts.text.replace(/"/g, '\\"')}" --out-words "${path.join(opts.targetDir, 'public/words.json')}" --out-map "${path.join(opts.targetDir, 'research/word-map.md')}"`,
-  { stdio: 'inherit' }
-);
-
-// 4. Jalankan synth-audio.mjs
-execSync(
-  `node "${path.join(__dirname, 'synth-audio.mjs')}" --bgm "${chosenMeta.bgm}" --duration ${opts.duration} --words "${path.join(opts.targetDir, 'public/words.json')}" --out "${path.join(opts.targetDir, 'public/audio')}"`,
-  { stdio: 'inherit' }
-);
-
-console.log(`[scaffold-remotion] Ready! Style #${chosenMeta.id} (${chosenMeta.name}) + Seamless Scenes Plan + Audio (${chosenMeta.bgm}) installed in ${opts.targetDir}`);
+// Pass user text as argv, never through a shell.
+function run(script, args, capture = false) {
+  return execFileSync(process.execPath, [path.join(__dirname, script), ...args], {
+    encoding: 'utf8', stdio: capture ? 'pipe' : 'inherit',
+  });
+}
+const styleArgs = ['--brief', opts.brief, '--out', path.join(opts.targetDir, 'research')];
+if (opts.styleId) styleArgs.push('--style', String(opts.styleId));
+const chosenMeta = JSON.parse(run('draw-style.mjs', styleArgs, true)).chosen;
+run('scenes.mjs', ['--brief', opts.brief, '--duration', String(opts.duration), '--out', path.join(opts.targetDir, 'research')]);
+run('narrator-sync.mjs', ['--text', opts.text, '--duration', String(opts.duration), '--out-words', path.join(opts.targetDir, 'public/words.json'), '--out-map', path.join(opts.targetDir, 'research/word-map.md')]);
+run('synth-audio.mjs', ['--bgm', chosenMeta.bgm, '--duration', String(opts.duration), '--words', path.join(opts.targetDir, 'public/words.json'), '--out', path.join(opts.targetDir, 'public/audio')]);
+console.log(`[scaffold-remotion] Ready: style #${chosenMeta.id} (${chosenMeta.name}); narration timings are estimates until aligned to audio.`);

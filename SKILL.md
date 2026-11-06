@@ -12,6 +12,14 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 > **ATURAN EFISIENSI TOKEN (SELECTIVE LOADING):**
 > Jangan pernah membaca seluruh file di dalam `references/` atau `templates/` sekaligus! Hanya baca **1 file gaya yang terpilih** (`research/selected-style-guide.md`), **1 file storyboard yang dipakai** (`research/storyboard.md`), dan hanya `import` komponen di `templates/components/` yang benar-benar digunakan pada scene video.
 
+## Prioritas Keputusan (Berlaku untuk Semua Referensi dan Template)
+
+1. Ikuti permintaan eksplisit user dan aset/referensi yang diberikan.
+2. Untuk replikasi, pertahankan layout, timing, tipografi, badge/status indikator, kamera, dan transisi referensi. Jangan memaksakan preset yang mengubah referensi.
+3. Untuk rekonstruksi UI, utamakan struktur UI asli yang fungsional, termasuk badge, indikator status, atau ikon yang memang ada.
+4. Terapkan aturan anti-slop, pembagian panggung/subtitle, dan kamera di bawah sebagai default saat brief tidak menentukan hal lain. Pilih komponen sesuai kebutuhan cerita; tidak wajib memakai kartu 3D, subtitle, atau SFX pada setiap video.
+5. Tetap gunakan animasi deterministik. Laporkan keterbatasan aset dan pengujian dengan jujur; jangan menyatakan identik atau sinkron hanya berdasarkan instruksi atau keberadaan file.
+
 ### Referensi Teknis di Dalam Skill
 - `references/STYLES.md` — Indeks katalog 43 gaya desain visual & peta topik ke gaya.
 - `references/styles/01-cyberpunk.md` s/d `references/styles/43-motion-reel-editorial.md` — **43 File Spesifikasi Rinci per Gaya** (masing-masing memuat tabel palet hex 60-20-10-7-3, skala tipografi 16:9 & 9:16, bahasa bentuk, rumus spring/easing, waypoint kamera `splineAt`, rekomendasi lagu `B00`–`B39` / `M01`–`M24` + SFX, contoh kode TSX lengkap, dan larangan anti-slop spesifik gaya tersebut). Wajib baca file gaya yang terpilih!
@@ -23,7 +31,7 @@ Dalam perintah di bawah, `<skill>` adalah folder tempat skill ini berada.
 
 ---
 
-## 6 Aturan Keras Anti-Slop (WAJIB DIPATUHI!)
+## 7 Default Desain Anti-Slop (Ikuti Prioritas Keputusan di Atas)
 
 ### 1. DILARANG Membuat Background Teks / Pill Badge yang Tidak Diperlukan
 - **Jangan pernah** membungkus setiap judul bagian, label status, atau kata dengan kotak/pill background berwarna (`borderRadius: 999`, `backgroundColor: rgba(...)`, badge mengambang di atas judul, atau kotak warna di belakang kata subtitle)!
@@ -87,7 +95,7 @@ Jangan merender kartu statis yang membosankan! Gunakan langsung ke-19 komponen s
 
 ---
 
-## Alur Kerja Eksekusi (6 Langkah)
+## Alur Kerja Eksekusi
 
 ```bash
 # 1. Pilih Gaya Desain (43 Katalog) & Rancang Storyboard (100 Template T001-T100) ber-Pacing Asimetris
@@ -99,16 +107,27 @@ node "<skill>/scripts/scenes.mjs" --brief "<topik>" --duration 12 --fps 30 --ove
 # 2. Ambil Logo Brand / Project Asli yang Disebut di Brief
 node "<skill>/scripts/fetch-brand-logo.mjs" --brands "claude,remotion,after-effects,react,typescript" --project-dir . --out public/brands
 
-# 3. Siapkan Narasi Subtitle (words.json) & Sintesis Audio 48kHz (Pilihan Lagu B00-B39 / Studio M01-M24 + 65 SFX)
-node "<skill>/scripts/narrator-sync.mjs" --text "<naskah narasi>" --profile N01 --out-words public/words.json --out-map research/word-map.md
+# 3. Siapkan Narasi Subtitle & Audio (gunakan --tts untuk batas kata dari audio)
+node "<skill>/scripts/narrator-sync.mjs" --text "<naskah narasi>" --profile N01 --tts --duration 12 --out-words public/words.json --out-map research/word-map.md
 node "<skill>/scripts/synth-audio.mjs" --bgm B26 --duration 12 --fps 30 --out public/audio
 # Opsional: gunakan lagu rekaman studio royalty-free (M01-M24)
 # node "<skill>/scripts/fetch-music.mjs" --song M03 --duration 12 --out public/audio/music.wav
 
-# 4. Jalankan Static Anti-Slop Linter & Safe-Zone Inspector
+# 4. Jalankan pemeriksaan statis & render still (hasil PARTIAL sebelum geometri/media diperiksa)
 node "<skill>/scripts/lint.mjs" src
 node "<skill>/scripts/inspect-motion.mjs" --src src --comp MainVideo --frames 15,50,95,100,150,200
 
 # 5. Render Akhir
 npx remotion render MainVideo out/v1.mp4
 ```
+
+
+### Sinkronisasi, QA, dan Evaluasi Hasil
+
+- `narrator-sync.mjs --tts` membutuhkan Python `edge-tts` yang mendukung `WordBoundary` dan akses layanan TTS. Audio dan timestamp diambil dari stream yang sama. Jika gagal, perintah gagal; jangan mengklaim narasi berhasil.
+- Untuk audio yang sudah ada, gunakan `--timings alignment.json` berisi `[{"text":"Halo","startMs":120,"endMs":480}]` dari alignment audio tersebut. Timestamp wajib berurutan dan tidak overlap. `--duration` menolak narasi yang melewati akhir video.
+- Tanpa `--tts` / `--timings`, timestamp adalah **perkiraan**. Baca `words.json.meta.json`; jangan menyerahkan subtitle perkiraan sebagai sinkron audio. Gunakan `AudioStage narrationSrc="audio/narration.mp3"` untuk menyertakan hasil TTS dalam komposisi.
+- Setelah render, jalankan `inspect-motion.mjs --src src --comp MainVideo --frames 15,50,95 --video out/v1.mp4 --geometry research/geometry.json --require-complete`. Ukur geometri setelah transform kamera; lihat format dan cakupan di `references/REPLICATION-AND-QA.md`.
+- `FAIL` berarti pemeriksaan gagal; `PARTIAL` berarti ada pemeriksaan yang belum dilakukan. `PASS` hanya berlaku pada pemeriksaan otomatis dan frame yang dicatat. Tinjau still dan video secara visual sebelum serah.
+- Jalankan `node "<skill>/scripts/run-evals.mjs"` untuk tes regresi lokal. Ini bukan bukti kualitas artistik atau keberhasilan tiga prompt evaluasi.
+- Uji video nyata: `node "<skill>/scripts/evaluate-video.mjs" --project . --comp MainVideo --width 1920 --height 1080 --fps 30 --frames 360`. Tambahkan `--reference ref.mp4 --min-ssim 0.95` untuk membandingkan seluruh frame yang sudah disejajarkan. Ambang tersebut bukan persentase kemiripan dan bukan bukti identik 100%.

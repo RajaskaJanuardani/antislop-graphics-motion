@@ -8,7 +8,15 @@
         "Menggunakan BottomSubtitleBar di bagian bawah layar (tidak menaruh subtitle besar di tengah layar)",
         "Menggunakan splineAt untuk kamera yang zoom mengikuti ketikan TypeText dan AnimatedCursor tanpa camera shake",
         "Menggunakan SeamlessSceneShell (overlap 10 frame) untuk perpindahan antar-scene yang halus",
-        "Lulus node scripts/lint.mjs tanpa emoji dan tanpa Math.random()"
+        "Lulus node scripts/lint.mjs tanpa emoji dan tanpa Math.random()",
+        "Render aktual 1920x1080, 30fps, 360 frame; tidak ada objek penting terpotong atau bertabrakan dengan subtitle pada frame sampel",
+        "Jika ada narasi audio, timestamp berasal dari batas kata TTS/alignment; jika tidak ada narasi, jangan mengklaim sinkron audio"
+      ],
+      "required_artifacts": [
+        "out/v1.mp4",
+        "out/qa-stills/",
+        "research/geometry.json",
+        "out/evaluation/result.json"
       ]
     },
     {
@@ -17,17 +25,31 @@
       "expected_checks": [
         "Memilih Gaya #10 Split Flap di research/style-bible.md",
         "Mensintesis audio B24 dan SFX via scripts/synth-audio.mjs",
-        "Visual papan keberangkatan menjadi fokus utama di tengah, subtitle berada di area aman bawah"
+        "Visual papan keberangkatan menjadi fokus utama di tengah, subtitle berada di area aman bawah",
+        "Render aktual 1080x1920, 30fps, 300 frame; periksa keterbacaan papan dan safe-zone pada format vertikal"
+      ],
+      "required_artifacts": [
+        "out/v1.mp4",
+        "research/style-bible.md",
+        "out/evaluation/result.json"
       ]
     },
     {
       "id": "eval-03-replication-100-percent",
       "prompt": "/motion-craft Replikasi 100% sama persis video referensi ./ref.mp4 di Remotion, ukur dengan splineAt dan buktikan dengan skor SSIM dan PSNR.",
       "expected_checks": [
-        "Mengekstrak metadata ffprobe dan frame referensi",
-        "Merekonstruksi kurva kamera dengan splineAt(frame, CAM) dan huruf dengan FlyText / TypeText",
-        "Menjalankan verifikasi SSIM dan PSNR menggunakan ffmpeg"
+        "Mengekstrak metadata ffprobe dan frame referensi; jika ref.mp4 tidak tersedia, laporkan bahwa evaluasi belum dapat dilakukan",
+        "Mengikuti layout, kamera, badge/indikator, dan timing referensi meskipun berbeda dari default anti-slop",
+        "Menyamakan resolusi, fps, jumlah frame, dan offset waktu sebelum menjalankan SSIM/PSNR",
+        "Melaporkan rata-rata dan minimum skor per frame, frame terburuk, serta hasil tinjauan visual; jangan menyatakan 100% identik hanya dari metrik"
+      ],
+      "required_artifacts": [
+        "out/v1.mp4",
+        "out/evaluation/result.json",
+        "out/evaluation/ssim.log",
+        "diff.mp4"
       ]
     }
-  ]
+  ],
+  "evaluation_scope": "These are agent output scenarios, not executed by the local script regression suite. Produce and review the listed artifacts separately."
 }

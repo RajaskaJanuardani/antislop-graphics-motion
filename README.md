@@ -4,6 +4,12 @@
 
 `motion-craft` adalah *open-source agent skill* (mengikuti standar `agentskills.io`) yang mengubah AI coding agent (Claude Code, ZCode, Cursor, Codex, Windsurf) menjadi **Senior After Effects Artist & Motion Director**. Skill ini membekali agent dengan komponen React/Remotion siap pakai, kamera C1 Spline mulus tanpa getaran, 43 panduan gaya desain mendalam, 100 template storyboard, 19 koreografi kartu 3D/Grid/Interaksi, replika UI autentik, resolver logo brand resmi, serta 65+ Studio SFX & 64 pilihan lagu backsound yang terikat langsung ke animasi.
 
+## Status QA dan Timestamp
+
+Default desain mengikuti brief dan referensi; badge UI asli, kamera referensi, serta jeda yang disengaja tetap boleh. `narrator-sync.mjs --tts` mengambil batas kata dari audio TTS (Python `edge-tts` diperlukan), sedangkan tanpa TTS/alignment hasilnya ditandai sebagai perkiraan. Gunakan `--timings alignment.json` untuk audio yang sudah ada.
+
+Inspector menghasilkan `FAIL`, `PARTIAL`, atau `PASS` sesuai pemeriksaan yang benar-benar dilakukan. Safe-zone membutuhkan rectangle screen-space terukur melalui `--geometry`; tidak lagi disimpulkan dari angka waypoint. Tes regresi bukan bukti kualitas artistik. Gunakan `scripts/evaluate-video.mjs` untuk render/metadata dan perbandingan SSIM video nyata. Lihat [cakupan dan format QA](references/REPLICATION-AND-QA.md#4-cakupan-qa-dan-geometri-yang-diukur).
+
 ---
 
 ## Daftar Isi
@@ -279,3 +285,4 @@ node scripts/run-evals.mjs
 ## Lisensi
 
 Dirilis di bawah lisensi [MIT License](LICENSE).
+
