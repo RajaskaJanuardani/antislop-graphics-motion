@@ -30,17 +30,19 @@ export const BentoGridReveal: React.FC<BentoGridRevealProps> = ({
   items,
   startFrame = 10,
   waveGapFrames = 18,
-  stageWidth = 1160,
-  stageHeight = 620,
-  columns = 4,
+  stageWidth: requestedWidth,
+  stageHeight: requestedHeight,
+  columns,
   gapPx = 18,
-  enableSfx = true,
+  enableSfx = false,
   sfxVolume = 0.36,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const stageWidth = requestedWidth ?? Math.min(1160, Math.floor(width * 0.9));
+  const stageHeight = requestedHeight ?? Math.min(620, Math.floor(height * 0.9));
+  const columnCount = Math.max(1, Math.floor(columns ?? (width < height ? 2 : 4)));
 
-  const columnCount = Math.max(1, Math.floor(columns));
   const cells = items.map((item, index) => {
     const wave = item.revealWave ?? (index === 0 ? 1 : index <= 2 ? 2 : 3);
     return {
@@ -111,15 +113,17 @@ export const ExplodeToGrid: React.FC<ExplodeToGridProps> = ({
   items,
   explodeFrame = 20,
   settleFrame = 44,
-  columns = 3,
-  cardWidth = 280,
+  columns: requestedColumns,
+  cardWidth: requestedCardWidth,
   cardHeight = 200,
   gapPx = 24,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const columns = requestedColumns ?? (width < height ? 2 : 3);
 
+  const cardWidth = requestedCardWidth ?? Math.min(280, Math.max(1, (width * 0.9 - (columns - 1) * gapPx) / columns));
   const rows = Math.ceil(items.length / columns);
   const totalW = columns * cardWidth + (columns - 1) * gapPx;
   const totalH = rows * cardHeight + (rows - 1) * gapPx;
@@ -202,7 +206,6 @@ export const ExplodeToGrid: React.FC<ExplodeToGridProps> = ({
                 width={cardWidth}
                 height={cardHeight}
                 isActive={idx === 0 && pSettle > 0.7}
-                borderRadius={20}
               />
             </div>
           );
@@ -234,18 +237,20 @@ export const LayoutMorphGridToCarousel: React.FC<LayoutMorphGridToCarouselProps>
   morphFrame = 34,
   carouselStepFrame = 68,
   focusedCarouselIndex = 1,
-  columns = 3,
-  gridCardWidth = 250,
+  columns: requestedColumns,
+  gridCardWidth: requestedGridWidth,
   gridCardHeight = 185,
   carouselCardWidth = 310,
   carouselCardHeight = 360,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const columns = requestedColumns ?? (width < height ? 2 : 3);
 
   const rows = Math.ceil(items.length / columns);
   const gapPx = 22;
+  const gridCardWidth = requestedGridWidth ?? Math.min(250, Math.max(1, (width * 0.9 - (columns - 1) * gapPx) / columns));
   const totalGridW = columns * gridCardWidth + (columns - 1) * gapPx;
   const totalGridH = rows * gridCardHeight + (rows - 1) * gapPx;
 
@@ -317,7 +322,6 @@ export const LayoutMorphGridToCarousel: React.FC<LayoutMorphGridToCarouselProps>
                 width={w}
                 height={h}
                 isActive={isFocused}
-                borderRadius={22}
               />
             </div>
           );
@@ -347,13 +351,15 @@ export const MasonryZoomDetail: React.FC<MasonryZoomDetailProps> = ({
   targetIndex = 1,
   selectFrame = 20,
   zoomFrame = 36,
-  stageWidth = 1080,
-  stageHeight = 600,
-  detailDescription = 'Tampilan halaman detail penuh setelah kartu dipilih dari galeri Masonry.',
-  enableSfx = true,
+  stageWidth: requestedWidth,
+  stageHeight: requestedHeight,
+  detailDescription,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const stageWidth = requestedWidth ?? Math.min(1080, Math.floor(width * 0.9));
+  const stageHeight = requestedHeight ?? Math.min(600, Math.floor(height * 0.9));
 
   const pSelect = springAt(frame, selectFrame, fps, { damping: 14, stiffness: 180, mass: 0.65 });
   const pZoom = springAt(frame, zoomFrame, fps, { damping: 16, stiffness: 135, mass: 0.85 });
@@ -424,13 +430,12 @@ export const MasonryZoomDetail: React.FC<MasonryZoomDetailProps> = ({
               <Clean3DCardFace
                 item={{
                   ...item,
-                  subtitle: pZoom > 0.65 && isTarget ? detailDescription : item.subtitle,
+                  subtitle: pZoom > 0.65 && isTarget ? detailDescription ?? item.subtitle : item.subtitle,
                 }}
                 index={idx}
                 width={w}
                 height={h}
                 isActive={isTarget && pSelect > 0.2}
-                borderRadius={24}
               />
             </div>
           );
@@ -459,14 +464,17 @@ export const GridRecapZoomOut: React.FC<GridRecapZoomOutProps> = ({
   items,
   lastSlideIndex,
   pullbackFrame = 24,
-  stageWidth = 1080,
-  stageHeight = 580,
-  columns = 3,
+  stageWidth: requestedWidth,
+  stageHeight: requestedHeight,
+  columns: requestedColumns,
   gapPx = 22,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const stageWidth = requestedWidth ?? Math.min(1080, Math.floor(width * 0.9));
+  const stageHeight = requestedHeight ?? Math.min(580, Math.floor(height * 0.9));
+  const columns = requestedColumns ?? (width < height ? 2 : 3);
 
   const count = Math.min(items.length, 6);
   const heroIdx = lastSlideIndex ?? count - 1;
@@ -544,7 +552,6 @@ export const GridRecapZoomOut: React.FC<GridRecapZoomOutProps> = ({
                 width={w}
                 height={h}
                 isActive={isHero}
-                borderRadius={22}
               />
             </div>
           );

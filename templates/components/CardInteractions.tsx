@@ -24,7 +24,7 @@ export const CardStackSwipe: React.FC<CardStackSwipeProps> = ({
   framesPerSwipe = 30,
   cardWidth = 310,
   cardHeight = 380,
-  enableSfx = true,
+  enableSfx = false,
   sfxVolume = 0.38,
 }) => {
   const frame = useCurrentFrame();
@@ -107,7 +107,6 @@ export const CardStackSwipe: React.FC<CardStackSwipeProps> = ({
                 width={cardWidth}
                 height={cardHeight}
                 isActive={Math.abs(relPos) < 0.45}
-                borderRadius={24}
               />
             </div>
           );
@@ -138,7 +137,7 @@ export const FanSpreadCards: React.FC<FanSpreadCardsProps> = ({
   maxFanAngleDeg = 56,
   cardWidth = 235,
   cardHeight = 320,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -196,7 +195,6 @@ export const FanSpreadCards: React.FC<FanSpreadCardsProps> = ({
                 width={cardWidth}
                 height={cardHeight}
                 isActive={idx === focusIdx}
-                borderRadius={20}
               />
             </div>
           );
@@ -241,7 +239,7 @@ export const PolaroidDropTable: React.FC<PolaroidDropTableProps> = ({
   dropIntervalFrames = 24,
   cardWidth = 265,
   cardHeight = 325,
-  enableSfx = true,
+  enableSfx = false,
   sfxVolume = 0.4,
 }) => {
   const frame = useCurrentFrame();
@@ -385,7 +383,7 @@ export const CardFlip3D: React.FC<CardFlip3DProps> = ({
   flipFrame = 28,
   cardWidth = 340,
   cardHeight = 420,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -442,7 +440,6 @@ export const CardFlip3D: React.FC<CardFlip3DProps> = ({
             width={cardWidth}
             height={cardHeight}
             isActive={false}
-            borderRadius={24}
           />
         </div>
 
@@ -462,7 +459,6 @@ export const CardFlip3D: React.FC<CardFlip3DProps> = ({
             width={cardWidth}
             height={cardHeight}
             isActive={true}
-            borderRadius={24}
           />
         </div>
       </div>
@@ -491,14 +487,14 @@ export const PageCurlCard: React.FC<PageCurlCardProps> = ({
   curlDurationFrames = 38,
   cardWidth = 340,
   cardHeight = 420,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
 
   const curl = ip(
     frame,
     [curlStartFrame, curlStartFrame + curlDurationFrames],
-    [0.08, 0.88],
+    [0, 1],
     easeInOutSmooth
   );
 
@@ -530,7 +526,8 @@ export const PageCurlCard: React.FC<PageCurlCardProps> = ({
           position: 'relative',
           width: cardWidth,
           height: cardHeight,
-          borderRadius: 24,
+          borderRadius: frontItem.stylePreset?.shape.borderRadius ?? 8,
+          overflow: 'hidden',
         }}
       >
         {/* Lapisan Bawah (Sisi Belakang yang Terungkap) */}
@@ -541,7 +538,6 @@ export const PageCurlCard: React.FC<PageCurlCardProps> = ({
             width={cardWidth}
             height={cardHeight}
             isActive={true}
-            borderRadius={24}
           />
         </div>
 
@@ -550,6 +546,7 @@ export const PageCurlCard: React.FC<PageCurlCardProps> = ({
           style={{
             position: 'absolute',
             inset: 0,
+            opacity: ip(curl, [0.84, 1], [1, 0]),
             clipPath: `polygon(0% 0%, 100% 0%, 100% ${cutY.toFixed(1)}%, ${cutX.toFixed(1)}% 100%, 0% 100%)`,
           }}
         >
@@ -559,7 +556,6 @@ export const PageCurlCard: React.FC<PageCurlCardProps> = ({
             width={cardWidth}
             height={cardHeight}
             isActive={false}
-            borderRadius={24}
           />
         </div>
 
@@ -571,7 +567,8 @@ export const PageCurlCard: React.FC<PageCurlCardProps> = ({
             bottom: (1 - cutY / 100) * cardHeight * 0.42,
             width: flapW,
             height: flapH,
-            borderRadius: '18px 4px 20px 4px',
+            borderRadius: frontItem.stylePreset?.shape.borderRadius ?? 8,
+            opacity: ip(curl, [0.84, 1], [1, 0]),
             background: 'linear-gradient(135deg, #FFFFFF 0%, #E8E3D9 58%, #CFC8BA 100%)',
             boxShadow: '-14px -14px 28px rgba(20, 20, 24, 0.22)',
             transform: 'rotate(-12deg)',
@@ -604,7 +601,7 @@ export const PageTurnBook: React.FC<PageTurnBookProps> = ({
   turnFrame = 24,
   pageWidth = 300,
   pageHeight = 390,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -651,7 +648,6 @@ export const PageTurnBook: React.FC<PageTurnBookProps> = ({
             index={0}
             width={pageWidth}
             height={pageHeight}
-            borderRadius={16}
           />
         </div>
 
@@ -663,7 +659,6 @@ export const PageTurnBook: React.FC<PageTurnBookProps> = ({
             width={pageWidth}
             height={pageHeight}
             isActive={true}
-            borderRadius={16}
           />
         </div>
 
@@ -693,7 +688,6 @@ export const PageTurnBook: React.FC<PageTurnBookProps> = ({
               index={1}
               width={pageWidth}
               height={pageHeight}
-              borderRadius={16}
             />
           </div>
           <div
@@ -711,7 +705,6 @@ export const PageTurnBook: React.FC<PageTurnBookProps> = ({
               width={pageWidth}
               height={pageHeight}
               isActive={true}
-              borderRadius={16}
             />
           </div>
         </div>
@@ -739,7 +732,7 @@ export const AccordionFoldCard: React.FC<AccordionFoldCardProps> = ({
   direction = 'vertical',
   panelWidth = 380,
   panelHeight = 135,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -801,7 +794,6 @@ export const AccordionFoldCard: React.FC<AccordionFoldCardProps> = ({
                 width={panelWidth}
                 height={panelHeight}
                 isActive={idx === 0}
-                borderRadius={16}
               />
             </div>
           );

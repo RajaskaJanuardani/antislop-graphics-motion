@@ -38,7 +38,7 @@ export const Clean3DCardFace: React.FC<{
   const hasHeader = Boolean(item.indexLabel || item.brand);
   const shadow = preset?.shape.hardShadow
     ? `${preset.shape.shadowOffset}px ${preset.shape.shadowOffset}px 0 ${ink}`
-    : isActive ? '0 8px 22px rgba(23,23,22,0.12)' : undefined;
+    : undefined;
 
   return (
     <div style={{
@@ -127,7 +127,7 @@ export const Coverflow3D: React.FC<Coverflow3DProps> = ({
   spreadX = 210,
   sideTiltDeg = 48,
   sideDepthZ = -130,
-  enableSfx = true,
+  enableSfx = false,
   sfxVolume = 0.36,
 }) => {
   const frame = useCurrentFrame();
@@ -247,7 +247,7 @@ export const FerrisWheelCards: React.FC<FerrisWheelCardsProps> = ({
   cardHeight = 145,
   activeAngleDeg = 0, // 0 deg = posisi kanan tengah (seperti di referensi 01 aktif)
   showWheelGuide = true,
-  enableSfx = true,
+  enableSfx = false,
   sfxVolume = 0.34,
 }) => {
   const frame = useCurrentFrame();
@@ -342,7 +342,6 @@ export const FerrisWheelCards: React.FC<FerrisWheelCardsProps> = ({
                 width={cardWidth}
                 height={cardHeight}
                 isActive={isActive}
-                borderRadius={18}
               />
             </div>
           );
@@ -370,7 +369,7 @@ export const CubeRoll3D: React.FC<CubeRoll3DProps> = ({
   startFrame = 15,
   framesPerFace = 32,
   cubeSize = 320,
-  enableSfx = true,
+  enableSfx = false,
   sfxVolume = 0.38,
 }) => {
   const frame = useCurrentFrame();
@@ -459,7 +458,6 @@ export const CubeRoll3D: React.FC<CubeRoll3DProps> = ({
               width={cubeSize}
               height={cubeSize}
               isActive={idx === 0}
-              borderRadius={20}
             />
           </div>
         ))}
@@ -491,7 +489,7 @@ export const CylinderCards3D: React.FC<CylinderCards3DProps> = ({
   cardWidth = 220,
   cardHeight = 270,
   tiltXDeg = -8,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
   const count = Math.max(3, items.length);
@@ -592,7 +590,7 @@ export const HelixCards3D: React.FC<HelixCards3DProps> = ({
   angleStepDeg = 52,
   cardWidth = 210,
   cardHeight = 145,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
   const count = Math.max(2, items.length);
@@ -657,7 +655,6 @@ export const HelixCards3D: React.FC<HelixCards3DProps> = ({
                 width={cardWidth}
                 height={cardHeight}
                 isActive={idx === activeIdx}
-                borderRadius={16}
               />
             </div>
           );
@@ -688,7 +685,7 @@ export const SphereCards3D: React.FC<SphereCards3DProps> = ({
   radiusPx = 290,
   cardWidth = 155,
   cardHeight = 115,
-  enableSfx = true,
+  enableSfx = false,
 }) => {
   const frame = useCurrentFrame();
   const count = Math.max(4, items.length);
@@ -748,7 +745,6 @@ export const SphereCards3D: React.FC<SphereCards3DProps> = ({
                 width={cardWidth}
                 height={cardHeight}
                 isActive={idx === 0}
-                borderRadius={14}
               />
             </div>
           );
@@ -780,7 +776,7 @@ export const ZDepthTunnel: React.FC<ZDepthTunnelProps> = ({
   depthStepZ = 420,
   cardWidth = 290,
   cardHeight = 200,
-  enableSfx = true,
+  enableSfx = false,
   sfxVolume = 0.36,
 }) => {
   const frame = useCurrentFrame();
@@ -878,7 +874,6 @@ export const ZDepthTunnel: React.FC<ZDepthTunnelProps> = ({
                 width={cardWidth}
                 height={cardHeight}
                 isActive={isFocused}
-                borderRadius={20}
               />
             </div>
           );

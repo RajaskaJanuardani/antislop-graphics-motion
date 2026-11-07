@@ -38,8 +38,9 @@ Tulis hero spesifik, tindakan, bukti, dan titik hold sebelum coding. Gunakan [ST
 
 ## 4. Implementasikan gerak, suara, dan caption
 
+- Pilih komponen per aksi dari [SCENE-COMPONENTS.md](references/SCENE-COMPONENTS.md). Pakai warna, ukuran, dan data dari brief atau referensi.
 - Gerakkan objek yang menyebabkan perubahan. Mulai kamera dari hold. Gunakan `splineAt` atau waypoint `CameraRig` untuk memindahkan fokus dengan tujuan jelas. Pilih hard cut, match cut, atau overlap sesuai hubungan antarscene. Blur, portal glow, dan efek kursor hanya saat mendukung aksi.
-- Gunakan `TypeText presentation="native"` di input asli. Ikat klik, ketikan, progress, dan SFX transisi ke frame kejadian. Gunakan `SfxCue` untuk aksi spesifik dan sisakan jeda. Baca [SOUND.md](references/SOUND.md) untuk musik prosedural, rekaman, dan cue yang tersedia.
+- Gunakan `TypeText presentation="native"` di input asli. Ikat klik, ketikan, progress, dan SFX transisi ke frame kejadian. Baca `research/selected-sfx-guide.md` untuk tiga cue opsional dari gaya yang dipilih. Gunakan `SfxCue` pada frame aksi dan sisakan jeda. Baca [SOUND.md](references/SOUND.md) untuk musik prosedural, rekaman, dan cue yang tersedia.
 - Tambahkan caption bila brief/narasi memerlukannya. Tempatkan `BottomSubtitleBar` di screen-space, di luar kamera. Ukur jarak terhadap UI, lower third, atau chrome platform pada frame akhir. Caption tampil dengan posisi dan bobot stabil. Baca [CAMERA-SCENES-NARRATOR.md](references/CAMERA-SCENES-NARRATOR.md) untuk penerapan.
 - `narrator-sync.mjs --tts` memakai Python `edge-tts` dengan `WordBoundary` dan akses layanan. Gunakan `--timings alignment.json` untuk audio yang sudah ada dengan format `[{"text":"Halo","startMs":120,"endMs":480}]`. Tambahkan `--duration` agar kelebihan durasi ditolak. Tanpa TTS/alignment, `words.json.meta.json` menandai timing sebagai perkiraan. Sambungkan TTS ke `AudioStage narrationSrc="audio/narration.mp3"` jika berhasil.
 

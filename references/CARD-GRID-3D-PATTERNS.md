@@ -1,6 +1,6 @@
 # CARD-GRID-3D-PATTERNS.md — 19 Komponen Siap Pakai: 3D Card Layout, Grid Animation, & Card Interaction
 
-Katalog lengkap **19 pola koreografi kartu & grid** yang tersedia langsung di `templates/components/` beserta SFX studio CC0 yang otomatis menyatu dengan setiap gerakan.
+Katalog lengkap **19 pola koreografi kartu & grid** yang tersedia langsung di `templates/components/` beserta pilihan SFX yang bisa diaktifkan per pola. Gunakan `enableSfx` untuk cue bawaan, atau tempatkan `SfxCue` dari palet gaya pada frame aksi.
 
 ---
 
@@ -10,7 +10,7 @@ Untuk `PolaroidDropTable`, berikan `src` relatif ke `public/`, `customVisual`, a
 
 ## Ringkasan Pemetaan Kebutuhan Konten ke Komponen
 
-| Kategori | Nama Pola | Komponen TSX | File Template | SFX Otomatis (`public/audio/sfx/`) | Kapan Digunakan di Video |
+| Kategori | Nama Pola | Komponen TSX | File Template | SFX Bawaan jika diaktifkan (`public/audio/sfx/`) | Kapan Digunakan di Video |
 |---|---|---|---|---|---|
 | **1. 3D Card Layout** | **Coverflow** | `<Coverflow3D />` | `Card3DLayouts.tsx` | `transition-swipe.wav` tiap pindah kartu aktif | Galeri & showcase pilihan produk/fitur (kartu aktif menghadap depan). |
 | **1. 3D Card Layout** | **Ferris Wheel** | `<FerrisWheelCards />` | `Card3DLayouts.tsx` | `tick-soft.wav` tiap rotasi roda | Daftar fitur/tahapan yang bergiliran melingkar tetap tegak. |
@@ -142,7 +142,7 @@ import {
 <CardStackSwipe items={FEATURE_CARDS} startFrame={16} framesPerSwipe={28} />
 <FanSpreadCards items={FEATURE_CARDS.slice(0, 5)} spreadFrame={14} maxFanAngleDeg={56} />
 
-// 3B. Polaroid Drop (Foto jatuh satu per satu ke meja lengkap dengan SFX k2.wav)
+// 3B. Polaroid Drop (Foto jatuh satu per satu ke meja. Aktifkan enableSfx untuk k2.wav.)
 <PolaroidDropTable
   startFrame={12}
   dropIntervalFrames={22}

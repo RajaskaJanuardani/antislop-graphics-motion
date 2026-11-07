@@ -2,7 +2,7 @@
 /**
  * scripts/synth-audio.mjs
  * Studio-Grade Multi-Chord Song Synthesizer (B00-B39 = 40 Pilihan Lagu)
- * + Real CC0 Studio SFX Bundler & Pack Synthesizer (80+ Sound Effects, 48,000 Hz Stereo WAV)
+ * + Real CC0 Studio SFX Bundler & Pack Synthesizer (48,000 Hz Stereo WAV)
  *
  * Fitur Utama:
  * 1. Menyalin seluruh koleksi SFX Studio CC0 asli (termasuk 9 SFX Transisi baru, 4 SFX Ketikan asli,
@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MATERIAL_SFX, synthesizeMaterialSfx } from './material-sfx.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -599,7 +600,7 @@ if (import.meta.url === `file://${process.argv[1]?.replace(/\\/g, '/')}` || proc
   const sfxOutDir = path.join(outPath, 'sfx');
   fs.mkdirSync(sfxOutDir, { recursive: true });
 
-  // 1. Salin seluruh 43 Real CC0 Studio SFX (termasuk 9 SFX transisi baru)
+  // 1. Salin aset WAV yang dibundel.
   const copiedCount = copyBundledStudioSfx(sfxOutDir);
 
   // 2. Sintesis tambahan Pack SFX (Kertas, Mekanik, Arcade, Organik, dll.) + progress-loop.wav
@@ -617,6 +618,11 @@ if (import.meta.url === `file://${process.argv[1]?.replace(/\\/g, '/')}` || proc
     const file = path.join(sfxOutDir, `${code.toLowerCase()}.wav`);
     const mono = synthesizePackSfx(code, 0, opts.seed);
     writeStereoWav(file, mono, mono);
+  }
+
+  for (const [name, recipe] of Object.entries(MATERIAL_SFX)) {
+    const mono = synthesizeMaterialSfx(recipe, SAMPLE_RATE, mulberry32(`${opts.seed}-${name}`));
+    writeStereoWav(path.join(sfxOutDir, `${name}.wav`), mono, mono);
   }
 
   // 3. Sintesis Room Tone Bed & Lagu Backsound Utama
@@ -658,6 +664,6 @@ if (import.meta.url === `file://${process.argv[1]?.replace(/\\/g, '/')}` || proc
 
   const totalSfxFiles = fs.readdirSync(sfxOutDir).filter((f) => f.endsWith('.wav')).length;
   console.log(
-    `[synth-audio] Done! Song: ${opts.bgm} (${BGM_CATALOG[opts.bgm]?.name || 'Custom'}) | ${totalSfxFiles} SFX files ready in ${sfxOutDir} (${copiedCount} studio CC0 + synthesized packs).`
+    `[synth-audio] Done! Song: ${opts.bgm} (${BGM_CATALOG[opts.bgm]?.name || 'Custom'}) | ${totalSfxFiles} SFX files ready in ${sfxOutDir} (${copiedCount} bundled files, plus synthesized sounds).`
   );
 }

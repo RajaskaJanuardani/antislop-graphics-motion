@@ -5,6 +5,7 @@
  */
 
 import fs from 'node:fs';
+import { MATERIAL_SFX } from './material-sfx.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -154,8 +155,16 @@ check('4. Eval #2: Event-Driven 48kHz Stereo WAV Synthesis (Typing Loop, Progres
     const full = path.join(dir2, 'public/audio', f);
     if (!fs.existsSync(full)) throw new Error(`Missing synthesized audio file: ${f}`);
   }
+  for (const [id, recipe] of Object.entries(MATERIAL_SFX)) {
+    const wav = fs.readFileSync(path.join(dir2, 'public/audio/sfx', `${id}.wav`));
+    const bytes = Math.round(recipe.duration * 48000) * 4;
+    if (wav.toString('ascii', 0, 4) !== 'RIFF' || wav.readUInt32LE(24) !== 48000 ||
+        wav.readUInt16LE(22) !== 2 || wav.length !== 44 + bytes || !wav.subarray(44).some(Boolean)) {
+      throw new Error(`Invalid material SFX: ${id}`);
+    }
+  }
   const sfxCount = fs.readdirSync(path.join(dir2, 'public/audio/sfx')).filter((f) => f.endsWith('.wav')).length;
-  return `Verified 40 BGM Songs Catalog + ${sfxCount} Studio & Pack SFX files (including 9 new transition SFX, 3 typing variants, hover/click, & progress loops)`;
+  return `Verified 40 BGM Songs Catalog + ${sfxCount} Studio & Pack SFX files (including ${Object.keys(MATERIAL_SFX).length} material effects)`;
 });
 
 // Test 5: Safe-Zone & Bounding-Box Spline Inspector

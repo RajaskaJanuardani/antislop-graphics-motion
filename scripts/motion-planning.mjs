@@ -3,6 +3,8 @@ import path from 'node:path';
 import { selectMotion } from './motion-pairing.mjs';
 import { SKILL_ROOT, buildSceneTimeline, readBeats } from './storyboard-library.mjs';
 
+const STYLE_SFX = JSON.parse(fs.readFileSync(path.join(SKILL_ROOT, 'references/style-sfx.json'), 'utf8'));
+
 export function parseMotionArgs(argv) {
   const options = {
     brief: 'Demo Produk & Alur Kerja Interaktif',
@@ -51,6 +53,7 @@ export function choosePair(options) {
     styleId: style.id,
     styleName: style.name,
     styleGuide,
+    soundPalette: STYLE_SFX[style.id].map(([sfx, volume, action]) => ({ sfx, volume, action })),
     storyboardId: pair.storyboard.id,
     storyboardTitle: pair.storyboard.title,
     storyboardFile: pair.storyboard.file,
@@ -70,6 +73,16 @@ export function writeStyleOutputs(options, selection) {
   const out = path.resolve(options.outDir);
   const styleBiblePath = path.join(out, 'style-bible.md');
   const selectedStyleGuidePath = path.join(out, 'selected-style-guide.md');
+  const selectedSfxGuidePath = path.join(out, 'selected-sfx-guide.md');
+  const sfxRows = summary.soundPalette.map(({ sfx, volume, action }) => `| \`${sfx}\` | ${volume} | ${action} |`).join('\n');
+  const sfxGuide = `# SFX · #${chosen.id} ${chosen.name}
+
+| Cue | Volume awal | Pasang ketika |
+|---|---:|---|
+${sfxRows}
+
+Pilih cue sesuai tindakan yang tampak. Catat frame kejadian pada timeline adegan. Pakai \`SfxCue\` dari \`Transitions.tsx\` setelah menyiapkan WAV dengan scaffold atau \`synth-audio.mjs\`. Sisakan ruang untuk dialog dan jeda baca. Kalau audio sumber sudah memuat aksinya, pakai audio tersebut.
+`;
   const alternatives = pair.alternatives.map(({ id, name }) => `#${id} ${name}`).join(', ');
   const matches = pair.keywordMatches.length ? pair.keywordMatches.join(', ') : 'Pilihan konteks dan storyboard.';
   const fitNote = summary.compatible ? ''
@@ -84,17 +97,18 @@ export function writeStyleOutputs(options, selection) {
 - **Dasar pilihan:** ${summary.selectionNote} ${summary.adaptation}
 - **Sinyal gaya:** ${matches}
 - **Kandidat lain:** ${alternatives}
-- **Audio opsional:** ${chosen.bgm} dan ${chosen.sfx}. Ritme acuan gaya ${chosen.bpm} BPM. Ikuti timing aksi dan tempo track yang dipilih.${fitNote}
+- **Audio opsional:** ${chosen.bgm} dan ${chosen.sfx}. Baca \`selected-sfx-guide.md\` untuk cue gaya. Ritme acuan gaya ${chosen.bpm} BPM. Ikuti timing aksi dan tempo track yang dipilih.${fitNote}
 
 Terapkan grid, tipografi, material, dan koreografi dari panduan terpilih. Gunakan isi adegan dari storyboard yang diadaptasi. Tetapkan satu aksen dengan peran yang jelas dan catat keputusan aktual sebelum coding.
 `;
   fs.mkdirSync(out, { recursive: true });
   fs.writeFileSync(selectedStyleGuidePath, guide);
+  fs.writeFileSync(selectedSfxGuidePath, sfxGuide);
   fs.writeFileSync(styleBiblePath, styleBible);
   fs.appendFileSync(path.join(out, 'style-log.md'),
     `- [${new Date().toISOString().slice(0, 10)}] Gaya #${chosen.id} ${chosen.name} + ${summary.storyboardId} | ${pair.brief.replace(/\s+/g, ' ')}\n`);
 
-  return { chosen, alternatives: pair.alternatives, pairing: summary, styleBiblePath, selectedStyleGuidePath };
+  return { chosen, alternatives: pair.alternatives, pairing: summary, styleBiblePath, selectedStyleGuidePath, selectedSfxGuidePath };
 }
 
 function adaptBeats(beats, pair) {

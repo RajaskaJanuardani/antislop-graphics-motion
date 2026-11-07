@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import { MATERIAL_SFX } from './material-sfx.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { selectMotion } from './motion-pairing.mjs';
@@ -26,6 +27,8 @@ try {
   const plan = JSON.parse(fs.readFileSync(result.planPath, 'utf8'));
   assert.equal(plan.selectedStyleId, result.chosen.id);
   assert.equal(plan.totalFrames, 900);
+  assert.deepEqual(plan.pairing.soundPalette, result.pairing.soundPalette);
+  assert.match(fs.readFileSync(result.selectedSfxGuidePath, 'utf8'), /#12 Swiss Internasional[\s\S]+click-soft/);
   assert.equal(plan.scenes.length, 5);
   assert.deepEqual(plan.scenes.map(({ startFrame }) => startFrame), [0, 120, 330, 540, 750]);
   assert.match(plan.scenes[1].visualHeroCenter, /installer grafis/i);
@@ -68,11 +71,20 @@ try {
     new Set(STYLE_INDEX.flatMap(({ storyboards: picks }) => picks)),
     new Set(storyboards.map(({ id }) => id)),
   );
+  const cueType = fs.readFileSync(path.join(SKILL_ROOT, 'templates/components/Transitions.tsx'), 'utf8')
+    .split('export type StudioSfxName =')[1].split(';')[0];
   for (const style of STYLE_INDEX) {
     assert.ok(style.storyboards.length >= 2, `Style #${style.id} needs several suitable storyboards`);
     const opts = parseMotionArgs(['--style', String(style.id), '--template', style.storyboards[0]]);
     const picked = choosePair(opts);
     assert.equal(picked.chosen.id, style.id);
+    const palette = picked.summary.soundPalette;
+    assert.equal(new Set(palette.map(({ sfx }) => sfx)).size, 3);
+    for (const { sfx, volume, action } of palette) {
+      assert.ok(cueType.includes(`'${sfx}'`), `Unsupported SfxCue ID ${sfx}`);
+      assert.ok(Object.hasOwn(MATERIAL_SFX, sfx) || fs.existsSync(path.join(SKILL_ROOT, 'assets/audio/sfx', `${sfx}.wav`)));
+      assert.ok(volume > 0 && volume <= 1 && action.trim());
+    }
     assert.match(picked.guide.split('\n')[0], new RegExp(`#${String(style.id).padStart(2, '0')} ·`));
   }
 
@@ -93,7 +105,7 @@ try {
     }
   }
 
-  console.log('Verified 43 style guides, all 100 storyboard timings, CLI and GUI intent, explicit selections, and aligned output.');
+  console.log('Verified 43 style guides and SFX palettes, all 100 storyboard timings, CLI and GUI intent, explicit selections, and aligned output.');
 } finally {
   fs.rmSync(temp, { recursive: true, force: true });
 }

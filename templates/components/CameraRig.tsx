@@ -4,7 +4,7 @@ import {
   buildCursorFollowCameraSpline,
   buildTypingCameraSpline,
   clamp,
-  easeOutExpo,
+  easeInOutSmooth,
   ip,
   quantizeFrame,
   splineAt,
@@ -90,6 +90,7 @@ export const CameraRig: React.FC<CameraRigProps> = ({
   const frame = quantizeFrame(rawFrame, targetFps, fps);
 
   let activeSpline: [number, number, number, number, number][] | null = null;
+  let yaw: number | undefined;
   let origin = transformOrigin ?? '50% 50%';
 
   if (waypoints && waypoints.length > 0) {
@@ -144,6 +145,13 @@ export const CameraRig: React.FC<CameraRigProps> = ({
         ];
         break;
       case 'orbit-3d-inspect':
+        activeSpline = [
+          [0, 1.12, 0, 0, 0],
+          [at(0.5), 1.12, 0, 0, 0],
+          [end, 1.12, 0, 0, 0],
+        ];
+        yaw = ip(frame, [0, end], [-8, 8], easeInOutSmooth);
+        break;
       case 'follow-target-rack':
         activeSpline = [
           [0, 1.0, 0, 0, 0],
@@ -191,8 +199,9 @@ export const CameraRig: React.FC<CameraRigProps> = ({
       <AbsoluteFill style={{ overflow: 'hidden' }}>
         <AbsoluteFill
           style={{
-            transform: `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px) scale(${scale.toFixed(4)}) rotate(${rotDeg.toFixed(2)}deg)`,
+            transform: `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px) scale(${scale.toFixed(4)}) rotate(${rotDeg.toFixed(2)}deg)${yaw !== undefined ? ` perspective(${width * 1.5}px) rotateY(${yaw.toFixed(2)}deg)` : ''}`,
             transformOrigin: origin,
+            transformStyle: yaw !== undefined ? 'preserve-3d' : undefined,
             filter: blurPx > 0.25 ? `blur(${blurPx.toFixed(2)}px)` : undefined,
           }}
         >

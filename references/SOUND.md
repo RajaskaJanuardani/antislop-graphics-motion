@@ -4,6 +4,18 @@ Katalog suara untuk agent: **40 Lagu Backsound Prosedural Multi-Chord (`B00`–`
 
 ---
 
+## Palet SFX per gaya
+
+Planner menulis `research/selected-sfx-guide.md` dengan tiga pilihan cue untuk masing-masing dari 43 gaya. [Pemetaan lengkap](style-sfx.json) menyimpan ID file, gain awal, dan kejadian pemicu. Gunakan sebagai titik awal. Pada Risograph, misalnya, pakai `ink-stamp` saat plat kedua mencapai register. Pada Split Flap, gunakan `flap-train` saat rangkaian huruf mulai berputar. Kalau frame hanya ditahan untuk dibaca, biarkan suara fokus pada narasi atau room tone.
+
+Scaffold atau `synth-audio.mjs` menyiapkan WAV di `public/audio/sfx/`. Selain aset lama, ada 12 aproksimasi Foley sintetis untuk kertas, tinta, engsel, kapur, kuas, kaset, kaca, karet, katup udara, air, dan relay.
+
+```tsx
+<SfxCue frame={secondPlateContactFrame} sfx="ink-stamp" volume={0.26} />
+```
+
+`frame` relatif terhadap `Sequence` terdekat. Dalam 19 pola kartu, grid, dan 3D, audio bawaan aktif dengan `enableSfx`. Jika memakai cue dari palet gaya, tempatkan cue itu secara terpisah pada frame aksi.
+
 ## Prinsip Utama Audio & SFX
 
 1. **SFX Wajib Terikat ke Aksi Visual Nyata (Event-Driven, Bukan Acak):**
