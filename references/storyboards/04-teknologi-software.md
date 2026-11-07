@@ -1,7 +1,8 @@
 # Storyboard 04 — Teknologi & Software (T031–T040)
 
-Default: 30 fps, `overlap 10`. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`. Patuhi 6 aturan anti-slop di `SKILL.md`.
-Kategori ini paling dekat dengan inti skill: UI asli (`<AuthenticBrowserWindow />`, `<AuthenticTerminalWindow />`, `<ChatAppShell />`, `<MacDesktopChrome />`), ketikan bersuara, kursor bersuara, kamera mengikuti konten. Semua brand/teknologi yang disebut wajib pakai `<BrandLogo />` (jalankan `fetch-brand-logo.mjs` dulu).
+Bawa UI produk yang sebenarnya atau gambar ulang anatomi platform yang tepat. Perintah, klik, progress, dan status muncul sesuai aksi. Pakai crop yang masih memberi konteks dan letakkan gaya video di luar UI jika perlu.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 
@@ -17,15 +18,15 @@ durasi 20s · 9:16 · gaya "UI nyata, bersih, palet aplikasi" · bgm B26 · komp
 | 5 | 18–20 | `<BrandLogo />` + nama toko aplikasi dan tagline | hold | HOLD | END | confirm-glass |
 
 ### T032 · Demo SaaS Dashboard
-durasi 20s · 16:9 · gaya "SaaS modern, grid rapi, kontras lembut" · bgm B26 · komponen: `<AuthenticBrowserWindow />`, `<BentoGridReveal />`, `<AnimatedCursor enableClickSfx />`
+durasi 20s · 16:9 · gaya "UI sumber, framing baca, fokus pada perubahan" · bgm B26 opsional · komponen: screenshot UI atau shell yang cocok, kursor bila ada klik
 
 | # | Detik | Visual | Motion | Cam | Out | SFX |
 |---|---|---|---|---|---|---|
-| 1 | 0–3 | `<AuthenticBrowserWindow />` dengan URL produk, halaman login | window pop-in | HOLD | MC | pop-plop |
-| 2 | 3–8 | `<TypeText />` mengisi email, kursor klik "Masuk" | ketik bersuara lalu klik | TYPE | SSU | TYPE |
-| 3 | 8–14 | Dashboard terbuka, kartu metrik dan grafik masuk bergantian | `staggeredSpringAt`, grafik draw-on | HOLD | MC | data-reveal |
-| 4 | 14–18 | Kursor mengikuti tombol "Publish" dan klik | hover 5f lalu klik, micro-overshoot | CURSOR | PZI | CLICK |
-| 5 | 18–20 | Status berhasil dan `<BrandLogo />` produk | hold | HOLD | END | confirm-glass |
+| 1 | 0–3 | Dashboard utuh dan tujuan demo | Establish hierarki UI dan posisi area aksi | HOLD | MC | — |
+| 2 | 3–8 | Kontrol yang akan diubah dan keadaan sebelum | Crop ke kontrol dan arahkan kursor bila diperlukan | PUSH | MC | — |
+| 3 | 8–14 | Aksi dari brief, misalnya filter atau menyimpan pengaturan | Perlihatkan input atau klik serta respons pertama | HOLD | MC | CLICK bila diklik |
+| 4 | 14–18 | Bukti berupa data atau status yang berubah | Tahan state baru dan sorot nilai terkait | HOLD | MC | — |
+| 5 | 18–20 | Tampilan utuh dan takeaway dari hasil | Cocokkan posisi panel dan beri waktu baca | HOLD | END | — |
 
 ### T033 · Changelog / Fitur Baru
 durasi 15s · 16:9 · gaya "dokumentasi bersih, mono + sans" · bgm B26 · komponen: `<CardFlip3D />`, `<AuthenticTerminalWindow />`, `<TypeText enableTypingSfx />`
@@ -61,15 +62,15 @@ durasi 20s · 16:9 · gaya "editor kode nyata, tema gelap tenang" · bgm B26 · 
 | 5 | 18–20 | Hasil jadi tampil di browser | window slide in | HOLD | END | confirm-glass |
 
 ### T036 · Instalasi CLI di Terminal
-durasi 15s · 16:9 · gaya "terminal macOS autentik, mono" · bgm B26 · komponen: `<AuthenticTerminalWindow />`, `<TypeText enableTypingSfx />`, `<AnimatedProgressBar enableProgressSfx />`
+durasi 15s · 16:9 · gaya "terminal sesuai platform, teks monospaced" · bgm B09 opsional · komponen: `<AuthenticTerminalWindow />`, `<TypeText presentation="native" />`
 
 | # | Detik | Visual | Motion | Cam | Out | SFX |
 |---|---|---|---|---|---|---|
-| 1 | 0–2 | `<AuthenticTerminalWindow />` kosong dengan prompt | window pop-in | HOLD | MC | pop-plop |
-| 2 | 2–7 | Perintah install diketik | `<TypeText enableTypingSfx />` | TYPE | MC | TYPE (mechanical) |
-| 3 | 7–11 | Output instalasi dan progress 0→100% | `<AnimatedProgressBar enableProgressSfx />` | HOLD | WGL | PROG |
-| 4 | 11–13 | Perintah pertama dijalankan, hasilnya tampil | ketik + output stagger | TYPE | PZI | TYPE (digital) |
-| 5 | 13–15 | Nama tool dan `<BrandLogo />` | logo reveal | HOLD | END | confirm-glass |
+| 1 | 0–2 | Tujuan instalasi dan prompt shell sesuai lingkungan | Tampilkan konteks, biarkan prompt terbaca | HOLD | MC | — |
+| 2 | 2–7 | Perintah instalasi yang terverifikasi | Ketik perintah pada baris prompt | HOLD | MC | TYPE (mechanical) |
+| 3 | 7–11 | Output instalasi yang relevan | Tambahkan baris sesuai timing, tanpa persentase buatan | HOLD | MC | — |
+| 4 | 11–13 | Perintah cek hasil jika dibutuhkan dan outputnya | Tampilkan perubahan dari perintah ke output | HOLD | MC | TYPE (mechanical) |
+| 5 | 13–15 | Bukti selesai, misalnya versi atau status yang benar | Tahan teks hasil untuk dibaca | HOLD | END | — |
 
 ### T037 · AI Prompt-to-Result
 durasi 20s · 16:9 · gaya "antarmuka chat AI nyata, tenang" · bgm B27 · komponen: `<ChatAppShell />`, `<TypeText enableTypingSfx />`, `<MasonryZoomDetail />`

@@ -1,21 +1,21 @@
 # Storyboard 01 — Bisnis & Promosi (T001–T010)
 
-Default: 30 fps, `overlap 10` frame antar-scene. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`.
-Wajib patuh 6 aturan anti-slop di `SKILL.md`: tanpa pill/badge, tanpa titik bulat di samping teks, logo lewat `<BrandLogo />`, SFX terikat animasi, hero di tengah 85%, subtitle di bawah.
-Kolom **Visual** adalah deskripsi isi kanvas yang digambar lewat kode. Kalau ada aset milik user (foto produk, logo), taruh di `public/`; jangan mengarang aset.
+Tampilkan produk atau hasil yang dijual. Pakai foto, kemasan, atau layar sumber; arahkan komposisi dari satu manfaat ke satu bukti dan CTA. Gunakan hitung mundur, harga, dan testimoni hanya saat datanya ada.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 
 ### T001 · Promo Produk Teaser
-durasi 15s · 9:16 · gaya "bersih, kontras tinggi, produk-sentris" · bgm B25 · komponen: `<Coverflow3D />`, `<BentoGridReveal />`, `<BrandLogo />`, `<BottomSubtitleBar />`
+durasi 15s · 9:16 · gaya "produk sebagai hero, satu pesan, satu ajakan" · bgm B25 opsional · komponen: foto/vektor asli, crop detail, tipografi
 
 | # | Detik | Visual | Motion | Cam | Out | SFX |
 |---|---|---|---|---|---|---|
-| 1 | 0–2 | Produk (aset user atau mockup SVG) di tengah, background warna solid | scale 0.9→1 spring + `microBob` | HOLD | WGU | pop-in |
-| 2 | 2–5 | Situasi masalah sehari-hari digambar kode, sebelum produk hadir | `staggeredSpringAt` per elemen | HOLD | PZI | — |
-| 3 | 5–9 | Produk masuk, 3 keunggulan muncul bergantian sebagai tipografi besar | slide + fade, stagger 6f | PUSH | MC | data-reveal |
-| 4 | 9–12 | Harga dan diskon sebagai angka tipografi besar | counter naik, `easeInOutSmooth` | HOLD | WGL | impact-soft |
-| 5 | 12–15 | `<BrandLogo />` + URL/kontak, subtitle di bawah | logo reveal, hold 20f | HOLD | END | confirm-glass |
+| 1 | 0–2 | Produk atau siluet khas dan judul singkat | Buka bentuk dengan mekanisme gaya yang terpilih | HOLD | MC | — |
+| 2 | 2–5 | Close-up bahan, bentuk, atau bagian yang membuat produk dikenali | Potong ke sudut yang memperlihatkan detail | HOLD | MC | — |
+| 3 | 5–9 | Satu aksi atau pengalaman menggunakan produk | Gerakkan bagian produk yang memang berubah | HOLD | MC | — |
+| 4 | 9–12 | Kembali ke komposisi hero dan pesan inti | Selaraskan siluet atau baseline antarscene | HOLD | MC | — |
+| 5 | 12–15 | Produk, nama, dan CTA dari brief | Tahan layout hasil dan sisakan ruang baca | HOLD | END | — |
 
 ### T002 · Flash Sale Countdown
 durasi 12s · 9:16 · gaya "high-energy, tipografi raksasa, kontras tajam" · bgm B29 · komponen: `<CardStackSwipe />`, `<AnimatedCursor enableClickSfx />`, `<BrandLogo />`

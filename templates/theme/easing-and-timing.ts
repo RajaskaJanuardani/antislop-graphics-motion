@@ -375,9 +375,9 @@ export function framesPerBeat(bpm: number, fps = 30): number {
 }
 
 export function quantizeFrame(frame: number, targetFps: number, compFps = 30): number {
-  if (targetFps >= compFps) return frame;
-  const step = Math.max(1, Math.round(compFps / targetFps));
-  return Math.floor(frame / step) * step;
+  if (targetFps <= 0 || targetFps >= compFps) return frame;
+  const sample = Math.floor(frame * targetFps / compFps);
+  return sample * compFps / targetFps;
 }
 
 /**

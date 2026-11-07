@@ -86,11 +86,15 @@ export const SfxCue: React.FC<{
 
 export interface SeamlessSceneShellProps {
   startFrame: number;
+  /** First frame outside this scene. */
   endFrame: number;
   enterMode?: SeamlessTransitionMode | 'none';
   exitMode?: SeamlessTransitionMode | 'none';
   overlapFrames?: number;
+  enterOverlapFrames?: number;
+  exitOverlapFrames?: number;
   background?: string;
+  enablePortalGlow?: boolean;
   /** Otomatis memutar SFX transisi studio CC0 yang sesuai dengan `exitMode` */
   enableTransitionSfx?: boolean;
   transitionSfxSrc?: string;
@@ -104,8 +108,11 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
   enterMode = 'none',
   exitMode = 'none',
   overlapFrames = 10,
-  background = '#FFFFFF',
-  enableTransitionSfx = true,
+  enterOverlapFrames = overlapFrames,
+  exitOverlapFrames = overlapFrames,
+  background = 'transparent',
+  enablePortalGlow = false,
+  enableTransitionSfx = false,
   transitionSfxSrc,
   transitionVolume = 0.44,
   children,
@@ -113,10 +120,14 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
 
-  if (frame < startFrame || frame > endFrame) return null;
+  if (frame < startFrame || frame >= endFrame) return null;
 
-  const enterEnd = startFrame + overlapFrames;
-  const exitStart = endFrame - overlapFrames;
+  const duration = endFrame - startFrame;
+  const enterOverlap = Math.max(0, Math.min(enterOverlapFrames, duration));
+  const exitOverlap = Math.max(0, Math.min(exitOverlapFrames, duration));
+  const enterEnd = startFrame + enterOverlap - 1;
+  const exitStart = endFrame - exitOverlap;
+  const exitEnd = endFrame - 1;
 
   let tx = 0;
   let ty = 0;
@@ -124,32 +135,32 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
   let opacity = 1;
   let radialGlow = 0;
 
-  if (enterMode === 'whip-glide-left') {
+  if (enterOverlap > 1 && enterMode === 'whip-glide-left') {
     const t = 1 - ip(frame, [startFrame, enterEnd], [0, 1], easeInOutSmooth);
-    tx += t * (width + 20);
-  } else if (enterMode === 'whip-glide-up') {
+    tx += t * width;
+  } else if (enterOverlap > 1 && enterMode === 'whip-glide-up') {
     const t = 1 - ip(frame, [startFrame, enterEnd], [0, 1], easeInOutSmooth);
-    ty += t * (height + 20);
-  } else if (enterMode === 'portal-zoom-in') {
-    scale *= ip(frame, [startFrame, enterEnd + 4], [1.16, 1.0], easeOutExpo);
-    opacity *= ip(frame, [startFrame, startFrame + 5], [0, 1]);
-  } else if (enterMode === 'spring-sheet-up') {
-    const t = 1 - ip(frame, [startFrame, enterEnd + 6], [0, 1], easeOutExpo);
+    ty += t * height;
+  } else if (enterOverlap > 1 && enterMode === 'portal-zoom-in') {
+    scale *= ip(frame, [startFrame, enterEnd], [1.16, 1.0], easeOutExpo);
+    opacity *= ip(frame, [startFrame, enterEnd], [0, 1]);
+  } else if (enterOverlap > 1 && enterMode === 'spring-sheet-up') {
+    const t = 1 - ip(frame, [startFrame, enterEnd], [0, 1], easeOutExpo);
     ty += t * (height * 0.45);
-    opacity *= ip(frame, [startFrame, startFrame + 4], [0, 1]);
+    opacity *= ip(frame, [startFrame, enterEnd], [0, 1]);
   }
 
-  if (exitMode === 'whip-glide-left') {
-    const t = ip(frame, [exitStart, endFrame], [0, 1], easeInOutSmooth);
-    tx -= t * (width + 20);
-  } else if (exitMode === 'whip-glide-up') {
-    const t = ip(frame, [exitStart, endFrame], [0, 1], easeInOutSmooth);
-    ty -= t * (height + 20);
-  } else if (exitMode === 'portal-zoom-in') {
-    const z = ip(frame, [exitStart - 4, endFrame], [0, 0.85], Easing.inOut(Easing.cubic));
+  if (exitOverlap > 1 && exitMode === 'whip-glide-left') {
+    const t = ip(frame, [exitStart, exitEnd], [0, 1], easeInOutSmooth);
+    tx -= t * width;
+  } else if (exitOverlap > 1 && exitMode === 'whip-glide-up') {
+    const t = ip(frame, [exitStart, exitEnd], [0, 1], easeInOutSmooth);
+    ty -= t * height;
+  } else if (exitOverlap > 1 && exitMode === 'portal-zoom-in') {
+    const z = ip(frame, [exitStart, exitEnd], [0, 0.85], Easing.inOut(Easing.cubic));
     scale += z;
-    radialGlow = ip(frame, [exitStart - 2, endFrame], [0, 1]);
-    opacity *= 1 - ip(frame, [endFrame - 4, endFrame], [0, 1]);
+    radialGlow = enablePortalGlow ? ip(frame, [exitStart, exitEnd], [0, 1]) : 0;
+    opacity *= 1 - ip(frame, [exitStart, exitEnd], [0, 1]);
   }
 
   const resolvedTransitionSfx =
@@ -160,7 +171,7 @@ export const SeamlessSceneShell: React.FC<SeamlessSceneShellProps> = ({
     <>
       {/* J-Cut Studio Transition SFX: Otomatis memilih swoosh/swipe/whoosh-soft sesuai jenis transisi! */}
       {enableTransitionSfx && exitMode !== 'none' && (
-        <Sequence from={Math.max(0, exitStart - 2)} durationInFrames={overlapFrames + 12}>
+        <Sequence from={Math.max(0, exitStart - 2)} durationInFrames={Math.max(1, Math.round(exitOverlap + 12))}>
           <Audio src={staticFile(resolvedTransitionSfx)} volume={transitionVolume} />
         </Sequence>
       )}

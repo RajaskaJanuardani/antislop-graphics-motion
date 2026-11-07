@@ -56,16 +56,17 @@ export interface CameraRigProps {
   stylePreset?: MotionStylePreset;
   transformOrigin?: string;
   /**
-   * Humanizer #5A: Velocity-Driven Motion Blur (default: true)
+   * Optional velocity blur for moving subjects.
    * Saat kamera diam, blur = 0px (100% tajam). Hanya saat kamera melesat cepat muncul blur 1.5-3.8px.
    */
   enableVelocityBlur?: boolean;
   /**
-   * Humanizer #5B: Rack Focus / Selective Spotlight (default: true)
+   * Optional vignette for a deliberately staged camera move.
    * Saat kamera sedang zoom-in dalam (scale > 1.32), area pinggir layar diberi soft radial spotlight
    * agar fokus mata terkunci ke elemen utama.
    */
   enableRackFocusSpotlight?: boolean;
+  quantizeCamera?: boolean;
   children: React.ReactNode;
 }
 
@@ -77,14 +78,15 @@ export const CameraRig: React.FC<CameraRigProps> = ({
   durationInFrames,
   stylePreset,
   transformOrigin,
-  enableVelocityBlur = true,
-  enableRackFocusSpotlight = true,
+  enableVelocityBlur = false,
+  enableRackFocusSpotlight = false,
+  quantizeCamera = false,
   children,
 }) => {
   const rawFrame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
 
-  const targetFps = stylePreset?.shape.quantizedFps ?? fps;
+  const targetFps = quantizeCamera ? stylePreset?.shape.quantizedFps ?? fps : fps;
   const frame = quantizeFrame(rawFrame, targetFps, fps);
 
   let activeSpline: [number, number, number, number, number][] | null = null;
@@ -115,22 +117,19 @@ export const CameraRig: React.FC<CameraRigProps> = ({
       viewportHeight: height,
     });
   } else {
-    const mid1 = Math.round(durationInFrames * 0.25);
-    const mid2 = Math.round(durationInFrames * 0.72);
     const end = Math.max(1, durationInFrames - 1);
+    const at = (fraction: number) => end * fraction;
+    const mid1 = at(0.25);
+    const mid2 = at(0.72);
 
     switch (mode) {
       case 'calm-steady':
-        activeSpline = [
-          [0, 1.04, 0, 0, 0],
-          [14, 1.0, 0, 0, 0],
-          [end, 1.0, 0, 0, 0],
-        ];
+        activeSpline = [[0, 1.0, 0, 0, 0]];
         break;
       case 'push-in-settle':
         activeSpline = [
           [0, 1.08, 0, 12, 0],
-          [14, 1.0, 0, 0, 0],
+          [at(0.18), 1.0, 0, 0, 0],
           [mid2, 1.0, 0, 0, 0],
           [end, 1.04, 0, -6, 0],
         ];
@@ -148,8 +147,8 @@ export const CameraRig: React.FC<CameraRigProps> = ({
       case 'follow-target-rack':
         activeSpline = [
           [0, 1.0, 0, 0, 0],
-          [mid1 - 3, 0.985, 8, -4, 0], // 3-frame anticipation pullback
-          [mid1 + 8, 1.24, -60, 20, 0],
+          [at(0.18), 0.985, 8, -4, 0],
+          [at(0.34), 1.24, -60, 20, 0],
           [mid2, 1.24, 50, -18, 0],
           [end, 1.0, 0, 0, 0],
         ];
@@ -157,7 +156,7 @@ export const CameraRig: React.FC<CameraRigProps> = ({
       case 'crane-up-focus':
         activeSpline = [
           [0, 1.05, 0, 42, 0],
-          [18, 1.0, 0, 0, 0],
+          [at(0.22), 1.0, 0, 0, 0],
           [mid2, 1.0, 0, 0, 0],
           [end, 1.08, 0, -24, 0],
         ];
@@ -165,7 +164,7 @@ export const CameraRig: React.FC<CameraRigProps> = ({
       case 'pull-out-monumental':
         activeSpline = [
           [0, 1.28, 0, -18, 0],
-          [20, 1.0, 0, 0, 0],
+          [at(0.25), 1.0, 0, 0, 0],
           [end, 1.0, 0, 0, 0],
         ];
         break;

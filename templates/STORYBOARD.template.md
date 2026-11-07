@@ -12,9 +12,9 @@ Salin file ini ke `research/storyboard.md` di project Remotion, lalu isi. Kode s
 | Durasi total | <!-- detik --> |
 | Rasio · resolusi · fps | <!-- 16:9 1920×1080 · 9:16 1080×1920 · 1:1 1080×1080 · 30 fps --> |
 | Target audiens | |
-| Gaya (kata kunci mood untuk `draw-style.mjs`) | |
+| Arahan visual (grid, bahan, tipografi, warna peran) | |
 | Gaya terpilih (file di `references/styles/`) | <!-- diisi setelah draw-style.mjs --> |
-| Komponen 3D / Grid / Card Interaction (`CARD-GRID-3D-PATTERNS.md`) | <!-- misal <Coverflow3D />, <BentoGridReveal />, <PolaroidDropTable /> --> |
+| Komponen atau aset yang dibutuhkan | <!-- isi jika berguna untuk isi scene --> |
 | BGM · profil narator | <!-- ID B00–B39 / M01–M24 dari SOUND.md · N01–N05 --> |
 | Brand / teknologi / project yang muncul | <!-- tiap item wajib lewat fetch-brand-logo.mjs --> |
 | Aset user di `public/` | <!-- foto, footage, logo, data; jangan mengarang aset --> |
@@ -23,7 +23,7 @@ Salin file ini ke `research/storyboard.md` di project Remotion, lalu isi. Kode s
 
 Detik = jendela tayang scene. Pacing asimetris: hook pendek, isi lebih panjang, penutup ringkas.
 
-| # | Detik | Visual (hero tengah 85%) | Motion | Cam | Out | SFX |
+| # | Detik | Visual (hero dan bukti) | Motion | Cam | Out | SFX |
 |---|---|---|---|---|---|---|
 | 1 | 0–2 | | | HOLD | | |
 | 2 | | | | | | |
@@ -33,7 +33,7 @@ Detik = jendela tayang scene. Pacing asimetris: hook pendek, isi lebih panjang, 
 
 ## 3. Narasi per Scene
 
-| # | Teks narasi (subtitle bawah) | Catatan sinkronisasi |
+| # | Teks narasi (opsional) | Catatan sinkronisasi |
 |---|---|---|
 | 1 | | |
 | 2 | | |
@@ -41,16 +41,11 @@ Detik = jendela tayang scene. Pacing asimetris: hook pendek, isi lebih panjang, 
 | 4 | | |
 | 5 | | |
 
-## 4. Cek Sebelum Menulis Kode
+## 4. Cek Frame
 
-- [ ] Satu scene, satu ide; hook dalam 2–3 detik pertama; CTA jelas di scene terakhir
-- [ ] Tidak ada pill/badge di belakang teks (kecuali tombol interaktif nyata atau bubble chat)
-- [ ] Tidak ada titik bulat di samping teks dan tidak ada ikon hiasan
-- [ ] Semua brand/teknologi/project memakai `<BrandLogo />` dari logo asli
-- [ ] Browser, terminal, aplikasi, desktop memakai komponen Authentic / LivedIn
-- [ ] Setiap SFX terikat ke animasi yang berjalan; tidak ada SFX liar
-- [ ] Hero di tengah, subtitle di bawah lewat `<BottomSubtitleBar />`
-- [ ] Kamera tenang (C1 spline, tanpa shake); transisi antar-scene seamless
-- [ ] Semua angka dan data berasal dari user atau sumber yang dicantumkan di layar
-- [ ] Total durasi scene (dikurangi overlap) sama dengan durasi target
-- [ ] Sudah dijalankan: `lint.mjs`, `inspect-motion.mjs`
+- [ ] Setiap scene punya satu aksi, pertanyaan, atau perubahan yang terlihat.
+- [ ] Frame pembuka dan hasil sesuai rasio tujuan. Hero, label, dan subtitle terbaca di ukuran kecil.
+- [ ] Gaya diterapkan pada komposisi, bahan, dan gerak. Chrome, kontrol, dan status UI sumber dipertahankan.
+- [ ] Pemetaan aksi, perubahan status, dan cue audio berbagi frame kejadian. Ada waktu baca setelah aksi.
+- [ ] Durasi adegan dikurangi overlap sesuai total target. Cut punya overlap nol.
+- [ ] Angka, aset, dan logo diverifikasi atau diberi label ilustrasi yang jelas.

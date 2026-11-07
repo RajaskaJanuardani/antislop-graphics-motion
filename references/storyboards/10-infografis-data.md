@@ -1,7 +1,8 @@
 # Storyboard 10 — Infografis & Data (T091–T100)
 
-Default: 30 fps, `overlap 10`. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`. Patuhi 6 aturan anti-slop di `SKILL.md`.
-Aturan data: semua angka berasal dari user atau sumber yang disebut di layar (label sumber kecil di scene terkait). Jangan mengarang statistik. Grafik digambar dari data lewat kode (SVG/React), bukan gambar statis. Penekanan memakai kontras warna, ukuran, dan posisi, bukan pill atau badge.
+Mulai dari pertanyaan, grafik yang menjawabnya, dan sumber data. Pertahankan unit, skala, dan baseline. Gunakan sorotan langsung serta hold baca. Tampilkan peta/proses sebagai skematis bila disederhanakan.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 
@@ -28,15 +29,15 @@ durasi 20s · 16:9 · gaya "dua sisi tegas, garis tengah, tipografi besar" · bg
 | 5 | 17–20 | Ringkasan: kapan memilih A dan kapan B | mask reveal | HOLD | END | confirm-glass |
 
 ### T093 · Timeline Proses
-durasi 25s · 16:9 · gaya "garis tipis, rapi, label ringkas" · bgm B27 · komponen: `<HelixCards3D />`, `<AccordionFoldCard />`, `<GridRecapZoomOut />`
+durasi 25s · 16:9 · gaya "alur baca tetap, tahap yang dapat dibedakan" · bgm B27 opsional · komponen: timeline SVG, papan status, atau rute yang sesuai data
 
 | # | Detik | Visual | Motion | Cam | Out | SFX |
 |---|---|---|---|---|---|---|
-| 1 | 0–3 | Judul proses dan total durasi | mask reveal | HOLD | MC | — |
-| 2 | 3–9 | Garis waktu horizontal dengan tahap 1 dan 2, durasi tiap tahap | line draw-on, label fade | GLIDE | WGL | data-reveal |
-| 3 | 9–16 | Tahap 3 dan 4, kamera menyapu ke kanan | titik pop + label | GLIDE | WGL | pop-plop |
-| 4 | 16–21 | Tahap kritis diperbesar dengan penjelasan satu kalimat | zoom + mask | PUSH | PZI | pop-in |
-| 5 | 21–25 | Hasil akhir dan total waktu | counter | PULL | END | confirm-glass |
+| 1 | 0–3 | Judul, konteks proses, dan satuan waktu bila tersedia | Tampilkan titik awal dan akhir | HOLD | MC | — |
+| 2 | 3–9 | Dua tahap awal dan kaitan di antaranya | Ungkap urutan dari satu sumbu tetap | HOLD | MC | — |
+| 3 | 9–16 | Tahap berikutnya dengan perubahan yang terlihat | Lanjutkan arah baca; perbarui hanya nilai yang berubah | HOLD | MC | — |
+| 4 | 16–21 | Tahap penentu dengan satu kalimat penjelas | Tahan keadaan sebelum dan sesudah | HOLD | MC | — |
+| 5 | 21–25 | Hasil atau rute utuh, dengan label/sumber yang relevan | Sisakan waktu baca pada hasil | HOLD | END | — |
 
 ### T094 · Alur Bisnis / Funnel
 durasi 20s · 16:9 · gaya "funnel bersih, angka dominan" · bgm B26 · komponen: `<AccordionFoldCard />`, `<BentoGridReveal />`, `<GridRecapZoomOut />`

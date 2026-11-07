@@ -1,5 +1,5 @@
 import React from 'react';
-import { Audio, Sequence, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
+import { Audio, Img, Sequence, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { clamp, easeInOutSmooth, ip, springAt } from '../theme/easing-and-timing';
 import { BrandLogo } from './BrandLogos';
 import { Card3DItem, Clean3DCardFace } from './Card3DLayouts';
@@ -216,6 +216,10 @@ export interface PolaroidPhotoItem {
   subCaption?: string;
   tintColor?: string;
   brand?: string;
+  /** Image path relative to public/. */
+  src?: string;
+  alt?: string;
+  objectPosition?: string;
   /** Posisi mendarat relatif terhadap tengah meja [x, y, rotDeg] */
   restingPose?: [number, number, number];
   customVisual?: React.ReactNode;
@@ -250,8 +254,6 @@ export const PolaroidDropTable: React.FC<PolaroidDropTableProps> = ({
     [-120, -35, 8],
     [140, 34, -4],
   ];
-
-  const palette = ['#F07B56', '#7C5CFC', '#3B9EFF', '#18A974', '#E5A000'];
 
   return (
     <div
@@ -297,7 +299,7 @@ export const PolaroidDropTable: React.FC<PolaroidDropTableProps> = ({
           const opacity = ip(frame, [trig - 2, trig + 5], [0, 1]);
           const shadowBlur = ip(pDrop, [0, 1], [68, 22]);
           const shadowY = ip(pDrop, [0, 1], [48, 12]);
-          const tint = photo.tintColor ?? palette[idx % palette.length];
+          const tint = photo.tintColor ?? '#E6E1D8';
 
           return (
             <div
@@ -311,8 +313,8 @@ export const PolaroidDropTable: React.FC<PolaroidDropTableProps> = ({
                 zIndex: 10 + idx,
                 opacity,
                 background: '#FCFBF7',
-                borderRadius: 14,
-                padding: '16px 16px 54px 16px',
+                borderRadius: 3,
+                padding: '13px 13px 18px',
                 boxSizing: 'border-box',
                 border: '1.5px solid rgba(20, 20, 24, 0.12)',
                 boxShadow: `0 ${shadowY.toFixed(0)}px ${shadowBlur.toFixed(0)}px rgba(20, 18, 15, 0.22)`,
@@ -326,8 +328,7 @@ export const PolaroidDropTable: React.FC<PolaroidDropTableProps> = ({
                 style={{
                   width: '100%',
                   flex: 1,
-                  borderRadius: 8,
-                  background: `linear-gradient(145deg, ${tint} 0%, ${tint}CC 100%)`,
+                  backgroundColor: tint,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -335,36 +336,27 @@ export const PolaroidDropTable: React.FC<PolaroidDropTableProps> = ({
                   overflow: 'hidden',
                 }}
               >
-                {photo.customVisual ? (
-                  photo.customVisual
+                {photo.customVisual ?? (photo.src ? (
+                  <Img src={staticFile(photo.src)} alt={photo.alt ?? photo.caption}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: photo.objectPosition }} />
                 ) : photo.brand ? (
-                  <BrandLogo brand={photo.brand} size={64} color="#FFFFFF" />
-                ) : (
-                  <span
-                    style={{
-                      fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: 32,
-                      fontWeight: 800,
-                      color: 'rgba(255,255,255,0.9)',
-                    }}
-                  >
-                    {String(idx + 1).padStart(2, '0')}
-                  </span>
-                )}
+                  <BrandLogo brand={photo.brand} size={64} />
+                ) : null)}
               </div>
 
               <div
                 style={{
                   paddingTop: 12,
-                  textAlign: 'center',
-                  fontFamily: 'Plus Jakarta Sans, Inter, sans-serif',
-                  fontSize: 20,
+                  textAlign: 'left',
+                  fontFamily: 'system-ui, sans-serif',
+                  fontSize: 18,
                   fontWeight: 700,
                   color: '#1E1D1A',
                   letterSpacing: '-0.01em',
                 }}
               >
                 {photo.caption}
+                {photo.subCaption && <div style={{ marginTop: 4, fontSize: 14, fontWeight: 500 }}>{photo.subCaption}</div>}
               </div>
             </div>
           );

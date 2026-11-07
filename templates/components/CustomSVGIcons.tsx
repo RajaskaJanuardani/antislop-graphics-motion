@@ -32,21 +32,19 @@ export const CustomSVGIcon: React.FC<CustomSVGIconProps> = ({
   color = '#0F110F',
   accentColor = '#FD5837',
   strokeWidth = 3,
-  startFrame = 0,
+  startFrame,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const localFrame = Math.max(0, frame - startFrame);
-
-  const progress = spring({
-    frame: localFrame,
+  if (startFrame !== undefined && frame < startFrame) return null;
+  const progress = startFrame === undefined ? 1 : spring({
+    frame: frame - startFrame,
     fps,
     config: SPRING_PRESETS.editorialSettle,
     durationInFrames: 18,
   });
 
   const dashOffset = interpolate(progress, [0, 1], [320, 0]);
-  const scale = interpolate(progress, [0, 1], [0.85, 1]);
 
   return (
     <svg
@@ -54,10 +52,7 @@ export const CustomSVGIcon: React.FC<CustomSVGIconProps> = ({
       height={size}
       viewBox="0 0 64 64"
       fill="none"
-      style={{
-        transform: `scale(${scale.toFixed(3)})`,
-        overflow: 'visible',
-      }}
+      aria-hidden
     >
       {name === 'check-badge' && (
         <path

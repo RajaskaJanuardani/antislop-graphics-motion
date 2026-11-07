@@ -1,7 +1,8 @@
 # Storyboard 03 — Edukasi & Akademik (T021–T030)
 
-Default: 30 fps, `overlap 10`. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`. Patuhi 6 aturan anti-slop di `SKILL.md`.
-Untuk konten akademik, satu scene = satu ide. Teks di layar maksimal ±3 kata/detik; sisanya lewat narasi di `<BottomSubtitleBar />`.
+Atur satu pertanyaan atau langkah per scene. Pakai representasi yang paling tepat untuk materi: diagram, benda, layar installer, atau terminal. Tahan hasil cukup lama untuk dipahami dan simpan caption di luar fokus aksi.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 
@@ -28,15 +29,15 @@ durasi 30s · 16:9 · gaya "akademik rapi, tipografi sans, palet kampus" · bgm 
 | 5 | 25–30 | Kesimpulan 1 kalimat dan ucapan terima kasih | mask reveal | HOLD | END | confirm-glass |
 
 ### T023 · Tutorial Step-by-Step
-durasi 30s · 16:9 · gaya "layar nyata, jelas, tenang" · bgm B26 · komponen: `<AccordionFoldCard />`, `<AuthenticTerminalWindow />`, `<TypeText enableTypingSfx />`
+durasi 30s · 16:9 · gaya "instruksi jelas, konteks dan hasil terbaca" · bgm B21 opsional · komponen: visual sumber, anotasi, kontrol UI yang relevan
 
 | # | Detik | Visual | Motion | Cam | Out | SFX |
 |---|---|---|---|---|---|---|
-| 1 | 0–4 | Judul tutorial dan hasil akhir yang akan dicapai | mask reveal | HOLD | PZI | pop-in |
-| 2 | 4–11 | Langkah 1: `<AuthenticTerminalWindow />` perintah pertama diketik | `<TypeText enableTypingSfx typingVariant="mechanical" />` | TYPE | MC | TYPE |
-| 3 | 11–18 | Langkah 2: pindah ke editor, kode muncul baris demi baris | typing + highlight baris aktif | TYPE | WGL | TYPE |
-| 4 | 18–25 | Langkah 3: jalankan, bar proses 0→100% | `<AnimatedProgressBar enableProgressSfx />` | HOLD | WGU | PROG |
-| 5 | 25–30 | Hasil akhir tampil, ringkasan 3 langkah | list masuk stagger | PULL | END | confirm-glass |
+| 1 | 0–4 | Tujuan tutorial dan tampilan hasil yang ingin dicapai | Tampilkan judul dan bukti dalam satu hierarki | HOLD | MC | — |
+| 2 | 4–11 | Langkah pertama: layar, bahan, atau kontrol yang digunakan | Perlihatkan keadaan sebelum aksi dan penunjuk bila perlu | HOLD | MC | — |
+| 3 | 11–18 | Langkah utama: satu perubahan pada objek atau pengaturan | Perlihatkan tindakan dan respons yang sesuai | PUSH | MC | — |
+| 4 | 18–25 | Langkah terakhir: konfirmasi atau cek hasil | Tahan status nyata atau beri label bila waktu dipercepat | HOLD | MC | — |
+| 5 | 25–30 | Hasil akhir dan satu keterangan untuk memverifikasinya | Kembali ke tampilan utuh dan beri waktu baca | HOLD | END | — |
 
 ### T024 · Timeline Sejarah
 durasi 25s · 16:9 · gaya "editorial, sepia lembut atau monokrom, serif" · bgm B27 · komponen: `<HelixCards3D />`, `<ZDepthTunnel />`, `<PageTurnBook />`

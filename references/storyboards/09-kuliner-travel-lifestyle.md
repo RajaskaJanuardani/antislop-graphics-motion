@@ -1,7 +1,8 @@
 # Storyboard 09 — Kuliner, Travel & Lifestyle (T081–T090)
 
-Default: 30 fps, `overlap 10`. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`. Patuhi 6 aturan anti-slop di `SKILL.md`.
-Kategori ini bergantung pada foto/footage. Pakai aset milik user di `public/` (`<Img>`, `<OffthreadVideo>`). Kalau aset tidak ada, bangun komposisi tipografis dan shape kode; jangan mengarang foto atau logo.
+Jadikan makanan, tempat, atau benda sebagai hero. Prioritaskan foto/video user atau ilustrasi yang menjaga siluet. Pakai satu sudut cahaya dan satu detail material untuk menyatukan shot.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 
@@ -17,15 +18,15 @@ durasi 20s · 9:16 · gaya "hangat, foto makanan dominan, tipografi besar" · bg
 | 5 | 18–20 | Hasil akhir, porsi, nama akun | hold | PULL | END | confirm-glass |
 
 ### T082 · Promo Restoran / Menu Spesial
-durasi 15s · 9:16 · gaya "kontras hangat, tipografi tebal, foto besar" · bgm B29 · komponen: `<Coverflow3D />`, `<PolaroidDropTable />`, `<BrandLogo />`
+durasi 15s · 9:16 · gaya "detail makanan/minuman, copy pendek, bukti dari sumber" · bgm B29 opsional · komponen: foto atau ilustrasi hidangan dan tipografi
 
 | # | Detik | Visual | Motion | Cam | Out | SFX |
 |---|---|---|---|---|---|---|
-| 1 | 0–3 | Foto menu spesial penuh layar, tulisan "MENU BARU" | scale + mask | PUSH | WGU | impact-soft |
-| 2 | 3–7 | Nama menu dan deskripsi satu baris | mask reveal | HOLD | MC | pop-in |
-| 3 | 7–11 | Harga normal dicoret, harga promo besar | garis coret draw-on + counter | HOLD | PZI | data-reveal |
-| 4 | 11–13 | Periode promo | fade | HOLD | WGL | — |
-| 5 | 13–15 | `<BrandLogo />` restoran, alamat dan jam buka | hold | HOLD | END | confirm-glass |
+| 1 | 0–3 | Hidangan utama, nama, dan framing yang memperlihatkan bentuknya | Reveal berdasarkan material dan gaya | HOLD | MC | — |
+| 2 | 3–7 | Close-up tekstur, bahan, kemasan, atau proses yang disebut brief | Potong ke detail dan tahan aksinya | HOLD | MC | — |
+| 3 | 7–11 | Kembali ke menu atau satu hidangan dengan detail tawaran yang diberikan | Munculkan copy dengan tipografi yang selaras | HOLD | MC | — |
+| 4 | 11–13 | Informasi pemesanan bila diberikan, atau hero kedua yang relevan | Tahan kontras dan hierarki | HOLD | MC | — |
+| 5 | 13–15 | Ajakan dari brief dan nama menu/restoran yang benar | Tahan frame tanpa menambah data rekaan | HOLD | END | — |
 
 ### T083 · Destinasi Wisata
 durasi 25s · 16:9 · gaya "sinematik terang, tipografi lebar, foto/video dominan" · bgm B31 · komponen: `<PolaroidDropTable />`, `<MasonryZoomDetail />`, `<GridRecapZoomOut />`

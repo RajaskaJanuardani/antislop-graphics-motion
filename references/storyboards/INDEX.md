@@ -1,24 +1,13 @@
 # STORYBOARD INDEX — 100 Template Storyboard untuk Remotion
 
-Katalog 100 template storyboard di 10 kategori untuk skill `/motion-craft`. Tiap template adalah rencana scene (waktu, visual, motion, kamera, transisi, SFX) yang sudah mematuhi aturan skill. Agent memilih satu template, menyalinnya, lalu mengadaptasinya ke brief.
+Katalog 100 template storyboard di 10 kategori. Setiap template memberi struktur shot, waktu, visual, gerak, kamera, dan cue suara. Buka satu kategori atau satu storyboard yang dipilih planner.
 
-> Baca file kategori yang dipilih saja, jangan memuat semua 10 file sekaligus.
+## Pilih dan adaptasi
 
----
-
-## Alur Pakai (untuk Agent)
-
-1. **Cocokkan brief ke template.** Cari di tabel "Daftar Template" di bawah berdasarkan konteks (promo, tutorial, undangan, dst.). Kalau tidak ada yang pas, ambil template terdekat dan ubah, atau mulai dari `templates/STORYBOARD.template.md`.
-2. **Buka file kategorinya** dan salin blok template ke `research/storyboard.md` di project.
-3. **Adaptasi**, jangan menyalin mentah:
-   - Ganti semua isi visual dan teks dengan konten brief. Jumlah scene boleh ditambah atau dikurangi, tapi satu scene tetap satu ide.
-   - Skalakan durasi ke permintaan user. Pertahankan **pacing asimetris** (hook pendek, isi lebih panjang, penutup ringkas); jangan membagi rata.
-   - Isian `gaya` adalah kata kunci mood, bukan ID gaya. Pakai sebagai `--brief` untuk `draw-style.mjs`, lalu **wajib baca file gaya terpilih** di `references/styles/`.
-4. **Ambil logo** untuk setiap brand/teknologi/project yang muncul di storyboard dengan `fetch-brand-logo.mjs`.
-5. **Narasi dan audio:** `narrator-sync.mjs`, lalu `synth-audio.mjs --bgm <ID di template>` (atau pilih lain dari `references/SOUND.md`).
-6. **Implementasi, lalu** `lint.mjs`, `inspect-motion.mjs`, render.
-
-Konversi waktu: `frame = detik × fps` (default 30 fps). Kolom Detik adalah jendela tayang tiap scene. Dengan `overlap 10`, scene berikutnya mulai 10 frame lebih awal agar transisi berbagi frame; samakan total akhir dengan keluaran `scenes.mjs`.
+1. Mulai dari brief. Tentukan tindakan atau objek yang perlu terlihat, lalu pilih pasangan storyboard dan gaya dengan `plan-motion.mjs`. Gunakan `--template` atau `--style` untuk pilihan eksplisit.
+2. Baca `research/storyboard.md` dan `research/selected-style-guide.md`. Keterangan gaya pada template memberi mood/struktur awal. Terapkan sistem warna, bentuk, dan gerak dari panduan gaya. Jika keduanya bertentangan, jaga keaslian subjek dan tuntutan brief.
+3. Isi scene dengan aset, teks, tindakan, dan data yang benar. Gunakan struktur yang terpilih dan ganti komponen, transisi, atau SFX berdasarkan fungsi. Contoh T023 bisa untuk installer grafis, resep, atau proses kerja. T036 khusus instalasi lewat perintah.
+4. Pakai hasil `scenes-plan.json` sebagai batas frame awal. Planner menggunakan durasi relatif dari baris storyboard. `endFrame` eksklusif. `--overlap` menjadi batas maksimum untuk transisi yang membutuhkannya. Match cut dan penutup tidak memakai overlap.
 
 ---
 
@@ -73,29 +62,16 @@ Pilihan lain (B00–B39 dan M01–M24) ada di `references/SOUND.md`.
 
 ---
 
-## Aturan yang Berlaku untuk Semua Template
+## Cek desain saat adaptasi
 
-Ini ringkasan dari 6 aturan keras di `SKILL.md`, diterapkan ke tahap storyboard:
-
-1. **Tanpa pill/badge** di belakang judul, label, atau kata. Penekanan lewat ukuran, kontras warna, posisi. Background hanya untuk tombol interaktif yang benar-benar diklik kursor atau bubble chat di aplikasi chat.
-2. **Tanpa titik bulat** di samping teks dan **tanpa ikon hiasan** (petir, sparkle, bohlam, tameng generik). Ikon hanya boleh fungsional (panah delta, tombol nyata).
-3. **Logo asli** untuk setiap brand, teknologi, atau project: `<BrandLogo />` + `fetch-brand-logo.mjs`. Jangan menggambar logo karangan.
-4. **SFX terikat animasi.** Tidak ada SFX per kata subtitle, tidak ada SFX saat tidak ada aksi.
-5. **UI asli** untuk browser, terminal, aplikasi, desktop: `<AuthenticBrowserWindow />`, `<AuthenticTerminalWindow />`, `<ChatAppShell />`, `<MacDesktopChrome />`.
-6. **Hero di tengah (85%), subtitle di bawah (15%)** lewat `<BottomSubtitleBar />` tanpa kotak warna. Kamera tenang dan transisi seamless.
-
-Tambahan khusus storyboard:
-
-- **Aset:** foto/footage/logo milik user taruh di `public/`. Jika tidak ada, buat komposisi tipografi dan shape dari kode. Jangan mengarang foto, logo, atau data.
-- **Data dan statistik:** hanya dari user atau sumber yang dicantumkan di layar.
-- **Satu scene, satu ide.** Teks di layar maksimal sekitar 3 kata/detik; sisanya lewat narasi subtitle.
-- **Hook** dalam 2–3 detik pertama; **CTA** jelas di scene terakhir.
-
----
+- Pilih satu hero dan satu tindakan atau perubahan yang jelas pada tiap scene.
+- Pastikan warna, font, dan jenis gerak memperkuat gaya yang dipilih. Jaga posisi label dan nilai yang perlu dibandingkan.
+- Pakai UI, nama kontrol, dan status yang benar. Gunakan caption yang terbaca dan tidak menutup aksi bila diperlukan.
+- Cocokkan suara ke aksi yang terlihat. Tahan frame hasil, ukur geometri bila dibutuhkan, dan cek shot pada rasio pengiriman.
 
 ## Komponen Koreografi Kartu 3D, Grid Animation, & Card Interaction (Siap Pakai di Storyboard)
 
-Selain UI autentik (`<AuthenticBrowserWindow />`, `<AuthenticTerminalWindow />`, `<ChatAppShell />`, `<MacDesktopChrome />`), setiap template `T001`–`T100` mencantumkan rekomendasi komponen dari `references/CARD-GRID-3D-PATTERNS.md`:
+Selain UI autentik (`<AuthenticBrowserWindow />`, `<AuthenticTerminalWindow />`, `<ChatAppShell />`, `<MacDesktopChrome />`), pakai rekomendasi komponen sesuai isi dari `references/CARD-GRID-3D-PATTERNS.md`:
 
 - **3D Card Layouts (`templates/components/Card3DLayouts.tsx`):** `<Coverflow3D />`, `<FerrisWheelCards />`, `<CubeRoll3D />`, `<CylinderCards3D />`, `<HelixCards3D />`, `<SphereCards3D />`, `<ZDepthTunnel />`.
 - **Grid Animations (`templates/components/GridAnimations.tsx`):** `<BentoGridReveal />` (`kotak 1` -> `2-3` -> `lengkap`), `<ExplodeToGrid />` (`tumpukan` -> `pecah` -> `rapi di grid`), `<LayoutMorphGridToCarousel />` (`grid` -> `carousel`), `<MasonryZoomDetail />` (`pilih kotak` -> `jadi halaman`), `<GridRecapZoomOut />` (`slide terakhir` -> `recap semua`).
@@ -103,7 +79,7 @@ Selain UI autentik (`<AuthenticBrowserWindow />`, `<AuthenticTerminalWindow />`,
 
 Generate storyboard otomatis dari CLI:
 ```bash
-node "<skill>/scripts/scenes.mjs" --template T032 --brief "Demo SaaS AI Dashboard" --duration 20 --out research
+node "<skill>/scripts/plan-motion.mjs" --template T032 --brief "Demo SaaS Dashboard" --duration 20 --out research
 ```
 
 ---

@@ -49,6 +49,34 @@
         "out/evaluation/ssim.log",
         "diff.mp4"
       ]
+    },
+    {
+      "id": "eval-04-brief-linux-gui",
+      "prompt": "Pakai motion-craft. Buatkan saya video motion graphics menggunakan Remotion tentang cara install Linux.",
+      "required_artifacts": [
+        "research/style-bible.md",
+        "research/storyboard.md",
+        "research/motion-plan.md",
+        "out/v1.mp4"
+      ],
+      "expected_checks": [
+        "Nyatakan asumsi installer grafis, distro, dan target instalasi. Buat rencana #12 + T023 yang menampilkan layar installer, kontrol, perubahan status, dan hasil.",
+        "Pilih framing dan label berdasarkan UI sumber. Jaga tipografi, margin, dan warna fokus konsisten. Cek keterbacaan pada frame pembuka, aksi, dan hasil."
+      ]
+    },
+    {
+      "id": "eval-05-brief-linux-cli",
+      "prompt": "Pakai motion-craft. Buat video 15 detik yang memperlihatkan instalasi paket dari terminal Linux dan cara mengecek hasilnya.",
+      "required_artifacts": [
+        "research/style-bible.md",
+        "research/storyboard.md",
+        "research/motion-plan.md",
+        "out/v1.mp4"
+      ],
+      "expected_checks": [
+        "Pilih #26 + T036. Gunakan prompt, perintah, output, dan status akhir sesuai lingkungan yang ditetapkan.",
+        "Tunjukkan command dan hasil pada hold yang terbaca. Pertahankan chrome platform, hindari kartu dekoratif, dan hentikan SFX ketik saat input selesai."
+      ]
     }
   ],
   "evaluation_scope": "These are agent output scenarios, not executed by the local script regression suite. Produce and review the listed artifacts separately."

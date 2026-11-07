@@ -1,6 +1,8 @@
 import React from 'react';
 import { Audio, Sequence, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { clamp, easeInOutSmooth, ip, springAt } from '../theme/easing-and-timing';
+import { readableInk } from '../theme/readable-ink';
+import type { MotionStylePreset } from '../theme/styles-catalog';
 import { BrandLogo } from './BrandLogos';
 
 export interface Card3DItem {
@@ -14,21 +16,10 @@ export interface Card3DItem {
   surfaceColor?: string;
   textColor?: string;
   content?: React.ReactNode;
+  stylePreset?: MotionStylePreset;
 }
 
-const DEFAULT_PALETTE = [
-  '#7C5CFC',
-  '#F07B56',
-  '#3B9EFF',
-  '#18A974',
-  '#E5A000',
-  '#E04F7B',
-];
-
-/**
- * Helper Kartu Bersih (Tanpa Pill Sampah & Tanpa Ikon Dekoratif Palsu)
- * Mendukung logo brand resmi via <BrandLogo /> atau konten kustom.
- */
+/** Shared card surface for scenes that have actual cards or panels. */
 export const Clean3DCardFace: React.FC<{
   item: Card3DItem;
   index: number;
@@ -36,108 +27,74 @@ export const Clean3DCardFace: React.FC<{
   height: number;
   isActive?: boolean;
   borderRadius?: number;
-}> = ({ item, index, width, height, isActive = false, borderRadius = 22 }) => {
-  const accent = item.accentColor ?? DEFAULT_PALETTE[index % DEFAULT_PALETTE.length];
-  const bg = item.surfaceColor ?? (isActive ? accent : '#FFFFFF');
-  const fg = item.textColor ?? (isActive ? '#FFFFFF' : '#141418');
-  const subFg = isActive ? 'rgba(255,255,255,0.82)' : 'rgba(20,20,24,0.62)';
-  const numLabel = item.indexLabel ?? String(index + 1).padStart(2, '0');
+  contentProgress?: number;
+  fillCell?: boolean;
+}> = ({ item, width, height, isActive = false, borderRadius, contentProgress = 1, fillCell = false }) => {
+  const preset = item.stylePreset;
+  const surface = item.surfaceColor ?? preset?.palette.surface ?? '#F6F3EC';
+  const ink = item.textColor ?? readableInk(surface, preset?.palette.ink);
+  const accent = item.accentColor ?? preset?.palette.accent ?? ink;
+  const padding = Math.round(clamp(Math.min(width, height) * 0.095, 12, 32));
+  const hasHeader = Boolean(item.indexLabel || item.brand);
+  const shadow = preset?.shape.hardShadow
+    ? `${preset.shape.shadowOffset}px ${preset.shape.shadowOffset}px 0 ${ink}`
+    : isActive ? '0 8px 22px rgba(23,23,22,0.12)' : undefined;
 
   return (
-    <div
-      style={{
-        width,
-        height,
-        borderRadius,
-        background: bg,
-        color: fg,
-        border: isActive
-          ? '2px solid rgba(255,255,255,0.55)'
-          : '1.5px solid rgba(20,20,24,0.10)',
-        boxShadow: isActive
-          ? '0 26px 56px rgba(18, 16, 36, 0.24)'
-          : '0 14px 32px rgba(18, 16, 36, 0.10)',
-        padding: Math.round(width * 0.085),
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        boxSizing: 'border-box',
-        backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
-        userSelect: 'none',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: Math.max(15, Math.round(width * 0.068)),
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            opacity: isActive ? 0.95 : 0.55,
-          }}
-        >
-          {numLabel}
-        </span>
-        {item.brand && (
-          <BrandLogo
-            brand={item.brand}
-            size={Math.max(24, Math.round(width * 0.11))}
-            color={isActive ? '#FFFFFF' : undefined}
-          />
-        )}
-      </div>
-
-      {item.content ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>{item.content}</div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {item.metric && (
-            <div
-              style={{
-                fontFamily: 'Plus Jakarta Sans, Inter, sans-serif',
-                fontSize: Math.max(24, Math.round(width * 0.13)),
-                fontWeight: 800,
-                letterSpacing: '-0.03em',
-                lineHeight: 1.05,
-                color: isActive ? '#FFFFFF' : accent,
-              }}
-            >
-              {item.metric}
-            </div>
-          )}
-          <div
-            style={{
-              fontFamily: 'Plus Jakarta Sans, Inter, sans-serif',
-              fontSize: Math.max(18, Math.round(width * 0.082)),
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-              lineHeight: 1.18,
-            }}
-          >
-            {item.title}
-          </div>
-          {item.subtitle && (
-            <div
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontSize: Math.max(13, Math.round(width * 0.052)),
-                fontWeight: 500,
-                lineHeight: 1.35,
-                color: subFg,
-              }}
-            >
-              {item.subtitle}
-            </div>
-          )}
+    <div style={{
+      width: fillCell ? '100%' : width, height: fillCell ? '100%' : height,
+      backgroundColor: surface, color: ink, padding,
+      borderRadius: borderRadius ?? preset?.shape.borderRadius ?? 8,
+      border: `1px solid ${isActive ? accent : 'rgba(128,128,128,0.32)'}`,
+      boxShadow: shadow, display: 'flex', flexDirection: 'column', gap: 8,
+      boxSizing: 'border-box', overflow: 'hidden', backfaceVisibility: 'hidden',
+      WebkitBackfaceVisibility: 'hidden', userSelect: 'none',
+    }}>
+      {hasHeader && (
+        <div style={{
+          display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between',
+          fontFamily: preset?.typography.mono ?? 'monospace', fontSize: clamp(width * 0.047, 13, 21),
+          fontVariantNumeric: 'tabular-nums',
+        }}>
+          <span>{item.indexLabel}</span>
+          {item.brand && <BrandLogo brand={item.brand} size={clamp(width * 0.095, 22, 38)} />}
         </div>
       )}
+
+      <div style={{
+        flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: item.content ? 'center' : 'flex-end',
+        gap: 5, opacity: clamp(contentProgress, 0, 1), overflowWrap: 'anywhere',
+      }}>
+        {item.content ?? (
+          <>
+            {item.metric && (
+              <div style={{
+                fontFamily: preset?.typography.mono ?? 'monospace', fontSize: clamp(width * 0.12, 24, 58),
+                lineHeight: 1, fontWeight: 700, fontVariantNumeric: 'tabular-nums',
+                color: readableInk(surface, accent),
+              }}>
+                {item.metric}
+              </div>
+            )}
+            <div style={{
+              fontFamily: preset?.typography.heading ?? 'system-ui, sans-serif',
+              fontSize: clamp(width * 0.078, 18, 40), lineHeight: 1.16,
+              fontWeight: preset?.typography.headingWeight ?? 720,
+            }}>
+              {item.title}
+            </div>
+            {item.subtitle && (
+              <div style={{
+                fontFamily: preset?.typography.body ?? 'system-ui, sans-serif',
+                fontSize: clamp(width * 0.052, 14, 24), lineHeight: 1.3,
+                color: readableInk(surface, preset?.palette.muted ?? ink),
+              }}>
+                {item.subtitle}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

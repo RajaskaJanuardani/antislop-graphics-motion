@@ -1,7 +1,8 @@
 # Storyboard 06 — Event & Perayaan (T051–T060)
 
-Default: 30 fps, `overlap 10`. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`. Patuhi 6 aturan anti-slop di `SKILL.md`.
-Perayaan tidak berarti dekorasi berlebihan: hindari konfeti generik, bintang/sparkle hiasan, dan ikon bulat. Pakai tipografi, garis, pola geometris, dan foto milik user.
+Arahkan layout dari identitas acara, foto, tanggal, dan tempat yang benar. Beri detail acara satu frame hold. Gunakan satu motif dari materi acara atau gaya terpilih untuk menjaga kontinuitas.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 

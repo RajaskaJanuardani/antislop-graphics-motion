@@ -1,7 +1,8 @@
 # Storyboard 05 — Media Sosial (T041–T050)
 
-Default: 30 fps, `overlap 10`, rasio 9:16 kecuali disebut lain. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`. Patuhi 6 aturan anti-slop di `SKILL.md`.
-Aturan platform pendek: hook harus jelas dalam 2 detik pertama, satu ide per video, ritme cepat tapi tetap deterministik (jangan potong tanpa transisi).
+Bangun layout vertikal dari awal. Gunakan crop besar, satu aksi per beat, dan ruang untuk overlay platform. Hard cut bisa dipakai saat informasi berubah. Pastikan hook dan frame hasil tetap terbaca pada ponsel.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 

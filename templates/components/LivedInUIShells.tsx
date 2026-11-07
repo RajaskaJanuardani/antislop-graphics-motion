@@ -1,17 +1,25 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
-import { easeOutExpo, ip, microBob, staggeredSpringAt } from '../theme/easing-and-timing';
-import { MotionStylePreset } from '../theme/styles-catalog';
-import { BrandLogo, BuiltinBrandSlug } from './BrandLogos';
-import { AnimatedProgressBar, FlyText, TypeText } from './KineticWords';
+import { easeOutExpo, ip } from '../theme/easing-and-timing';
+import { readableInk } from '../theme/readable-ink';
+import type { MotionStylePreset } from '../theme/styles-catalog';
+import { BrandLogo } from './BrandLogos';
+import { AnimatedProgressBar, TypeText } from './KineticWords';
 
-/**
- * REPLIKA UI AUTENTIK (<LivedInUIShells />)
- * ATURAN ANTI-SLOP:
- * - Tampilan browser, terminal, code editor, aplikasi chat, dan website WAJIB menyerupai aplikasi aslinya.
- * - Dilarang membuat kartu generik dengan teks ber-background pill yang tidak perlu atau titik bulat ("• teks") di samping label.
- * - Semua brand/framework menggunakan <BrandLogo /> resmi.
- */
+type WindowChrome = 'macos' | 'minimal' | 'none';
+const systemFont = 'system-ui, sans-serif';
+const terminalFont = "'JetBrains Mono', 'SF Mono', Consolas, monospace";
+const singleLine: React.CSSProperties = { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
+
+function MacWindowControls() {
+  return (
+    <div aria-hidden style={{ display: 'flex', flexShrink: 0, gap: 8 }}>
+      {['#FF5F57', '#FEBC2E', '#28C840'].map((color) => (
+        <span key={color} style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: color }} />
+      ))}
+    </div>
+  );
+}
 
 export interface AuthenticTerminalProps {
   windowTitle?: string;
@@ -23,18 +31,15 @@ export interface AuthenticTerminalProps {
   width?: number;
   height?: number;
   style?: React.CSSProperties;
+  chrome?: WindowChrome;
+  prompt?: string;
+  fontSize?: number;
+  enableTypingSfx?: boolean;
 }
 
-/**
- * 1. AUTHENTIC TERMINAL WINDOW (<AuthenticTerminalWindow />)
- * Replika jendela Terminal macOS / Claude Code CLI asli:
- * - Traffic lights (#FF5F56, #FFBD2E, #27C93F) + judul shell `claude — zsh — 80×24`
- * - Prompt autentik `~/project >` dengan ketikan <TypeText /> (otomatis bersuara ketikan!)
- * - Progress bar kompilasi/render dengan <AnimatedProgressBar /> (otomatis bersuara loading progress!)
- */
 export const AuthenticTerminalWindow: React.FC<AuthenticTerminalProps> = ({
-  windowTitle = 'claude — zsh — 96×28',
-  cwd = '~/motion-studio',
+  windowTitle = 'Terminal',
+  cwd = '~',
   command,
   commandStartFrame = 10,
   logs = [],
@@ -42,98 +47,71 @@ export const AuthenticTerminalWindow: React.FC<AuthenticTerminalProps> = ({
   width = 1040,
   height = 560,
   style,
+  chrome = 'macos',
+  prompt = '$',
+  fontSize = Math.max(16, Math.min(26, Math.round(width * 0.026))),
+  enableTypingSfx = true,
 }) => {
   const frame = useCurrentFrame();
+  const visibleLogs = logs.filter((log) => frame >= log.startFrame);
 
   return (
-    <div
-      style={{
-        width,
-        minHeight: height,
-        backgroundColor: '#0D0F14',
-        borderRadius: 14,
-        border: '1px solid rgba(255,255,255,0.14)',
-        boxShadow: '0 32px 80px rgba(0,0,0,0.55)',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        fontFamily: "'JetBrains Mono', 'SF Mono', Consolas, monospace",
-        ...style,
-      }}
-    >
-      {/* Titlebar macOS Terminal Asli */}
-      <div
-        style={{
-          height: 44,
-          backgroundColor: '#181B22',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 18px',
-        }}
-      >
-        <div style={{ display: 'flex', gap: 8 }}>
-          <span style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: '#FF5F56' }} />
-          <span style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: '#FFBD2E' }} />
-          <span style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: '#27C93F' }} />
+    <div style={{
+      width, height, backgroundColor: '#141619', color: '#EFF1ED',
+      borderRadius: chrome === 'none' ? 0 : 9, border: '1px solid #393C42',
+      overflow: 'hidden', display: 'flex', flexDirection: 'column',
+      fontFamily: terminalFont, boxSizing: 'border-box', ...style,
+    }}>
+      {chrome !== 'none' && (
+        <div style={{
+          display: 'grid', gridTemplateColumns: '64px minmax(0,1fr) 64px',
+          alignItems: 'center', flexShrink: 0, height: 42, padding: '0 16px',
+          backgroundColor: '#24272B', borderBottom: '1px solid #393C42',
+          font: `500 15px ${systemFont}`, color: '#E1E3E1',
+        }}>
+          <div>{chrome === 'macos' && <MacWindowControls />}</div>
+          <span style={{ ...singleLine, textAlign: 'center' }}>{windowTitle}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#94A3B8' }}>
-          <BrandLogo brand="claude" size={16} />
-          <span>{windowTitle}</span>
-        </div>
-        <div style={{ width: 52 }} />
-      </div>
+      )}
 
-      {/* Isi Terminal */}
-      <div style={{ padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 18, flex: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 20 }}>
-          <span style={{ color: '#38BDF8', fontWeight: 600 }}>{cwd}</span>
-          <span style={{ color: '#D97757', fontWeight: 700 }}>&gt;</span>
+      <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0, flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 9, flexShrink: 0, fontSize, minWidth: 0 }}>
+          {cwd && <span style={{ color: '#9CB5A9', maxWidth: '34%', ...singleLine }}>{cwd}</span>}
+          <span style={{ color: '#C7CFD2' }}>{prompt}</span>
           <TypeText
             text={command}
             start={commandStartFrame}
-            cps={1.55}
-            size={20}
-            color="#F8FAFC"
-            newestColor="#D97757"
-            weight={500}
-            family="'JetBrains Mono', monospace"
-            humanizeCadence
-            enableTypingSfx
+            size={fontSize}
+            color="#EFF1ED"
+            family={terminalFont}
+            presentation="native"
+            enableTypingSfx={enableTypingSfx}
+            style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}
           />
         </div>
 
-        {/* Output Log Baris demi Baris */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 6 }}>
-          {logs.map((log, idx) => {
-            const op = ip(frame, [log.startFrame, log.startFrame + 8], [0, 1], easeOutExpo);
-            if (op <= 0) return null;
-            return (
-              <div
-                key={idx}
-                style={{
-                  fontSize: 17,
-                  color: log.color ?? '#94A3B8',
-                  opacity: op,
-                  transform: `translateY(${((1 - op) * 6).toFixed(1)}px)`,
-                }}
-              >
-                {log.text}
-              </div>
-            );
-          })}
+        <div style={{
+          display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+          overflow: 'hidden', minHeight: 0, fontSize: fontSize * 0.9, lineHeight: 1.45,
+        }}>
+          {visibleLogs.map((log, index) => (
+            <div key={index} style={{
+              flexShrink: 0, color: log.color ?? '#BBC3C4',
+              whiteSpace: 'pre-wrap', overflowWrap: 'anywhere',
+            }}>
+              {log.text}
+            </div>
+          ))}
         </div>
 
-        {/* Loading / Render Progress Bar dengan SFX Otomatis */}
-        {progressBar && frame >= progressBar.startFrame - 2 && (
-          <div style={{ marginTop: 'auto', paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        {progressBar && frame >= progressBar.startFrame && (
+          <div style={{ marginTop: 'auto', paddingTop: 12, flexShrink: 0, borderTop: '1px solid #393C42' }}>
             <AnimatedProgressBar
-              label={progressBar.label}
-              startFrame={progressBar.startFrame}
-              endFrame={progressBar.endFrame}
-              accentColor="#10B981"
-              enableProgressSfx
+              {...progressBar}
+              accentColor="#9AD2AD"
+              textColor="#EFF1ED"
+              monoFont={terminalFont}
+              height={5}
             />
           </div>
         )}
@@ -142,135 +120,77 @@ export const AuthenticTerminalWindow: React.FC<AuthenticTerminalProps> = ({
   );
 };
 
-/**
- * 2. AUTHENTIC BROWSER WINDOW (<AuthenticBrowserWindow />)
- * Replika jendela Browser Chrome / Arc / Safari asli:
- * - Tab bar dengan favicon <BrandLogo />, judul tab, tombol close `×` & tambah tab `+`
- * - Toolbar navigasi dengan tombol Back, Forward, Refresh SVG & URL Address Bar asli
- */
 export interface AuthenticBrowserProps {
   tabTitle?: string;
   url?: string;
-  brandFavicon?: BuiltinBrandSlug | string;
+  brandFavicon?: string;
   width?: number;
   height?: number;
   style?: React.CSSProperties;
   children: React.ReactNode;
+  theme?: 'light' | 'dark';
+  chrome?: WindowChrome;
 }
 
 export const AuthenticBrowserWindow: React.FC<AuthenticBrowserProps> = ({
-  tabTitle = 'Remotion Studio — Preview',
-  url = 'localhost:3000/MainVideo',
-  brandFavicon = 'remotion',
+  tabTitle = 'Preview',
+  url = 'localhost:3000',
+  brandFavicon,
   width = 1120,
   height = 660,
   style,
   children,
+  theme = 'dark',
+  chrome = 'macos',
 }) => {
+  const light = theme === 'light';
+  const ui = light
+    ? { strip: '#E5E8EC', bar: '#F7F8FA', input: '#E9EDF1', line: '#CFD4DA', text: '#24272A', muted: '#4D535B' }
+    : { strip: '#202124', bar: '#2E3035', input: '#202124', line: '#44484F', text: '#F0F1F3', muted: '#AFB4BD' };
+
   return (
-    <div
-      style={{
-        width,
-        height,
-        backgroundColor: '#111318',
-        borderRadius: 14,
-        border: '1px solid rgba(255,255,255,0.14)',
-        boxShadow: '0 32px 84px rgba(0,0,0,0.5)',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        ...style,
-      }}
-    >
-      {/* Browser Tab Strip */}
-      <div
-        style={{
-          height: 42,
-          backgroundColor: '#0B0C10',
-          display: 'flex',
-          alignItems: 'flex-end',
-          padding: '0 16px',
-          gap: 14,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 8, alignSelf: 'center', marginRight: 8 }}>
-          <span style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: '#FF5F56' }} />
-          <span style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: '#FFBD2E' }} />
-          <span style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: '#27C93F' }} />
-        </div>
+    <div style={{
+      width, height, backgroundColor: ui.bar, color: ui.text,
+      borderRadius: chrome === 'none' ? 0 : 10, border: `1px solid ${ui.line}`,
+      overflow: 'hidden', display: 'flex', flexDirection: 'column',
+      boxSizing: 'border-box', fontFamily: systemFont, ...style,
+    }}>
+      {chrome !== 'none' && (
+        <>
+          <div style={{
+            display: 'flex', alignItems: 'flex-end', flexShrink: 0,
+            height: 38, padding: '0 12px', gap: 14, backgroundColor: ui.strip,
+          }}>
+            {chrome === 'macos' && <div style={{ alignSelf: 'center' }}><MacWindowControls /></div>}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 9, minWidth: 0, maxWidth: '62%',
+              height: 32, padding: '0 12px', backgroundColor: ui.bar,
+              borderRadius: '8px 8px 0 0', fontSize: 15,
+            }}>
+              {brandFavicon && <BrandLogo brand={brandFavicon} size={16} />}
+              <span style={singleLine}>{tabTitle}</span>
+              <span aria-hidden style={{ color: ui.muted, marginLeft: 6 }}>×</span>
+            </div>
+          </div>
 
-        {/* Active Tab */}
-        <div
-          style={{
-            height: 34,
-            padding: '0 16px',
-            backgroundColor: '#181B22',
-            borderRadius: '10px 10px 0 0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            fontSize: 13,
-            color: '#F1F5F9',
-            fontFamily: 'Inter, system-ui, sans-serif',
-            fontWeight: 500,
-          }}
-        >
-          <BrandLogo brand={brandFavicon} size={15} />
-          <span>{tabTitle}</span>
-          <span style={{ marginLeft: 10, color: '#64748B', fontSize: 14 }}>×</span>
-        </div>
-
-        <span style={{ alignSelf: 'center', color: '#64748B', fontSize: 18 }}>+</span>
-      </div>
-
-      {/* Browser Navigation & URL Address Bar */}
-      <div
-        style={{
-          height: 46,
-          backgroundColor: '#181B22',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 16px',
-          gap: 14,
-        }}
-      >
-        {/* Back / Forward / Reload */}
-        <div style={{ display: 'flex', gap: 12, color: '#94A3B8' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" opacity="0.45">
-            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M21 12a9 9 0 1 1-2.64-6.36L21 8M21 3v5h-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-
-        {/* URL Omni-Box */}
-        <div
-          style={{
-            flex: 1,
-            height: 30,
-            backgroundColor: '#0D0F14',
-            borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 14px',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 13,
-            color: '#CBD5E1',
-          }}
-        >
-          <span style={{ color: '#64748B', marginRight: 4 }}>http://</span>
-          <span>{url}</span>
-        </div>
-      </div>
-
-      {/* Browser Viewport Content */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>{children}</div>
+          <div style={{
+            display: 'flex', alignItems: 'center', flexShrink: 0, height: 44,
+            padding: '0 12px', gap: 12, borderBottom: `1px solid ${ui.line}`,
+          }}>
+            <svg aria-hidden width="64" height="18" viewBox="0 0 64 18" fill="none" style={{ color: ui.muted, flexShrink: 0 }}>
+              <path d="M15 9H3m6-5-5 5 5 5m43-9a6 6 0 1 0 7 8m0-9v5h-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M25 9h12m-6-5 5 5-5 5" stroke="currentColor" strokeWidth="1.6" opacity=".45" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <div style={{
+              ...singleLine, flex: 1, backgroundColor: ui.input, borderRadius: 6,
+              height: 29, padding: '0 10px', lineHeight: '29px', fontSize: 15, color: ui.text,
+            }}>
+              {url}
+            </div>
+          </div>
+        </>
+      )}
+      <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>{children}</div>
     </div>
   );
 };
@@ -284,333 +204,132 @@ export interface ChatBubbleItem {
 
 export interface ChatAppShellProps {
   contactName?: string;
+  contactBrand?: string;
   bubbles: ChatBubbleItem[];
   inputTypedText?: string;
   inputTypeStartFrame?: number;
   headerRevealFrame?: number;
   stylePreset: MotionStylePreset;
+  style?: React.CSSProperties;
 }
 
-/**
- * 3. AUTHENTIC CHAT APP SHELL (<ChatAppShell />)
- */
 export const ChatAppShell: React.FC<ChatAppShellProps> = ({
-  contactName = 'studio.workspace',
+  contactName = 'Percakapan',
+  contactBrand,
   bubbles,
-  inputTypedText = 'Deploy instant motion build...',
+  inputTypedText = '',
   inputTypeStartFrame = 36,
-  headerRevealFrame = 62,
+  headerRevealFrame = 0,
   stylePreset,
+  style,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { width, height } = useVideoConfig();
   const { palette, typography } = stylePreset;
-
-  const headerT = ip(frame, [headerRevealFrame, headerRevealFrame + 14], [0, 1], easeOutExpo);
-  const avatarSp = staggeredSpringAt(frame, headerRevealFrame, 1, fps);
-  const inputSp = staggeredSpringAt(frame, 12, 0, fps);
+  const ink = readableInk(palette.surface, palette.ink);
+  const incomingInk = readableInk(palette.bg, palette.ink);
+  const header = headerRevealFrame === 0 ? 1 : ip(frame, [headerRevealFrame, headerRevealFrame + 12], [0, 1], easeOutExpo);
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        left: 340,
-        top: 76,
-        width: 1240,
-        height: 790,
-        backgroundColor: palette.surface,
-        borderRadius: 32,
-        border: `2px solid ${palette.ink}1F`,
-        boxShadow: '0 28px 75px rgba(0,0,0,0.14)',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        style={{
-          position: 'relative',
-          height: 92,
-          padding: '0 36px',
-          borderBottom: `1px solid ${palette.ink}14`,
-          backgroundColor: `${palette.surface}F2`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          opacity: headerT,
-          transform: `translate3d(0, ${((1 - headerT) * -22).toFixed(1)}px, 0)`,
-          zIndex: 10,
-        }}
-      >
-        <svg width="28" height="32" viewBox="0 0 24 24">
-          <path
-            d="M15.5 4.5 8 12l7.5 7.5"
-            stroke={palette.ink}
-            strokeWidth="2.8"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            transform: `scale(${(0.5 + 0.5 * avatarSp).toFixed(3)})`,
-          }}
-        >
-          <BrandLogo brand="claude" size={38} />
-          <div
-            style={{
-              marginTop: 4,
-              fontFamily: typography.body,
-              fontSize: 15,
-              fontWeight: 600,
-              color: palette.ink,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-            }}
-          >
-            <span>{contactName}</span>
-            <svg width="11" height="11" viewBox="0 0 24 24">
-              <path d="M9 5.5 15.5 12 9 18.5" stroke={palette.muted} strokeWidth="2.8" fill="none" strokeLinecap="round" />
-            </svg>
-          </div>
-        </div>
-
-        <svg width="38" height="28" viewBox="0 0 32 24">
-          <rect x="1" y="2" width="21" height="20" rx="5" stroke={palette.ink} strokeWidth="2.2" fill="none" />
-          <path d="M22 9.5 30 5v14l-8-4.5z" stroke={palette.ink} strokeWidth="2.2" fill="none" strokeLinejoin="round" />
-        </svg>
+    <div style={{
+      position: 'absolute', left: '50%', top: '7%', transform: 'translateX(-50%)',
+      width: Math.min(width * 0.88, 1240), height: Math.min(height * 0.77, 860),
+      display: 'flex', flexDirection: 'column', backgroundColor: palette.surface,
+      borderRadius: 12, border: `1px solid ${ink}33`, boxSizing: 'border-box',
+      color: ink, overflow: 'hidden', fontFamily: typography.body, ...style,
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', flexShrink: 0, gap: 12,
+        height: 64, padding: '0 24px', borderBottom: `1px solid ${ink}33`,
+        fontWeight: 650, fontSize: 24, opacity: header,
+      }}>
+        {contactBrand && <BrandLogo brand={contactBrand} size={30} />}
+        <span style={singleLine}>{contactName}</span>
       </div>
 
-      <div style={{ padding: '38px 54px', display: 'flex', flexDirection: 'column', gap: 24 }}>
-        {bubbles.map((b, idx) => {
-          const sp = staggeredSpringAt(frame, b.startFrame, 0, fps);
-          const appear = ip(frame, [b.startFrame - 2, b.startFrame + 3], [0, 1]);
-          if (appear <= 0) return null;
-
-          const bgCol = b.isSender ? palette.accent : '#E9E9EC';
-          const txtCol = b.isSender ? '#FFFFFF' : '#101012';
+      <div style={{
+        padding: '20px 24px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
+        gap: 12, overflow: 'hidden', justifyContent: 'flex-end',
+      }}>
+        {bubbles.filter((bubble) => frame >= bubble.startFrame).map((bubble, index) => {
+          const progress = ip(frame, [bubble.startFrame, bubble.startFrame + 8], [0, 1], easeOutExpo);
+          const fill = bubble.isSender ? palette.accent : palette.bg;
+          const direction = bubble.isSender ? 'flex-end' : 'flex-start';
+          const radius = bubble.hasTail
+            ? (bubble.isSender ? '14px 14px 3px 14px' : '14px 14px 14px 3px')
+            : 14;
 
           return (
-            <div
-              key={idx}
-              style={{
-                position: 'relative',
-                alignSelf: b.isSender ? 'flex-end' : 'flex-start',
-                padding: '18px 30px',
-                borderRadius: 999,
-                backgroundColor: bgCol,
-                opacity: appear,
-                transform: `translate3d(0, ${((1 - sp) * 26).toFixed(1)}px, 0) scale(${(0.62 + 0.38 * sp).toFixed(3)})`,
-                transformOrigin: b.isSender ? '100% 100%' : '0% 100%',
-              }}
-            >
-              <FlyText
-                text={b.text}
-                start={b.startFrame}
-                stagger={1.5}
-                dur={10}
-                size={27}
-                weight={600}
-                family={typography.body}
-                color={txtCol}
-                yOffset={26}
-                xOffset={10}
-                rotateSpread={4}
-              />
-              {b.hasTail && <BubbleTail color={bgCol} side={b.isSender ? 'br' : 'bl'} />}
+            <div key={index} style={{
+              alignSelf: direction, flexShrink: 0, maxWidth: '80%', borderRadius: radius,
+              padding: '12px 17px', backgroundColor: fill,
+              color: bubble.isSender ? readableInk(fill, palette.ink) : incomingInk,
+              fontSize: 25, lineHeight: 1.36, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere',
+              opacity: progress, transform: `translateY(${(1 - progress) * 8}px)`,
+            }}>
+              {bubble.text}
             </div>
           );
         })}
       </div>
 
-      <div
-        style={{
-          position: 'absolute',
-          left: 34,
-          right: 34,
-          bottom: 24,
-          height: 64,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 16,
-          transform: `translate3d(0, ${((1 - inputSp) * 32).toFixed(1)}px, 0)`,
-          opacity: inputSp,
-        }}
-      >
-        <div
-          style={{
-            width: 54,
-            height: 54,
-            borderRadius: 999,
-            backgroundColor: palette.bg,
-            border: `1.5px solid ${palette.ink}1F`,
-            boxShadow: '0 4px 14px rgba(0,0,0,0.06)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 34,
-            color: palette.ink,
-            fontWeight: 300,
-          }}
-        >
-          +
+      {inputTypedText && (
+        <div style={{
+          margin: '0 24px 20px', flexShrink: 0, minHeight: 52, maxHeight: '20%',
+          border: `1px solid ${ink}33`, borderRadius: 9, backgroundColor: palette.bg,
+          padding: '12px 16px', boxSizing: 'border-box', overflow: 'hidden',
+        }}>
+          <TypeText text={inputTypedText} start={inputTypeStartFrame} size={22}
+            color={incomingInk} family={typography.body} presentation="native" typingVariant="soft"
+            style={{ overflowWrap: 'anywhere' }} />
         </div>
-
-        <div
-          style={{
-            flex: 1,
-            height: 54,
-            borderRadius: 999,
-            backgroundColor: palette.bg,
-            border: `1.5px solid ${palette.ink}22`,
-            boxShadow: '0 4px 14px rgba(0,0,0,0.06)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 24px',
-          }}
-        >
-          <TypeText
-            text={inputTypedText}
-            start={inputTypeStartFrame}
-            cps={1.6}
-            size={21}
-            color={palette.ink}
-            family={typography.body}
-            humanizeCadence
-            enableTypingSfx
-            cursor
-          />
-          <svg width="20" height="24" viewBox="0 0 24 24">
-            <path
-              d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-4 4.9V19h2v2H9v-2h2v-2.1A5 5 0 0 1 7 12h2a3 3 0 0 0 6 0h2z"
-              fill={palette.muted}
-            />
-          </svg>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
 
-const BubbleTail: React.FC<{ color: string; side: 'bl' | 'br' }> = ({ color, side }) => (
-  <svg
-    width="22"
-    height="26"
-    viewBox="0 0 28 34"
-    style={{
-      position: 'absolute',
-      bottom: -2,
-      [side === 'bl' ? 'left' : 'right']: -6,
-      transform: side === 'bl' ? 'scaleX(-1)' : undefined,
-    }}
-  >
-    <path d="M0 0 C2 14 10 26 26 32 C12 34 2 30 0 22 Z" fill={color} />
-  </svg>
-);
-
-/**
- * 4. MAC DESKTOP & WINDOW SHELL (<MacDesktopChrome />)
- * Menu Bar macOS asli (dengan ikon Apple SVG, bukan titik bulat!) + Floating Dock dengan Logo Brand Asli (<BrandLogo />)
- */
 export const MacDesktopChrome: React.FC<{
   appName?: string;
   clockText?: string;
+  menuItems?: string[];
+  menuLogoSrc?: string;
+  dockBrands?: string[];
+  dockBottom?: number;
   stylePreset: MotionStylePreset;
   children: React.ReactNode;
-}> = ({ appName = 'Remotion Studio', clockText = 'Sat 03:40 PM', stylePreset, children }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const { typography } = stylePreset;
-
-  const dockSp = staggeredSpringAt(frame, 4, 1, fps);
-  const dockBrands: BuiltinBrandSlug[] = ['claude', 'remotion', 'vscode', 'react', 'typescript', 'after-effects'];
-
-  return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-      {children}
-
-      {/* Screen-Fixed macOS Top Menu Bar */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: 34,
-          backgroundColor: 'rgba(255,255,255,0.92)',
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(0,0,0,0.08)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 20px',
-          fontFamily: typography.body,
-          fontSize: 14,
-          color: '#1A1A1A',
-          zIndex: 85,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <BrandLogo brand="remotion" size={16} />
-          <b style={{ fontWeight: 700 }}>{appName}</b>
-          <span>File</span>
-          <span>Edit</span>
-          <span>View</span>
-          <span>Window</span>
-          <span>Help</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontFamily: typography.mono, fontSize: 13 }}>
-          <span style={{ fontWeight: 600 }}>{clockText}</span>
-        </div>
+}> = ({
+  appName = 'Finder',
+  clockText,
+  menuItems = ['File', 'Edit', 'View', 'Window', 'Help'],
+  menuLogoSrc,
+  dockBrands = [],
+  dockBottom = 34,
+  stylePreset,
+  children,
+}) => (
+  <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', backgroundColor: stylePreset.palette.bg }}>
+    {children}
+    <div style={{
+      position: 'absolute', left: 0, right: 0, top: 0, height: 32,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '0 18px', gap: 14, font: `15px ${systemFont}`, color: '#1D1D1F',
+      backgroundColor: '#F4F4F5', borderBottom: '1px solid #D4D4D6', zIndex: 85,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', minWidth: 0, gap: 15, overflow: 'hidden', whiteSpace: 'nowrap' }}>
+        {menuLogoSrc && <BrandLogo brand="apple" customPublicSvgPath={menuLogoSrc} size={16} />}
+        <b style={singleLine}>{appName}</b>
+        {menuItems.map((item, index) => <span key={index}>{item}</span>)}
       </div>
-
-      {/* Screen-Fixed Bottom Floating Dock dengan Official Brand Logos */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          bottom: 104,
-          transform: `translate3d(-50%, ${((1 - dockSp) * 45).toFixed(1)}px, 0)`,
-          opacity: dockSp,
-          height: 62,
-          padding: '0 18px',
-          borderRadius: 20,
-          backgroundColor: 'rgba(24,26,32,0.82)',
-          backdropFilter: 'blur(14px)',
-          boxShadow: '0 12px 32px rgba(0,0,0,0.28)',
-          border: '1px solid rgba(255,255,255,0.16)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
-          zIndex: 85,
-        }}
-      >
-        {dockBrands.map((brand, idx) => {
-          const { dy } = microBob(frame, idx, 2.2, 0.2);
-          return (
-            <div
-              key={brand}
-              style={{
-                width: 42,
-                height: 42,
-                borderRadius: 11,
-                backgroundColor: 'rgba(255,255,255,0.08)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transform: `translateY(${dy.toFixed(1)}px)`,
-              }}
-            >
-              <BrandLogo brand={brand} size={28} />
-            </div>
-          );
-        })}
-      </div>
+      {clockText && <span style={{ whiteSpace: 'nowrap' }}>{clockText}</span>}
     </div>
-  );
-};
+    {dockBrands.length > 0 && (
+      <div style={{
+        position: 'absolute', left: '50%', bottom: dockBottom, transform: 'translateX(-50%)',
+        display: 'flex', alignItems: 'center', gap: 12, zIndex: 85, padding: '8px 14px',
+        backgroundColor: 'rgba(245,245,246,0.85)', border: '1px solid #D4D4D6', borderRadius: 14,
+      }}>
+        {dockBrands.map((brand, index) => <BrandLogo key={index} brand={brand} size={37} />)}
+      </div>
+    )}
+  </div>
+);

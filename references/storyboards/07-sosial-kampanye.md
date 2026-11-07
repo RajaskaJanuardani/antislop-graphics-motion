@@ -1,7 +1,8 @@
 # Storyboard 07 — Sosial & Kampanye (T061–T070)
 
-Default: 30 fps, `overlap 10`. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`. Patuhi 6 aturan anti-slop di `SKILL.md`.
-Kampanye bekerja lewat satu pesan yang jelas dan satu tindakan yang bisa dilakukan. Setiap template berakhir dengan ajakan konkret (CTA), bukan slogan kosong. Data/angka yang ditampilkan wajib berasal dari user atau sumber yang disebut di scene sumber; jangan mengarang statistik.
+Hubungkan satu bukti dengan satu tindakan yang bisa dilakukan. Bedakan ilustrasi dari bukti faktual. Rancang CTA yang terbaca dalam hold dan cantumkan sumber angka pada adegan terkait.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 

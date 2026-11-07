@@ -1,8 +1,6 @@
 # /motion-craft
 
-**Engine Motion Graphics & Video Editing Setara After Effects untuk AI Coding Agent di Remotion (React + TypeScript).**
-
-`motion-craft` adalah *open-source agent skill* (mengikuti standar `agentskills.io`) yang mengubah AI coding agent (Claude Code, ZCode, Cursor, Codex, Windsurf) menjadi **Senior After Effects Artist & Motion Director**. Skill ini membekali agent dengan komponen React/Remotion siap pakai, kamera C1 Spline mulus tanpa getaran, 43 panduan gaya desain mendalam, 100 template storyboard, 19 koreografi kartu 3D/Grid/Interaksi, replika UI autentik, resolver logo brand resmi, serta 65+ Studio SFX & 64 pilihan lagu backsound yang terikat langsung ke animasi.
+Skill untuk membuat motion graphics dan mengedit video dengan Remotion (React dan TypeScript). Mulai dari brief, pilih satu dari 43 panduan gaya dan satu dari 100 storyboard, lalu adaptasi isi shot. Template React mencakup UI, tipografi, kamera, grid, dan kartu. Gunakan aset sumber, cue audio sesuai aksi, dan pemeriksaan hasil render.
 
 ## Status QA dan Timestamp
 
@@ -16,8 +14,8 @@ Inspector menghasilkan `FAIL`, `PARTIAL`, atau `PASS` sesuai pemeriksaan yang be
 
 1. [Cara Instalasi](#1-cara-instalasi)
 2. [Cara Pakai di Agent (`/motion-craft`)](#2-cara-pakai-di-agent-motion-craft)
-3. [6 Aturan Keras Anti-Slop](#3-6-aturan-keras-anti-slop)
-4. [7 Standar Editing Humanizer](#4-7-standar-editing-humanizer)
+3. [Arah Visual](#3-arah-visual)
+4. [Kamera, Editing, dan Caption](#4-kamera-editing-dan-caption)
 5. [19 Komponen 3D Card Layout, Grid Animation, & Card Interaction](#5-19-komponen-3d-card-layout-grid-animation--card-interaction)
 6. [100 Template Storyboard Siap Pakai (`T001`–`T100`)](#6-100-template-storyboard-siap-pakai-t001t100)
 7. [43 File Spesifikasi Gaya Desain (`references/styles/`)](#7-43-file-spesifikasi-gaya-desain-referencesstyles)
@@ -62,58 +60,31 @@ cd motion-craft
 
 Panggil langsung menggunakan perintah **`/motion-craft`** di chat agent pada project Remotion Anda:
 
-### Contoh 1 — Video Demo Produk / SaaS Interaktif
+### Brief singkat
+
 ```text
-/motion-craft Buatkan video demo produk SaaS AI berdurasi 15 detik (1920x1080, 30fps). Tampilkan terminal macOS asli saat mengetik perintah instalasi dengan kamera yang zoom mengikuti ketikan, lanjutkan transisi seamless ke browser yang menampilkan Bento Grid fitur utama dan kursor yang mengklik tombol Publish, lalu tutup dengan Grid Recap semua fitur. Narasi subtitle taruh rapi di bawah layar.
+/motion-craft Buat video motion graphics tentang cara install Linux.
 ```
 
-### Contoh 2 — Memakai Template Storyboard Spesifik (`T001`–`T100`) & Gaya Spesifik (`01`–`43`)
+Planner menyarankan #12 Swiss Internasional + T023 dengan asumsi awal installer grafis. Brief yang menyebut instalasi paket lewat terminal memilih #26 Terminal CLI + T036.
+
+### Gaya eksplisit
+
 ```text
-/motion-craft Gunakan storyboard T035 (Coding Demo Live-Typing) dan gaya 43 (Motion Reel Editorial). Buat video 20 detik yang menampilkan proses coding TypeScript + React di Remotion lengkap dengan logo resmi Claude, Remotion, TypeScript, dan React, SFX ketikan keyboard mekanik, serta backsound B26.
+/motion-craft Bikin Reels 15 detik buat memperkenalkan Kopisusu 3% dengan gaya #14 Risograph. Tampilkan gelas transparan, es, dan kopi susu. Tutup dengan “Cobain hari ini”.
 ```
 
-### Contoh 3 — Video Reels / TikTok Vertikal (`9:16`) dengan Koreografi Kartu 3D
-```text
-/motion-craft Buatkan video vertikal 9:16 (1080x1920, 30fps) berdurasi 15 detik untuk showcase 6 fitur aplikasi mobile. Gunakan komponen Coverflow3D di pembuka, CardFlip3D untuk perbandingan sebelum-sesudah, dan PolaroidDropTable di bagian testimoni.
-```
+Gaya #14 dipertahankan dan T001 memberi struktur teaser produk. Agen menentukan palet tinta, siluet, crop bahan, dan hold CTA berdasarkan panduan serta aset yang tersedia.
 
 ---
 
-## 3. 6 Aturan Keras Anti-Slop
+## 3. Arah Visual
 
-Skill ini memiliki *Static Linter* (`scripts/lint.mjs`) dan *Motion Inspector* (`scripts/inspect-motion.mjs`) yang menegakkan 6 aturan desain mutlak agar hasil video tidak terlihat seperti buatan AI generik:
+Susun satu hero, hierarki baca, ruang kosong, dan satu peran warna aksen untuk tiap shot. Pakai panduan gaya untuk komposisi dan material yang khas. Terapkan gaya pada panggung dan editing bila antarmuka sumber perlu tetap persis. Pertahankan badge, status, dan ikon yang memang fungsional. Pakai aset produk dan logo yang diverifikasi.
 
-1. **Dilarang Membuat Background Teks / Pill Badge Sampah:**
-   - Tidak boleh membungkus judul, label, atau kata dengan kotak/pill background warna-warni yang tidak punya fungsi interaktif. Background hanya dipakai pada tombol asli yang benar-benar diklik kursor atau gelembung pesan di dalam aplikasi chat.
-2. **Dilarang Membuat Titik Bulat di Samping Teks (`• teks`) & Ikon Hiasan Palsu:**
-   - Melarang penggunaan *bullet dot* di samping label (`• localhost:3000`, `• ACTIVE`) serta melarang ikon dekoratif generik seperti ikon petir (`LightningIcon`), bintang (`SparkleIcon`), atau bohlam (`LightbulbIcon`).
-3. **Wajib Menggunakan Logo Asli untuk Setiap Brand / Teknologi / Project (`<BrandLogo />`):**
-   - Setiap kali konten menyebut brand atau project (Claude, Anthropic, Remotion, Adobe After Effects, Premiere Pro, CapCut, DaVinci Resolve, React, TypeScript, Next.js, VS Code, GitHub, Figma, OpenAI, Docker, Vercel, Supabase, YouTube, TikTok, Instagram, atau brand kustom), agent wajib memakai logo vektor aslinya lewat `<BrandLogo brand="..." />` dan skrip pencari otomatis `scripts/fetch-brand-logo.mjs` (terhubung ke aset lokal project, **svgl.app API**, dan **Simple Icons CDN 3.200+ brand**).
-4. **SFX Wajib Terikat Langsung ke Animasi (*Event-Driven*, Bukan Acak):**
-   - Tidak boleh ada SFX liar di setiap kata subtitle. SFX terpasang langsung di dalam komponen React (`<Sequence><Audio /></Sequence>`) sehingga hanya berbunyi tepat saat animasi mengetik, *progress bar* berjalan, kursor mengklik, kartu berputar, atau transisi scene terjadi.
-5. **Kemiripan Visual 1:1 untuk Aplikasi Digital (UI) & Objek Fisik Dunia Nyata (*Universal Fidelity*):**
-   - **Aplikasi, Website, & Software:** Kapan pun user meminta tampilan aplikasi/website/platform apa pun (populer seperti VS Code, Figma, TikTok, YouTube, Shopee, Spotify, maupun aplikasi kustom milik user), agent wajib merekonstruksi anatomi UI aslinya semirip mungkin (1:1) lewat kode React/SVG (lengkap dengan navigasi, warna resmi, `<BrandLogo />`, dan data nyata), atau memakai 4 fondasi di `LivedInUIShells.tsx` (`<AuthenticBrowserWindow />`, `<AuthenticTerminalWindow />`, `<ChatAppShell />`, `<MacDesktopChrome />`).
-   - **Objek Fisik, Alam, Sains, & Benda Dunia Nyata:** Kapan pun topik membahas objek fisik/fenomena nyata di dunia nyata, dilarang keras menggantinya dengan kotak kartu teks atau lingkaran/kotak polos! Agent wajib menggambar siluet khas, proporsi, anatomi bagian-bagian pembentuknya dengan multi-layer `<svg>` (`<path>`, bezier, gradien pencahayaan), serta menggerakkannya sesuai mekanika/hukum fisik aslinya.
-6. **Hierarki Panggung 85% Konten Utama di Tengah vs 15% Subtitle Bersih di Bawah (`<BottomSubtitleBar />`):**
-   - Panggung tengah didedikasikan penuh untuk aksi visual topik, sedangkan narasi subtitle berada rapi di bagian bawah (`bottom: 44px`, teks bersih tanpa kotak background warna-warni).
+## 4. Kamera, Editing, dan Caption
 
----
-
-## 4. 7 Standar Editing Humanizer
-
-Agar gerakan animasi terasa dibuat oleh tangan editor manusia profesional (bukan *linear tween* kaku):
-
-| # | Nama Humanizer | Implementasi di `templates/` | Efek Visual & Audio |
-|---|---|---|---|
-| **1** | **Humanized Typing & Fitts-Law Cursor** | `<TypeText typoCorrection />` & `<AnimatedCursor />` | Kecepatan ketik bervariasi per jenis karakter (jeda mikrosekon di spasi/tanda baca + fitur salah ketik & *backspace*) serta kursor yang melakukan *micro-overshoot* `4.5px` dan *hover delay* `5 frame` sebelum menekan tombol. |
-| **2** | **Overlapping Action & Micro-Bobbing** | `staggeredSpringAt()` & `microBob()` | Wadah kartu (layer 0), isi utama (layer 1), dan elemen pendukung (layer 2) memiliki inersia pegas berlapis sehingga tidak berhenti di frame yang sama persis. |
-| **3** | **Asymmetric Scene Pacing & Camera Anticipation** | `computeAsymmetricSceneDurations()` & `buildTypingCameraSpline()` | Durasi antar-scene dibuat asimetris (*Establish lambat → Aksi cepat → Climax hold*) ditambah tarikan kamera mundur tipis `0.982x` selama 3 frame sebelum melesat *zoom-in*. |
-| **4** | **J-Cut Audio Lead-In** | `<SeamlessSceneShell />` | Sound effect transisi studio berbunyi mendahului perpindahan visual agar sambungan antar-scene terasa mengalir. |
-| **5** | **Velocity-Driven Motion Blur & Rack-Focus** | `splineVelocityAt()` di `<CameraRig />` | Saat kamera diam, gambar 100% tajam (`blur(0px)`). Saat kamera melesat cepat di atas ambang kecepatan, muncul *directional blur* halus (`1.5px–3.8px`) yang langsung hilang saat kamera berhenti. |
-| **6** | **Authentic Lived-In UI Shells** | `templates/components/LivedInUIShells.tsx` | Jendela browser, terminal, aplikasi chat, dan desktop macOS tampil utuh dengan detail periferal nyata. |
-| **7** | **Safe-Zone & Bounding-Box Spline Inspector** | `scripts/inspect-motion.mjs` | Memverifikasi secara matematis bahwa seluruh *waypoint* kamera `splineAt` berada di zona aman (`20%–80%` layar) dan tidak pernah menabrak `<BottomSubtitleBar />`. |
-
----
+Mulai dari hold untuk bacaan. Pindahkan fokus dengan kamera atau crop saat ada detail yang perlu dilihat. Pilih cut, match cut, atau transisi overlap berdasarkan hubungan antarshot. Gunakan SFX pada tindakan atau perubahan yang terlihat. Caption opsional berada di screen-space dengan ukuran dan offset sesuai rasio. Cek [panduan kamera dan caption](references/CAMERA-SCENES-NARRATOR.md) dan [QA tampilan](references/REPLICATION-AND-QA.md#3-cek-tampilan-sebelum-serah).
 
 ## 5. 19 Komponen 3D Card Layout, Grid Animation, & Card Interaction
 
@@ -173,9 +144,9 @@ Tersedia di [`references/storyboards/INDEX.md`](references/storyboards/INDEX.md)
 
 ## 7. 43 File Spesifikasi Gaya Desain (`references/styles/`)
 
-Setiap gaya di [`references/STYLES.md`](references/STYLES.md) memiliki **file Markdown spesifikasinya sendiri** di `references/styles/01-cyberpunk.md` s/d `references/styles/43-motion-reel-editorial.md` (masing-masing memuat **palet warna hex 60-20-10-7-3**, **skala tipografi 16:9 & 9:16**, **aturan bentuk & UI**, **rumus fisika pegas**, **waypoint kamera `splineAt`**, **pasangan BGM & SFX**, **contoh kode TSX lengkap**, dan **larangan anti-slop spesifik gaya**):
+Lihat [43 gaya dan file panduan masing-masing](references/STYLES.md). Setiap panduan berisi komposisi 16:9 dan 9:16, arah palet dan material, cara memperlakukan UI sumber, contoh koreografi per frame, resep Remotion, serta uji tampilan yang khas.
 
-- `01` Cyberpunk · `02` Doodle · `03` Zine · `04` Grafiti · `05` Blueprint · `06` Memphis · `07` Isometric · `08` Clay 3D · `09` Pixel Art · `10` Glassmorphism · `11` Neo-Brutalism · `12` Swiss International · `13` Bauhaus · `14` Risograph · `15` VHS Analog · `16` Y2K Chrome · `17` Art Nouveau · `18` Chalkboard · `19` Papercut · `20` Collage Mixed Media · `21` Mid-Century Modern · `22` Art Deco · `23` Steampunk · `24` Batik & Tenun · `25` Headline Koran · `26` Terminal CLI · `27` Wireframe 3D · `28` Glitch Datamosh · `29` Neon Signage · `30` Origami · `31` Stempel & Lino · `32` Retro-Futurism · `33` Botanical · `34` Split-Flap · `35` Komik & Manga · `36` Data Editorial · `37` Inflatable 3D · `38` Peta Transit · `39` HUD Game · `40` Bioskop Tua · `41` Cat Air · `42` Krayon · `43` Motion Reel Editorial.
+Contoh: [Swiss #12](references/styles/12-swiss-internasional.md) memakai grid, crop kontrol, dan hold baca. [Split Flap #10](references/styles/10-split-flap.md) mengatur engsel glyph dan kolom angka tetap. [Risograph #14](references/styles/14-risograph.md) memakai plat tinta, overprint, dan register slip. Pilih berdasarkan subjek yang perlu terlihat, lalu uji hasil pada ukuran layar tujuan.
 
 ---
 
@@ -200,12 +171,14 @@ Dokumentasi lengkap terdapat di [`references/SOUND.md`](references/SOUND.md):
 
 Seluruh skrip di folder `scripts/` berjalan dengan **Node.js murni (zero external npm dependencies)**:
 
-```bash
-# 1. Pilih Gaya Desain dari 43 Katalog (otomatis menyalin panduan .md gaya ke research/selected-style-guide.md)
-node "<skill>/scripts/draw-style.mjs" --brief "SaaS AI developer launch" --out research
+Perintah `plan-motion.mjs` memilih struktur adegan dan gaya dalam satu langkah. Output meliputi `style-bible.md`, `selected-style-guide.md`, `storyboard.md`, `scenes-plan.json`, dan `motion-plan.md`. Periksa asumsi di plan dan adaptasi adegan ke aset/aksi yang diminta. `draw-style.mjs` dan `scenes.mjs` tetap bisa dipakai terpisah dengan pemilih yang sama.
 
-# 2. Rancang Storyboard (T001-T100) & Pembagian Frame Asimetris
-node "<skill>/scripts/scenes.mjs" --template T032 --brief "SaaS AI developer launch" --duration 15 --fps 30 --overlap 10 --out research
+```bash
+# Pilih pasangan dari brief. Brief ini memakai asumsi installer grafis.
+node "<skill>/scripts/plan-motion.mjs" --brief "Buat video cara install Linux" --duration 30 --fps 30 --out research
+
+# Atau kunci salah satu/kedua pilihan. Format bisa disetel terpisah.
+node "<skill>/scripts/plan-motion.mjs" --brief "Demo instalasi paket di terminal Linux" --style 26 --template T036 --aspect 16:9 --duration 15 --out research
 
 # 3. Ambil Logo SVG Resmi untuk Semua Brand/Project yang Disebut
 node "<skill>/scripts/fetch-brand-logo.mjs" --brands "claude,remotion,after-effects,react,typescript,github" --project-dir . --out public/brands
@@ -246,6 +219,7 @@ motion-craft/
 │   ├── CAMERA-SCENES-NARRATOR.md         # Dokumentasi C1 Spline Camera & 5 profil narator
 │   └── REPLICATION-AND-QA.md             # Tabel After Effects -> Remotion & Mode Replikasi 100%
 ├── scripts/
+│   ├── plan-motion.mjs                  # Pemilih pasangan dan generator rencana
 │   ├── draw-style.mjs                    # Pemilih gaya desain & penyalin style guide .md
 │   ├── scenes.mjs                        # Planner storyboard (T001-T100) & pacing asimetris
 │   ├── fetch-brand-logo.mjs              # Resolver SVG logo brand resmi (lokal + svgl + SimpleIcons)

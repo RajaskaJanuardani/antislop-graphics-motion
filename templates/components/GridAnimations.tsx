@@ -1,7 +1,6 @@
 import React from 'react';
 import { Audio, Sequence, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { clamp, easeInOutSmooth, ip, springAt, staggeredSpringAt } from '../theme/easing-and-timing';
-import { BrandLogo } from './BrandLogos';
 import { Card3DItem, Clean3DCardFace } from './Card3DLayouts';
 
 export interface BentoCellItem extends Card3DItem {
@@ -41,145 +40,50 @@ export const BentoGridReveal: React.FC<BentoGridRevealProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const waveFrames = [
-    startFrame,
-    startFrame + waveGapFrames,
-    startFrame + waveGapFrames * 2,
-  ];
+  const columnCount = Math.max(1, Math.floor(columns));
+  const cells = items.map((item, index) => {
+    const wave = item.revealWave ?? (index === 0 ? 1 : index <= 2 ? 2 : 3);
+    return {
+      item, wave,
+      start: startFrame + (wave - 1) * waveGapFrames + (index % 2) * 4,
+      columns: Math.min(columnCount, item.colSpan ?? (index === 0 ? 2 : 1)),
+      rows: item.rowSpan ?? (index === 0 ? 2 : 1),
+    };
+  });
+  const waveStarts = new Map<number, number>();
+  for (const cell of cells) {
+    waveStarts.set(cell.wave, Math.min(waveStarts.get(cell.wave) ?? Infinity, cell.start));
+  }
+  const cellWidth = (stageWidth - (columnCount - 1) * gapPx) / columnCount;
 
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {enableSfx &&
-        waveFrames.map((wf, i) => (
-          <Sequence key={`bento-sfx-${i}`} from={Math.max(0, wf)} durationInFrames={22}>
-            <Audio src={staticFile('audio/sfx/pop-in.wav')} volume={sfxVolume} />
-          </Sequence>
-        ))}
+    <div style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center' }}>
+      {enableSfx && [...waveStarts].map(([wave, start]) => (
+        <Sequence key={wave} from={Math.max(0, start)} durationInFrames={22}>
+          <Audio src={staticFile('audio/sfx/pop-in.wav')} volume={sfxVolume} />
+        </Sequence>
+      ))}
 
-      <div
-        style={{
-          width: stageWidth,
-          height: stageHeight,
-          display: 'grid',
-          gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-          gridAutoRows: 'minmax(0, 1fr)',
-          gap: gapPx,
-        }}
-      >
-        {items.map((item, idx) => {
-          const wave = item.revealWave ?? (idx === 0 ? 1 : idx <= 2 ? 2 : 3);
-          const cellStart = startFrame + (wave - 1) * waveGapFrames + (idx % 2) * 4;
-          const pShell = staggeredSpringAt(frame, cellStart, 0, fps);
-          const pText = staggeredSpringAt(frame, cellStart, 1, fps);
-
-          const scale = ip(pShell, [0, 1], [0.84, 1]);
-          const ty = ip(pShell, [0, 1], [28, 0]);
-          const opacity = clamp(pShell * 1.35, 0, 1);
-
-          const isHero = idx === 0;
-          const bg = item.surfaceColor ?? (isHero ? '#7C5CFC' : '#FFFFFF');
-          const fg = item.textColor ?? (isHero ? '#FFFFFF' : '#141418');
-          const accent = item.accentColor ?? '#7C5CFC';
-
+      <div style={{
+        width: stageWidth, height: stageHeight, display: 'grid',
+        gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+        gridAutoRows: 'minmax(0, 1fr)', gap: gapPx,
+      }}>
+        {cells.map((cell, index) => {
+          const reveal = staggeredSpringAt(frame, cell.start, 0, fps);
+          const content = staggeredSpringAt(frame, cell.start, 1, fps);
           return (
-            <div
-              key={item.id}
-              style={{
-                gridColumn: `span ${item.colSpan ?? (idx === 0 ? 2 : 1)}`,
-                gridRow: `span ${item.rowSpan ?? (idx === 0 ? 2 : 1)}`,
-                borderRadius: 24,
-                background: bg,
-                color: fg,
-                border: isHero
-                  ? '2px solid rgba(255,255,255,0.45)'
-                  : '1.5px solid rgba(20,20,24,0.09)',
-                boxShadow: isHero
-                  ? '0 24px 52px rgba(124, 92, 252, 0.24)'
-                  : '0 14px 30px rgba(20, 20, 24, 0.07)',
-                padding: 26,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                opacity,
-                transform: `translate3d(0, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`,
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span
-                  style={{
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: 15,
-                    fontWeight: 700,
-                    opacity: isHero ? 0.9 : 0.48,
-                  }}
-                >
-                  {item.indexLabel ?? String(idx + 1).padStart(2, '0')}
-                </span>
-                {item.brand && (
-                  <BrandLogo
-                    brand={item.brand}
-                    size={isHero ? 34 : 26}
-                    color={isHero ? '#FFFFFF' : undefined}
-                  />
-                )}
-              </div>
-
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6,
-                  opacity: clamp(pText * 1.2, 0, 1),
-                  transform: `translateY(${((1 - pText) * 14).toFixed(1)}px)`,
-                }}
-              >
-                {item.metric && (
-                  <div
-                    style={{
-                      fontFamily: 'Plus Jakarta Sans, Inter, sans-serif',
-                      fontSize: isHero ? 54 : 34,
-                      fontWeight: 800,
-                      letterSpacing: '-0.035em',
-                      lineHeight: 1.0,
-                      color: isHero ? '#FFFFFF' : accent,
-                    }}
-                  >
-                    {item.metric}
-                  </div>
-                )}
-                <div
-                  style={{
-                    fontFamily: 'Plus Jakarta Sans, Inter, sans-serif',
-                    fontSize: isHero ? 26 : 20,
-                    fontWeight: 700,
-                    letterSpacing: '-0.02em',
-                    lineHeight: 1.2,
-                  }}
-                >
-                  {item.title}
-                </div>
-                {item.subtitle && (
-                  <div
-                    style={{
-                      fontFamily: 'Inter, sans-serif',
-                      fontSize: 15,
-                      fontWeight: 500,
-                      opacity: isHero ? 0.84 : 0.62,
-                    }}
-                  >
-                    {item.subtitle}
-                  </div>
-                )}
-              </div>
+            <div key={cell.item.id} style={{
+              gridColumn: `span ${cell.columns}`, gridRow: `span ${cell.rows}`,
+              opacity: clamp(reveal, 0, 1),
+              transform: `translateY(${ip(reveal, [0, 1], [16, 0])}px)`,
+            }}>
+              <Clean3DCardFace
+                item={cell.item} index={index} isActive={index === 0}
+                width={cellWidth * cell.columns + gapPx * (cell.columns - 1)}
+                height={stageHeight / 2} fillCell
+                contentProgress={content}
+              />
             </div>
           );
         })}

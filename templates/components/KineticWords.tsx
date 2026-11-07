@@ -21,12 +21,6 @@ export interface WordItem {
   effect?: string;
 }
 
-/**
- * 1. BOTTOM SUBTITLE BAR (<BottomSubtitleBar />)
- * - Diletakkan rapi di bagian bawah layar (screen-space, tidak menutupi konten utama di tengah!)
- * - ATURAN ANTI-SLOP: Tanpa background kotak/pill yang tidak perlu pada kata! Teks tampil bersih
- *   dengan text-shadow lembut agar kontras dan nyaman dibaca.
- */
 export interface BottomSubtitleBarProps {
   words: WordItem[];
   stylePreset: MotionStylePreset;
@@ -34,94 +28,74 @@ export interface BottomSubtitleBarProps {
   fontSize?: number;
   bottomOffset?: number;
   maxWordsPerLine?: number;
+  /** Use a color-only accent when the brief calls for word highlighting. */
+  highlightWords?: boolean;
+  textColor?: string;
+  outlineColor?: string;
+}
+
+function captionChunks(words: WordItem[], maxWords: number): WordItem[][] {
+  const chunks: WordItem[][] = [];
+  let chunk: WordItem[] = [];
+  for (const word of words) {
+    const last = chunk.at(-1);
+    if (last && (chunk.length >= maxWords || word.startMs - last.endMs > 400 || /[.!?]$/.test(last.text))) {
+      chunks.push(chunk);
+      chunk = [];
+    }
+    chunk.push(word);
+  }
+  if (chunk.length) chunks.push(chunk);
+  return chunks;
 }
 
 export const BottomSubtitleBar: React.FC<BottomSubtitleBarProps> = ({
   words,
   stylePreset,
   sceneStartOffsetMs = 0,
-  fontSize = 26,
-  bottomOffset = 44,
+  fontSize,
+  bottomOffset,
   maxWordsPerLine = 7,
+  highlightWords = false,
+  textColor = '#FFFFFF',
+  outlineColor = '#171716',
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
   const currentMs = (frame / fps) * 1000 + sceneStartOffsetMs;
-
-  if (!words || words.length === 0) return null;
-
-  const chunks: WordItem[][] = [];
-  for (let i = 0; i < words.length; i += maxWordsPerLine) {
-    chunks.push(words.slice(i, i + maxWordsPerLine));
-  }
-
-  const activeChunk = chunks.find((c, idx) => {
-    const start = c[0].startMs - 150;
-    const end = chunks[idx + 1] ? chunks[idx + 1][0].startMs - 20 : c[c.length - 1].endMs + 450;
-    return currentMs >= start && currentMs <= end;
+  const chunks = useMemo(
+    () => captionChunks(words ?? [], Math.max(1, Math.floor(maxWordsPerLine) || 1)),
+    [words, maxWordsPerLine],
+  );
+  const active = chunks.find((chunk, index) => {
+    const end = chunk[chunk.length - 1].endMs + 250;
+    const next = chunks[index + 1]?.[0].startMs ?? Infinity;
+    return currentMs >= chunk[0].startMs && currentMs < Math.min(end, next);
   });
+  if (!active) return null;
 
-  if (!activeChunk || activeChunk.length === 0) return null;
-
-  const chunkStartMs = activeChunk[0].startMs;
-  const chunkEndMs = activeChunk[activeChunk.length - 1].endMs + 400;
-  const enterT = clamp((currentMs - (chunkStartMs - 120)) / 160, 0, 1);
-  const exitT = clamp((chunkEndMs - currentMs) / 160, 0, 1);
-  const barOpacity = Math.min(enterT, exitT);
-  const slideY = (1 - easeOutExpo(enterT)) * 10;
-
+  const vertical = height > width;
+  const size = fontSize ?? Math.round(clamp(width * (vertical ? 0.035 : 0.018), 24, 46));
   return (
-    <div
-      style={{
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: bottomOffset,
-        display: 'flex',
-        justifyContent: 'center',
-        pointerEvents: 'none',
-        zIndex: 95,
-        opacity: barOpacity,
-        transform: `translate3d(0, ${slideY.toFixed(1)}px, 0)`,
-      }}
-    >
-      <div
-        style={{
-          display: 'inline-flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '6px 10px',
-          maxWidth: '84%',
-          textShadow: '0 2px 14px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95)',
-        }}
-      >
-        {activeChunk.map((w, idx) => {
-          const isSpoken = currentMs >= w.startMs - 40 && currentMs <= w.endMs + 90;
-          const hasPassed = currentMs > w.endMs + 90;
-          const isKeyword = w.role === 'keyword';
-
-          return (
-            <span
-              key={`${w.text}-${w.startMs}-${idx}`}
-              style={{
-                display: 'inline-block',
-                fontFamily: stylePreset.typography.body,
-                fontSize,
-                fontWeight: isSpoken || isKeyword ? 700 : 500,
-                color: isSpoken
-                  ? stylePreset.palette.accent
-                  : hasPassed
-                  ? '#FFFFFF'
-                  : 'rgba(255, 255, 255, 0.65)',
-                transform: isSpoken ? 'scale(1.04)' : 'scale(1)',
-              }}
-            >
-              {w.text}
-            </span>
-          );
-        })}
-      </div>
+    <div style={{
+      position: 'absolute', left: '7%', right: '7%',
+      bottom: bottomOffset ?? Math.round(height * (vertical ? 0.09 : 0.05)),
+      textAlign: 'center', fontFamily: stylePreset.typography.body, fontSize: size,
+      fontWeight: 650, lineHeight: 1.25, color: textColor,
+      overflowWrap: 'anywhere', paintOrder: 'stroke fill',
+      WebkitTextStroke: `${Math.max(2, size * 0.1)}px ${outlineColor}`,
+      textShadow: '0 2px 5px rgba(0,0,0,0.4)',
+      pointerEvents: 'none', zIndex: 95,
+    }}>
+      {active.map((word, index) => {
+        const highlight = highlightWords && currentMs >= word.startMs && currentMs < word.endMs;
+        return (
+          <React.Fragment key={index}>
+            {index > 0 && ' '}
+            <span style={highlight ? { color: stylePreset.palette.accent } : undefined}>{word.text}</span>
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };
@@ -147,6 +121,7 @@ export const TypeText: React.FC<{
   family?: string;
   style?: React.CSSProperties;
   cursor?: boolean;
+  presentation?: 'native' | 'kinetic';
   humanizeCadence?: boolean;
   typoCorrection?: TypoCorrectionConfig;
   enableTypingSfx?: boolean;
@@ -165,6 +140,7 @@ export const TypeText: React.FC<{
   family = 'Inter, sans-serif',
   style,
   cursor = true,
+  presentation = 'kinetic',
   humanizeCadence = true,
   typoCorrection,
   enableTypingSfx = true,
@@ -180,7 +156,8 @@ export const TypeText: React.FC<{
       ? 'audio/sfx/typing-digital.wav'
       : 'audio/sfx/typing-loop.wav');
   const frame = useCurrentFrame();
-  const chars = useMemo(() => text.split(''), [text]);
+  const { fps } = useVideoConfig();
+  const chars = useMemo(() => Array.from(text), [text]);
 
   const charSchedule = useMemo(() => {
     const frames: number[] = [];
@@ -189,7 +166,7 @@ export const TypeText: React.FC<{
 
     for (let i = 0; i < chars.length; i++) {
       if (typoCorrection && i === typoCorrection.atCharIndex) {
-        const wrongLen = typoCorrection.wrongText.length;
+        const wrongLen = Array.from(typoCorrection.wrongText).length;
         t += wrongLen * baseStep * 0.85 + 3.5 + wrongLen * 0.55;
       }
 
@@ -225,7 +202,7 @@ export const TypeText: React.FC<{
 
     if (frame >= prefixEndFrame && frame < resumeFrame) {
       const prefix = chars.slice(0, idx).map((c, i) => ({ ch: c, startFrame: charSchedule[i] }));
-      const wrongChars = typoCorrection.wrongText.split('');
+      const wrongChars = Array.from(typoCorrection.wrongText);
       const typeWrongDur = wrongChars.length * baseStep * 0.85;
       const pauseEnd = prefixEndFrame + typeWrongDur + 3.5;
 
@@ -276,13 +253,15 @@ export const TypeText: React.FC<{
       }}
     >
       {/* Auto-Synced Typing SFX: Hanya berbunyi selama karakter sedang diketik! */}
-      {enableTypingSfx && typingDurationFrames > 0 && (
+      {enableTypingSfx && chars.length > 0 && (
         <Sequence from={Math.max(0, Math.floor(start))} durationInFrames={typingDurationFrames}>
           <Audio src={staticFile(resolvedTypingSfx)} volume={typingSfxVolume} />
         </Sequence>
       )}
 
-      {displayedChars.map((item, i) => {
+      {presentation === 'native' ? (
+        <span style={{ color }}>{displayedChars.map(({ ch }) => ch).join('')}</span>
+      ) : displayedChars.map((item, i) => {
         const age = frame - item.startFrame;
         const appearT = clamp(age / 3.5, 0, 1);
         const e = easeOutExpo(appearT);
@@ -311,7 +290,7 @@ export const TypeText: React.FC<{
             color,
             fontWeight: 300,
             marginLeft: 2,
-            opacity: 0.65 + 0.35 * Math.sin(frame * 0.45),
+            opacity: presentation === 'native' ? (frame % Math.max(1, Math.round(fps)) < fps * 0.6 ? 1 : 0) : 0.65 + 0.35 * Math.sin(frame * 0.45),
           }}
         >
           |
@@ -382,14 +361,14 @@ export const AnimatedProgressBar: React.FC<AnimatedProgressBarProps> = ({
         }}
       >
         <span>{label}</span>
-        <span style={{ fontWeight: 700, color: accentColor }}>{Math.round(pct)}%</span>
+        <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: textColor }}>{Math.round(pct)}%</span>
       </div>
 
       <div
         style={{
           width: '100%',
           height,
-          borderRadius: height / 2,
+          borderRadius: Math.min(2, height / 2),
           backgroundColor: trackColor,
           overflow: 'hidden',
         }}
@@ -398,7 +377,7 @@ export const AnimatedProgressBar: React.FC<AnimatedProgressBarProps> = ({
           style={{
             width: `${pct.toFixed(1)}%`,
             height: '100%',
-            borderRadius: height / 2,
+            borderRadius: Math.min(2, height / 2),
             backgroundColor: accentColor,
           }}
         />

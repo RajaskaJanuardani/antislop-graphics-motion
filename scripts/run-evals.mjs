@@ -31,7 +31,7 @@ function check(name, fn) {
 }
 
 console.log(`\n================================================================`);
-console.log(`  BENCHMARK SUITE: ${evalsData.skill_name} (v2.2 Authentic UI & SFX)`);
+console.log(`  BENCHMARK SUITE: ${evalsData.skill_name} (Art Direction, Pairing & Reliability)`);
 console.log(`================================================================\n`);
 
 // Test 1: Static Linter pada seluruh Template
@@ -87,14 +87,9 @@ check('2. Authentic UI, Official BrandLogo, Event-Synced SFX, & 19 Card/Grid/3D 
 // Test 3: Eval Scenario 1 — SaaS Launch + Asymmetric Pacing
 check('3. Eval #1: SaaS Launch (Asymmetric Pacing + Word Sync)', () => {
   const dir1 = path.join(tmpRoot, 'eval1');
-  execSync(
-    `node "${path.join(__dirname, 'draw-style.mjs')}" --brief "SaaS AI Assistant developer launch" --out "${dir1}/research"`,
-    { stdio: 'pipe' }
-  );
-  execSync(
-    `node "${path.join(__dirname, 'scenes.mjs')}" --brief "SaaS AI Assistant" --duration 12 --overlap 10 --out "${dir1}/research"`,
-    { stdio: 'pipe' }
-  );
+  execFileSync(process.execPath, [path.join(__dirname, 'plan-motion.mjs'),
+    '--brief', 'SaaS AI Assistant developer launch', '--duration', '12', '--out', path.join(dir1, 'research'),
+  ], { stdio: 'pipe' });
   execSync(
     `node "${path.join(__dirname, 'narrator-sync.mjs')}" --text "Fokus utama adalah visual konten di tengah dan subtitle rapi di bawah." --out-words "${dir1}/public/words.json" --out-map "${dir1}/research/word-map.md"`,
     { stdio: 'pipe' }
@@ -178,6 +173,10 @@ check('5. Static inspector reports unperformed checks as PARTIAL', () => {
 
 check('6. Behavioral reliability regressions (real media, geometry, timing, shell literals)', () => {
   return execFileSync(process.execPath, [path.join(__dirname, 'test-reliability.mjs')], { encoding: 'utf8' }).trim();
+});
+
+check('7. Brief pairing and storyboard timing (43 styles and 100 templates)', () => {
+  return execFileSync(process.execPath, [path.join(__dirname, 'test-planning.mjs')], { encoding: 'utf8' }).trim();
 });
 
 console.log('Scope: local regression checks. Prompt outputs in evals/evals.json have NOT been generated or visually evaluated.');

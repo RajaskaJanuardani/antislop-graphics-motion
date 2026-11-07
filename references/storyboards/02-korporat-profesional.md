@@ -1,6 +1,8 @@
 # Storyboard 02 — Korporat & Profesional (T011–T020)
 
-Default: 30 fps, `overlap 10`. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`. Patuhi 6 aturan anti-slop di `SKILL.md`.
+Letakkan bukti di depan slogan. Pilih satu grafik, gambar tim, atau aksi yang membuktikan klaim. Jaga grid dan identitas brand, serta hilangkan kartu dekoratif yang mengulang pesan.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 

@@ -64,24 +64,13 @@ Aktif ketika user memberikan video referensi dan meminta hasil yang **identik** 
 
 ---
 
-## 3. Daftar Periksa QA Sebelum Serah (Final Delivery Gate)
+## 3. Cek Tampilan Sebelum Serah
 
-1. **Hierarki Konten vs Subtitle:**
-   - Konten visual mengisi 80–85% panggung tengah dengan detail lengkap (`<ChatAppShell />`, `<MacDesktopChrome />`, diagram, atau kartu interaktif).
-   - Subtitle penjelasan narator berada rapi di bawah layar (`<BottomSubtitleBar />`, `22px–28px`) dan tidak pernah menutupi elemen penting di tengah.
-2. **Kamera C1 Spline & 7 Editing Humanizers:**
-   - Kamera bebas getaran/shake (`0` pelanggaran di `scripts/lint.mjs`).
-   - Kamera tenang (`1.0x`) saat menampilkan konteks penuh, dan melakukan zoom halus (`splineAt` dengan 3-frame anticipation) saat mengikuti ketikan `<TypeText />` atau kursor `<AnimatedCursor />`.
-   - Ukur batas elemen dalam screen-space setelah transform kamera, lalu periksa dengan `--geometry`. Regex waypoint tidak membuktikan safe-zone.
-3. **Transisi Seamless Antar-Scene:**
-   - Scrub 5 frame sebelum dan sesudah setiap pergantian scene (`out/qa-stills/`): perpindahan mengalir mulus (`whip-glide-left` overlap 10 frame, `portal-zoom-in`, `spring-sheet-up`, atau `SharedElementMorph`).
-4. **Nol Emoji & Determinisme Remotion:**
-   - Lulus `node scripts/lint.mjs src` dengan `status: PASS`.
-5. **Kualitas Audio & Sinkronisasi J-Cut:**
-   - Tidak ada keheningan mati (`ffmpeg -i out/v1.mp4 -af silencedetect=n=-50dB:d=0.5 -f null -`).
-   - Tidak ada frame beku yang tidak disengaja (`ffmpeg -i out/v1.mp4 -vf "freezedetect=n=-60dB:d=0.5" -an -f null -`).
-   - Level terintegrasi sekitar **-14 LUFS** dengan true peak maksimal **-1 dBTP**.
-
+1. **Hierarki dan bukti.** Periksa frame pembuka, aksi utama, transisi, dan hasil pada resolusi akhir dan preview kecil. Subjek dan tindakan harus jelas. Bandingkan dengan panduan gaya: material, komposisi, tipografi, dan mekanisme geraknya harus tampak pada hasil.
+2. **Keterbacaan.** Cek teks terkecil, kontras aktual, batas crop, dan tabrakan subtitle/overlay. UI harus menunjukkan nama kontrol, status, dan brand yang benar. Benda fisik harus tetap dikenali dari siluet dan proporsinya.
+3. **Kamera dan editing.** Scrub sebelum/sesudah setiap cut. Posisikan kamera diam pada beat baca. Periksa kontinuitas arah, posisi shared element, serta titik masuk SFX.
+4. **Audio dan durasi.** Putar hasil utuh. Cocokkan narasi dengan kata dan aksi. Tinjau interval diam/beku sesuai brief. Jika ada target loudness, ukur level terpadu dan true peak pada file hasil.
+5. **Bukti uji.** Lulus lint, catat frame sampel dan temuan visual, lalu jalankan QA video/geometri bila pengukuran tersedia. Catat apa yang masih PARTIAL. Jika ada referensi, tampilkan perbandingan pada frame dengan selisih terbesar.
 
 ## 4. Cakupan QA dan Geometri yang Diukur
 

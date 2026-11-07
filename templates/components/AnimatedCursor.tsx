@@ -16,6 +16,7 @@ export interface AnimatedCursorProps {
   accentColor?: string;
   size?: number;
   fadeInOut?: boolean;
+  showClickRipple?: boolean;
   /** Otomatis memutar SFX hover (`hover-rollover.wav`) & klik mouse (`click.wav`) tepat pada frame aksi */
   enableClickSfx?: boolean;
   clickSfxSrc?: string;
@@ -35,7 +36,9 @@ export function useCursorTargetState(
   const hoverStart = clickFrame - hoverLeadFrames;
   const isHovered = frame >= hoverStart && frame < clickFrame;
   const isClicked = frame >= clickFrame;
-  const hoverProgress = ip(frame, [hoverStart, clickFrame - 1], [0, 1], easeOutExpo);
+  const hoverProgress = hoverLeadFrames > 1
+    ? ip(frame, [hoverStart, clickFrame - 1], [0, 1], easeOutExpo)
+    : Number(isHovered);
 
   let buttonScale = 1;
   if (frame >= hoverStart && frame < clickFrame) {
@@ -94,6 +97,7 @@ export const AnimatedCursor: React.FC<AnimatedCursorProps> = ({
   accentColor = '#3E9CF3',
   size = 34,
   fadeInOut = true,
+  showClickRipple = false,
   enableClickSfx = true,
   clickSfxSrc = 'audio/sfx/click.wav',
   hoverSfxSrc = 'audio/sfx/hover-rollover.wav',
@@ -159,7 +163,7 @@ export const AnimatedCursor: React.FC<AnimatedCursorProps> = ({
           opacity,
         }}
       >
-        {clicks.map((c, idx) => {
+        {showClickRipple && clicks.map((c, idx) => {
           const dt = frame - c.frame;
           if (dt < 0 || dt > 18) return null;
           const sp = springAt(frame, c.frame, fps, { damping: 16, stiffness: 140, mass: 0.6 });
@@ -186,11 +190,13 @@ export const AnimatedCursor: React.FC<AnimatedCursorProps> = ({
         <svg
           width={size}
           height={size * 1.15}
-          viewBox="0 0 28 32"
+          viewBox="4 3 28 32"
+          aria-hidden
           style={{
             transform: `scale(${pressScale.toFixed(3)})`,
-            transformOrigin: '4px 4px',
-            filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.28))',
+            transformOrigin: '0 0',
+            overflow: 'visible',
+            filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.28))',
           }}
         >
           <path

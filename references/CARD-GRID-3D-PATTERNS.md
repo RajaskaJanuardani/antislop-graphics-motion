@@ -4,6 +4,10 @@ Katalog lengkap **19 pola koreografi kartu & grid** yang tersedia langsung di `t
 
 ---
 
+Pilih pola berdasarkan tugas di layar: membalik isi depan/belakang, membandingkan beberapa item, atau membuka detail. Gunakan kartu hanya jika ada informasi yang perlu ditempatkan dalam kartu. Bawa palet dan tipografi panduan ke `Card3DItem.stylePreset`; isi visual dengan `content`, foto, atau data. Nomor muncul jika `indexLabel` diisi. Satu permukaan fokus cukup. `BentoGridReveal` dan layout 3D berbagi tampilan kartu yang sama.
+
+Untuk `PolaroidDropTable`, berikan `src` relatif ke `public/`, `customVisual`, atau logo yang memang diperlukan. Gunakan `objectPosition` untuk menjaga crop hero dan `subCaption` untuk tanggal/sumber. Cek frame mendarat dan ukuran teks pada rasio output.
+
 ## Ringkasan Pemetaan Kebutuhan Konten ke Komponen
 
 | Kategori | Nama Pola | Komponen TSX | File Template | SFX Otomatis (`public/audio/sfx/`) | Kapan Digunakan di Video |

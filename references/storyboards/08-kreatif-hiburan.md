@@ -1,7 +1,8 @@
 # Storyboard 08 — Kreatif & Hiburan (T071–T080)
 
-Default: 30 fps, `overlap 10`. Kode singkatan (Cam / Out / SFX) ada di `INDEX.md`. Patuhi 6 aturan anti-slop di `SKILL.md`.
-Catatan hak cipta: untuk lyric video (T073) dan musik di template lain, teks lagu dan audio wajib milik user atau berlisensi. Template ini hanya struktur; isi lirik tidak disertakan. Bila user tidak punya lagu, pakai backsound prosedural dari `synth-audio.mjs`.
+Tetapkan bentuk aksi utama sebelum memilih efek: pose, cut editorial, lyric timing, waveform, atau overlay siaran. Pakai lirik, audio, dan footage yang diberikan atau berlisensi. Sinkronkan efek dengan kejadian.
+
+Kode kamera, transisi, dan SFX ada di [INDEX.md](INDEX.md). Durasi, rasio, dan cue pada tabel adalah acuan yang bisa diadaptasi untuk brief dan panduan gaya yang terpilih.
 
 ---
 

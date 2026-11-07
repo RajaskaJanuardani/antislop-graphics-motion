@@ -36,6 +36,7 @@ export interface BrandLogoProps {
    */
   brand: BuiltinBrandSlug | string;
   size?: number;
+  alt?: string;
   /**
    * Jika brand berasal dari file SVG hasil `scripts/fetch-brand-logo.mjs` atau logo asli project di `public/`,
    * berikan path relatif di dalam `public/`, misal `brands/my-project.svg` atau `logo.svg`.
@@ -44,17 +45,11 @@ export interface BrandLogoProps {
   style?: React.CSSProperties;
 }
 
-/**
- * Komponen Logo Brand & Project Asli (<BrandLogo />)
- * ATURAN ANTI-SLOP:
- * - Setiap kali konten video menyebutkan brand, software, library, atau project nyata,
- *   WAJIB menampilkan logo aslinya menggunakan komponen ini atau file SVG resmi dari `fetch-brand-logo.mjs`.
- * - DILARANG KERAS membuat kotak warna dengan huruf inisial palsu (seperti huruf "C" untuk Claude
- *   atau ikon segitiga play generik untuk Remotion).
- */
+/** Use an explicit public asset when the shot needs the exact brand variant. */
 export const BrandLogo: React.FC<BrandLogoProps> = ({
   brand,
   size = 44,
+  alt = brand,
   customPublicSvgPath,
   style,
 }) => {
@@ -62,6 +57,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
     return (
       <Img
         src={staticFile(customPublicSvgPath)}
+        alt={alt}
         style={{ width: size, height: size, objectFit: 'contain', ...style }}
       />
     );
@@ -372,6 +368,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       return (
         <Img
           src={staticFile(`brands/${slug}.svg`)}
+          alt={alt}
           style={{ width: size, height: size, objectFit: 'contain', ...style }}
         />
       );
